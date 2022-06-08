@@ -4,6 +4,7 @@ plugins {
     val kotlinVersion = "1.6.0"
     kotlin("jvm") version kotlinVersion
 
+    `maven-publish`
     // Apply the java-library plugin for API and implementation separation.
     `java-library`
 }
@@ -12,11 +13,12 @@ val kotlinJvmTarget = 17
 
 java { toolchain { languageVersion.set(JavaLanguageVersion.of(kotlinJvmTarget)) } }
 
+
 repositories {
     // Use Maven Central for resolving dependencies.
     mavenCentral()
 }
-
+group = "com.github.Cosmo-Tech"
 version = "0.0.1"
 
 tasks.jar {
