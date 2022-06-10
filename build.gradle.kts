@@ -2,16 +2,20 @@
 // Licensed under the MIT license.
 import com.diffplug.gradle.spotless.SpotlessExtension
 import io.gitlab.arturbosch.detekt.Detekt
+import pl.allegro.tech.build.axion.release.domain.TagNameSerializationConfig
 
 plugins {
   val kotlinVersion = "1.6.0"
   kotlin("jvm") version kotlinVersion
   id("com.diffplug.spotless") version "6.4.2"
   id("io.gitlab.arturbosch.detekt") version "1.19.0"
+  id("pl.allegro.tech.build.axion-release") version "1.13.6"
   `maven-publish`
   // Apply the java-library plugin for API and implementation separation.
   `java-library`
 }
+
+scmVersion { tag(closureOf<TagNameSerializationConfig> { prefix = "" }) }
 
 val kotlinJvmTarget = 17
 
@@ -22,7 +26,7 @@ publishing {
     create<MavenPublication>("maven") {
       groupId = "com.github.Cosmo-Tech"
       artifactId = "cosmotech-api-common"
-      version = "0.0.1"
+      version = scmVersion.version
 
       from(components["java"])
     }
