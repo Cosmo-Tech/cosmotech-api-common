@@ -14,12 +14,24 @@ val kotlinJvmTarget = 17
 java { toolchain { languageVersion.set(JavaLanguageVersion.of(kotlinJvmTarget)) } }
 
 
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = "com.github.Cosmo-Tech"
+            artifactId = "cosmotech-api-common"
+            version = "0.0.1"
+
+            from(components["java"])
+        }
+    }
+}
+
+
+
 repositories {
     // Use Maven Central for resolving dependencies.
     mavenCentral()
 }
-group = "com.github.Cosmo-Tech"
-version = "0.0.1"
 
 tasks.jar {
     manifest {
