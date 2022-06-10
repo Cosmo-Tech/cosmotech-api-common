@@ -1,53 +1,116 @@
 // Copyright (c) Cosmo Tech.
 // Licensed under the MIT license.
-plugins {
-    val kotlinVersion = "1.6.0"
-    kotlin("jvm") version kotlinVersion
+import com.diffplug.gradle.spotless.SpotlessExtension
+import io.gitlab.arturbosch.detekt.Detekt
 
-    `maven-publish`
-    // Apply the java-library plugin for API and implementation separation.
-    `java-library`
+plugins {
+  val kotlinVersion = "1.6.0"
+  kotlin("jvm") version kotlinVersion
+  id("com.diffplug.spotless") version "6.4.2"
+  id("io.gitlab.arturbosch.detekt") version "1.19.0"
+  `maven-publish`
+  // Apply the java-library plugin for API and implementation separation.
+  `java-library`
 }
 
 val kotlinJvmTarget = 17
 
 java { toolchain { languageVersion.set(JavaLanguageVersion.of(kotlinJvmTarget)) } }
 
-
 publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            groupId = "com.github.Cosmo-Tech"
-            artifactId = "cosmotech-api-common"
-            version = "0.0.1"
+  publications {
+    create<MavenPublication>("maven") {
+      groupId = "com.github.Cosmo-Tech"
+      artifactId = "cosmotech-api-common"
+      version = "0.0.1"
 
-            from(components["java"])
-        }
+      from(components["java"])
     }
+  }
 }
 
-
-
 repositories {
-    // Use Maven Central for resolving dependencies.
-    mavenCentral()
+  // Use Maven Central for resolving dependencies.
+  mavenCentral()
+}
+
+configure<SpotlessExtension> {
+  isEnforceCheck = false
+
+  val licenseHeaderComment =
+      """
+        // Copyright (c) Cosmo Tech.
+        // Licensed under the MIT license.
+      """.trimIndent()
+
+  java {
+    googleJavaFormat()
+    target("**/*.java")
+    licenseHeader(licenseHeaderComment)
+  }
+  kotlin {
+    ktfmt("0.30")
+    target("**/*.kt")
+    licenseHeader(licenseHeaderComment)
+  }
+  kotlinGradle {
+    ktfmt("0.30")
+    target("**/*.kts")
+    //      licenseHeader(licenseHeaderComment, "import")
+  }
+}
+
+tasks.withType<Detekt>().configureEach {
+  buildUponDefaultConfig = true // preconfigure defaults
+  allRules = false // activate all available (even unstable) rules.
+  config.from(file("$rootDir/.detekt/detekt.yaml"))
+  jvmTarget = kotlinJvmTarget.toString()
+  ignoreFailures = project.findProperty("detekt.ignoreFailures")?.toString()?.toBoolean() ?: false
+  // Specify the base path for file paths in the formatted reports.
+  // If not set, all file paths reported will be absolute file path.
+  // This is so we can easily map results onto their source files in tools like GitHub Code
+  // Scanning
+  basePath = rootDir.absolutePath
+  reports {
+    html {
+      // observe findings in your browser with structure and code snippets
+      required.set(true)
+      outputLocation.set(file("$buildDir/reports/detekt/${project.name}-detekt.html"))
+    }
+    xml {
+      // checkstyle like format mainly for integrations like Jenkins
+      required.set(false)
+      outputLocation.set(file("$buildDir/reports/detekt/${project.name}-detekt.xml"))
+    }
+    txt {
+      // similar to the console output, contains issue signature to manually edit baseline files
+      required.set(true)
+      outputLocation.set(file("$buildDir/reports/detekt/${project.name}-detekt.txt"))
+    }
+    sarif {
+      // standardized SARIF format (https://sarifweb.azurewebsites.net/) to support integrations
+      // with Github Code Scanning
+      required.set(true)
+      outputLocation.set(file("$buildDir/reports/detekt/${project.name}-detekt.sarif"))
+    }
+  }
 }
 
 tasks.jar {
-    manifest {
-        attributes(mapOf("Implementation-Title" to project.name,
-            "Implementation-Version" to project.version))
-    }
+  manifest {
+    attributes(
+        mapOf("Implementation-Title" to project.name, "Implementation-Version" to project.version))
+  }
 }
 
 // Dependencies version
-//Implementation
+// Implementation
 val swaggerParserVersion = "2.0.31"
 val hashidsVersion = "1.0.3"
 val springOauthAutoConfigureVersion = "2.6.6"
 val springSecurityJwtVersion = "1.1.1.RELEASE"
 
-//compileOnly
+// compileOnly
 val springBootStarterWebVersion = "2.7.0"
 val springDocVersion = "1.6.6"
 val springOauthVersion = "1.6.6"
@@ -56,47 +119,54 @@ val servletApiVersion = "4.0.1"
 val oktaSpringBootVersion = "2.1.5"
 
 // Tests
-val jUnitBomVersion="5.8.2"
-val mockkVersion="1.12.4"
-val awaitilityKVersion="4.2.0"
+val jUnitBomVersion = "5.8.2"
+val mockkVersion = "1.12.4"
+val awaitilityKVersion = "4.2.0"
 
 dependencies {
-    // Align versions of all Kotlin components
-    implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
 
-    // Use the Kotlin JDK 8 standard library.
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+  // Workaround until Detekt adds support for JVM Target 17
+  // See https://github.com/detekt/detekt/issues/4287
+  detekt("io.gitlab.arturbosch.detekt:detekt-cli:1.19.0")
+  detekt("org.jetbrains.kotlin:kotlin-compiler-embeddable:1.6.21")
 
-    // Use the Kotlin test library.
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
+  // Align versions of all Kotlin components
+  implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
 
-    // Use the Kotlin JUnit integration.
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
+  // Use the Kotlin JDK 8 standard library.
+  implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
-    implementation("org.hashids:hashids:${hashidsVersion}")
+  // Use the Kotlin test library.
+  testImplementation("org.jetbrains.kotlin:kotlin-test")
 
-    implementation("io.swagger.parser.v3:swagger-parser-v3:${swaggerParserVersion}")
+  // Use the Kotlin JUnit integration.
+  testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
 
-    implementation(
-        "org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:${springOauthAutoConfigureVersion}")
-    implementation("org.springframework.security:spring-security-jwt:${springSecurityJwtVersion}")
+  implementation("org.hashids:hashids:${hashidsVersion}")
 
-    compileOnly("org.springframework.boot:spring-boot-starter-web:${springBootStarterWebVersion}") {
-        exclude(group = "org.springframework.boot", module = "spring-boot-starter-tomcat")
-    }
+  implementation("io.swagger.parser.v3:swagger-parser-v3:${swaggerParserVersion}")
 
-    compileOnly("org.springdoc:springdoc-openapi-ui:${springDocVersion}")
-    compileOnly("org.springdoc:springdoc-openapi-kotlin:${springDocVersion}")
-    compileOnly("org.zalando:problem-spring-web-starter:${zalandoSpringProblemVersion}")
-    compileOnly("javax.servlet:javax.servlet-api:${servletApiVersion}")
-    compileOnly("org.springframework.boot:spring-boot-starter-security")
-    compileOnly("org.springframework.security:spring-security-oauth2-jose:${springOauthVersion}")
-    compileOnly("org.springframework.security:spring-security-oauth2-resource-server:${springOauthVersion}")
-    compileOnly("com.okta.spring:okta-spring-boot-starter:${oktaSpringBootVersion}")
+  implementation(
+      "org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:${springOauthAutoConfigureVersion}")
+  implementation("org.springframework.security:spring-security-jwt:${springSecurityJwtVersion}")
 
-    testImplementation(kotlin("test"))
-    testImplementation(platform("org.junit:junit-bom:${jUnitBomVersion}"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testImplementation("io.mockk:mockk:${mockkVersion}")
-    testImplementation("org.awaitility:awaitility-kotlin:${awaitilityKVersion}")
+  compileOnly("org.springframework.boot:spring-boot-starter-web:${springBootStarterWebVersion}") {
+    exclude(group = "org.springframework.boot", module = "spring-boot-starter-tomcat")
+  }
+
+  compileOnly("org.springdoc:springdoc-openapi-ui:${springDocVersion}")
+  compileOnly("org.springdoc:springdoc-openapi-kotlin:${springDocVersion}")
+  compileOnly("org.zalando:problem-spring-web-starter:${zalandoSpringProblemVersion}")
+  compileOnly("javax.servlet:javax.servlet-api:${servletApiVersion}")
+  compileOnly("org.springframework.boot:spring-boot-starter-security")
+  compileOnly("org.springframework.security:spring-security-oauth2-jose:${springOauthVersion}")
+  compileOnly(
+      "org.springframework.security:spring-security-oauth2-resource-server:${springOauthVersion}")
+  compileOnly("com.okta.spring:okta-spring-boot-starter:${oktaSpringBootVersion}")
+
+  testImplementation(kotlin("test"))
+  testImplementation(platform("org.junit:junit-bom:${jUnitBomVersion}"))
+  testImplementation("org.junit.jupiter:junit-jupiter")
+  testImplementation("io.mockk:mockk:${mockkVersion}")
+  testImplementation("org.awaitility:awaitility-kotlin:${awaitilityKVersion}")
 }
