@@ -14,14 +14,14 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-internal class CsmOpenAPIConfiguration(val csmPlatformProperties: CsmPlatformProperties) {
+open class CsmOpenAPIConfiguration(val csmPlatformProperties: CsmPlatformProperties) {
 
   @Value("\${api.version:?}") private lateinit var apiVersion: String
 
   // TODO For some reason, all operation IDs exposed are suffixed with "_1" by SpringDoc.
   // This removes such suffix dynamically, until we find a better strategy
   @Bean
-  fun csmOpenAPIOperationCustomizer(): OperationCustomizer {
+  open fun csmOpenAPIOperationCustomizer(): OperationCustomizer {
     return OperationCustomizer { operation, _ ->
       if (operation.operationId?.endsWith("_1") == true) {
         operation.operationId = operation.operationId.substringBefore("_1")
@@ -31,7 +31,7 @@ internal class CsmOpenAPIConfiguration(val csmPlatformProperties: CsmPlatformPro
   }
 
   @Bean
-  fun csmOpenAPI(): OpenAPI {
+  open fun csmOpenAPI(): OpenAPI {
 
     val openApiYamlInputStream =
         CsmOpenAPIConfiguration::class.java.getResourceAsStream("/static/openapi.yaml")

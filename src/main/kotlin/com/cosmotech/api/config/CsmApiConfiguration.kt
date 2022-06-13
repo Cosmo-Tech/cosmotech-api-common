@@ -29,19 +29,20 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 @Configuration
 @ConfigurationPropertiesScan(basePackages = ["com.cosmotech"])
 @EnableAsync(mode = AdviceMode.PROXY, proxyTargetClass = true)
-internal class CsmApiConfiguration {
+open class CsmApiConfiguration {
 
   @Bean(name = ["csm-in-process-event-executor"])
-  fun inProcessEventHandlerExecutor(): Executor =
+  open fun inProcessEventHandlerExecutor(): Executor =
       // TODO A better strategy could be with a limited core pool size off an unbounded queue ?
       Executors.newCachedThreadPool(
           BasicThreadFactory.Builder().namingPattern("csm-event-handler-%d").build())
 
-  @Bean fun yamlHttpMessageConverter(): YamlMessageConverter = YamlMessageConverter()
+  @Bean
+  open fun yamlHttpMessageConverter(): YamlMessageConverter = YamlMessageConverter()
 }
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
-internal class CsmPlatformEnvironmentPostProcessor(private val log: Log) :
+open class CsmPlatformEnvironmentPostProcessor(private val log: Log) :
     EnvironmentPostProcessor {
 
   override fun postProcessEnvironment(
@@ -79,7 +80,7 @@ internal class CsmPlatformEnvironmentPostProcessor(private val log: Log) :
  * This can be overridden by setting the {@link #setSupportedMediaTypes supportedMediaTypes}
  * property.
  */
-internal class YamlMessageConverter(objectMapper: ObjectMapper) :
+class YamlMessageConverter(objectMapper: ObjectMapper) :
     AbstractJackson2HttpMessageConverter(
         objectMapper,
         MediaType("application", "yaml", StandardCharsets.UTF_8),
@@ -100,7 +101,7 @@ internal class YamlMessageConverter(objectMapper: ObjectMapper) :
 }
 
 @Configuration
-internal class WebConfig : WebMvcConfigurer {
+internal open class WebConfig : WebMvcConfigurer {
 
   override fun addCorsMappings(registry: CorsRegistry) {
     registry.addMapping("/**")
