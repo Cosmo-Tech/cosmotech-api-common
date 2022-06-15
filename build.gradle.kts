@@ -146,7 +146,8 @@ dependencies {
       "org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:${springOauthAutoConfigureVersion}")
   implementation("org.springframework.security:spring-security-jwt:${springSecurityJwtVersion}")
 
-  implementation("org.springframework.boot:spring-boot-starter-web:${springBootStarterWebVersion}") {
+  implementation(
+      "org.springframework.boot:spring-boot-starter-web:${springBootStarterWebVersion}") {
     exclude(group = "org.springframework.boot", module = "spring-boot-starter-tomcat")
   }
 

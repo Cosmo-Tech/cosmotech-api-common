@@ -37,13 +37,11 @@ open class CsmApiConfiguration {
       Executors.newCachedThreadPool(
           BasicThreadFactory.Builder().namingPattern("csm-event-handler-%d").build())
 
-  @Bean
-  open fun yamlHttpMessageConverter(): YamlMessageConverter = YamlMessageConverter()
+  @Bean open fun yamlHttpMessageConverter(): YamlMessageConverter = YamlMessageConverter()
 }
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
-open class CsmPlatformEnvironmentPostProcessor(private val log: Log) :
-    EnvironmentPostProcessor {
+open class CsmPlatformEnvironmentPostProcessor(private val log: Log) : EnvironmentPostProcessor {
 
   override fun postProcessEnvironment(
       environment: ConfigurableEnvironment,
