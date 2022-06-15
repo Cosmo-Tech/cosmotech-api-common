@@ -9,4 +9,3 @@
 
 rootProject.name = "cosmotech-api-common"
 
-include("lib")
