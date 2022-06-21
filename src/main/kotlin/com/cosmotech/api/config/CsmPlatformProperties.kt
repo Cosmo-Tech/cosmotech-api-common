@@ -157,14 +157,14 @@ data class CsmPlatformProperties(
   data class CsmPlatformAzure(
       /** Azure Credentials */
       val credentials: CsmPlatformAzureCredentials,
-      val storage: CsmPlatformAzureStorage,
-      val containerRegistries: CsmPlatformAzureContainerRegistries,
-      val eventBus: CsmPlatformAzureEventBus,
-      val dataWarehouseCluster: CsmPlatformAzureDataWarehouseCluster,
+      val storage: CsmPlatformAzureStorage?,
+      val containerRegistries: CsmPlatformAzureContainerRegistries?,
+      val eventBus: CsmPlatformAzureEventBus?,
+      val dataWarehouseCluster: CsmPlatformAzureDataWarehouseCluster?,
       val keyVault: String,
-      val analytics: CsmPlatformAzureAnalytics,
+      val analytics: CsmPlatformAzureAnalytics?,
       /** Azure Cosmos DB */
-      val cosmos: CsmPlatformAzureCosmos,
+      val cosmos: CsmPlatformAzureCosmos?,
       val appIdUri: String,
       val claimToAuthorityPrefix: Map<String, String> = mutableMapOf("roles" to "")
   ) {
