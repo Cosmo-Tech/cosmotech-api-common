@@ -114,6 +114,7 @@ val hashidsVersion = "1.0.3"
 val springBootStarterWebVersion = "2.7.0"
 val springDocVersion = "1.6.6"
 val servletApiVersion = "4.0.1"
+val zalandoSpringProblemVersion = "0.27.0"
 
 // Tests
 val jUnitBomVersion = "5.8.2"
@@ -145,6 +146,7 @@ dependencies {
   implementation("org.springdoc:springdoc-openapi-ui:${springDocVersion}")
   implementation("org.springdoc:springdoc-openapi-kotlin:${springDocVersion}")
   implementation("javax.servlet:javax.servlet-api:${servletApiVersion}")
+  implementation("org.zalando:problem-spring-web-starter:${zalandoSpringProblemVersion}")
 
   testImplementation(kotlin("test"))
   testImplementation(platform("org.junit:junit-bom:${jUnitBomVersion}"))
