@@ -111,14 +111,9 @@ tasks.jar {
 // Implementation
 val swaggerParserVersion = "2.0.31"
 val hashidsVersion = "1.0.3"
-val springOauthAutoConfigureVersion = "2.6.6"
-val springSecurityJwtVersion = "1.1.1.RELEASE"
 val springBootStarterWebVersion = "2.7.0"
 val springDocVersion = "1.6.6"
-val springOauthVersion = "5.7.1"
-val zalandoSpringProblemVersion = "0.27.0"
 val servletApiVersion = "4.0.1"
-val oktaSpringBootVersion = "2.1.5"
 
 // Tests
 val jUnitBomVersion = "5.8.2"
@@ -143,23 +138,13 @@ dependencies {
   implementation("io.swagger.parser.v3:swagger-parser-v3:${swaggerParserVersion}")
 
   implementation(
-      "org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:${springOauthAutoConfigureVersion}")
-  implementation("org.springframework.security:spring-security-jwt:${springSecurityJwtVersion}")
-
-  implementation(
       "org.springframework.boot:spring-boot-starter-web:${springBootStarterWebVersion}") {
     exclude(group = "org.springframework.boot", module = "spring-boot-starter-tomcat")
   }
 
   implementation("org.springdoc:springdoc-openapi-ui:${springDocVersion}")
   implementation("org.springdoc:springdoc-openapi-kotlin:${springDocVersion}")
-  implementation("org.zalando:problem-spring-web-starter:${zalandoSpringProblemVersion}")
   implementation("javax.servlet:javax.servlet-api:${servletApiVersion}")
-  implementation("org.springframework.boot:spring-boot-starter-security")
-  implementation("org.springframework.security:spring-security-oauth2-jose:${springOauthVersion}")
-  implementation(
-      "org.springframework.security:spring-security-oauth2-resource-server:${springOauthVersion}")
-  implementation("com.okta.spring:okta-spring-boot-starter:${oktaSpringBootVersion}")
 
   testImplementation(kotlin("test"))
   testImplementation(platform("org.junit:junit-bom:${jUnitBomVersion}"))
