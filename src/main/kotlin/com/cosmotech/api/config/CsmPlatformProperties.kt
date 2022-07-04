@@ -60,7 +60,6 @@ data class CsmPlatformProperties(
 
     /** Data Ingestion reporting behavior */
     val dataIngestion: DataIngestion = DataIngestion(),
-
     val twincache: CsmTwinCacheProperties?
 ) {
 
@@ -416,16 +415,16 @@ data class CsmPlatformProperties(
   )
 
   data class CsmTwinCacheProperties(
-      /** Twin cache host*/
+      /** Twin cache host */
       val host: String,
 
-      /** Twin cache port*/
+      /** Twin cache port */
       val port: String = "6379",
 
-      /** Twin cache user*/
+      /** Twin cache user */
       val username: String = "default",
 
-      /** Twin cache password*/
+      /** Twin cache password */
       val password: String
   )
 }
