@@ -111,6 +111,7 @@ const val PATH_WORKSPACES_FILES = "/organizations/*/workspaces/*/files"
 // Endpoints roles
 val endpointSecurityPublic =
     listOf(
+        "/actuator/prometheus",
         "/actuator/health/**",
         "/actuator/info",
         "/",
