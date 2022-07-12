@@ -8,6 +8,7 @@ plugins {
   val kotlinVersion = "1.6.0"
   kotlin("jvm") version kotlinVersion
   id("com.diffplug.spotless") version "6.4.2"
+  id("org.springframework.boot") version "2.7.0" apply false
   id("io.gitlab.arturbosch.detekt") version "1.19.0"
   id("pl.allegro.tech.build.axion-release") version "1.13.6"
   `maven-publish`
@@ -119,6 +120,7 @@ val springOauthVersion = "5.7.1"
 val zalandoSpringProblemVersion = "0.27.0"
 val servletApiVersion = "4.0.1"
 val oktaSpringBootVersion = "2.1.5"
+val azureSpringBootBomVersion = "3.14.0"
 
 // Tests
 val jUnitBomVersion = "5.8.2"
@@ -126,6 +128,7 @@ val mockkVersion = "1.12.4"
 val awaitilityKVersion = "4.2.0"
 
 dependencies {
+  implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
 
   // Workaround until Detekt adds support for JVM Target 17
   // See https://github.com/detekt/detekt/issues/4287
@@ -160,6 +163,10 @@ dependencies {
   implementation(
       "org.springframework.security:spring-security-oauth2-resource-server:${springOauthVersion}")
   implementation("com.okta.spring:okta-spring-boot-starter:${oktaSpringBootVersion}")
+
+  implementation("org.springframework.boot:spring-boot-starter-actuator")
+  implementation("io.micrometer:micrometer-registry-prometheus")
+  implementation("org.springframework.boot:spring-boot-starter-aop")
 
   testImplementation(kotlin("test"))
   testImplementation(platform("org.junit:junit-bom:${jUnitBomVersion}"))
