@@ -14,12 +14,11 @@ import org.aspectj.lang.annotation.Pointcut
 import org.aspectj.lang.reflect.CodeSignature
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
 @Aspect
 @Component
-class ServiceAspect {
+class ServiceAspect(private var meterRegistry: MeterRegistry) {
   private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
   private val listOfArgs =
@@ -31,8 +30,6 @@ class ServiceAspect {
           "scenariorunId",
           "datasetId",
           "connectorId")
-
-  @Autowired private lateinit var meterRegistry: MeterRegistry
 
   @Pointcut(
       "within(@org.springframework.stereotype.Service *)" + " && within(com.cosmotech..*Impl)")
