@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component
 
 @Aspect
 @Component
-class ServiceAspect(private var meterRegistry: MeterRegistry) {
+class MonitorServiceAspect(private var meterRegistry: MeterRegistry) {
   private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
   private val listOfArgs =
@@ -37,7 +37,7 @@ class ServiceAspect(private var meterRegistry: MeterRegistry) {
   fun cosmotechPointcut() {}
 
   @Before("cosmotechPointcut()")
-  fun logBefore(joinPoint: JoinPoint) {
+  fun monitorBefore(joinPoint: JoinPoint) {
     val signature: CodeSignature = joinPoint.signature as CodeSignature
     val args = joinPoint.args
     logger.debug("$signature: $args")
