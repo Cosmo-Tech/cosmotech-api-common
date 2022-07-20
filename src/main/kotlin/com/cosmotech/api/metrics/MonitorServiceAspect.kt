@@ -40,10 +40,12 @@ class MonitorServiceAspect(private var meterRegistry: MeterRegistry) {
   fun monitorBefore(joinPoint: JoinPoint) {
     val signature: CodeSignature = joinPoint.signature as CodeSignature
     val args = joinPoint.args
+    val parameterNames = signature.parameterNames
     logger.debug("$signature: $args")
+    logger.debug("$signature: $parameterNames")
     val argsTags =
-        args.filter() { listOfArgs.contains(it.toString()) }.mapIndexed() { idx, arg ->
-          Tag.of(signature.parameterNames[idx], arg.toString())
+        List(parameterNames.filter { listOfArgs.contains(it.toString()) }.size) { idx ->
+          Tag.of(parameterNames[idx], args[idx] as String)
         }
     Counter.builder("cosmotech.${signature.name}")
         .description("${signature.name}")
