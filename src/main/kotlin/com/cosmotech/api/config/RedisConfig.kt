@@ -12,7 +12,7 @@ import org.springframework.data.redis.connection.jedis.JedisConnectionFactory
 open class RedisConfig {
 
     @Bean
-    fun jedisConnectionFactory(): JedisConnectionFactory? {
+    open fun jedisConnectionFactory(): JedisConnectionFactory? {
         return JedisConnectionFactory()
     }
 }
