@@ -203,4 +203,7 @@ dependencies {
 
   // Use the Kotlin JUnit integration.
   testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
+
+  implementation("org.springframework.boot:spring-boot-starter-data-redis")
+  implementation("com.redis.om:redis-om-spring:0.5.1")
 }
