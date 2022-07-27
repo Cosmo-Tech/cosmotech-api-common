@@ -9,8 +9,7 @@ import org.springframework.data.redis.connection.jedis.JedisConnectionFactory
 
 
 @Configuration
-@EnableRedisDocumentRepositories
-class RedisConfig {
+open class RedisConfig {
 
     @Bean
     fun jedisConnectionFactory(): JedisConnectionFactory? {
