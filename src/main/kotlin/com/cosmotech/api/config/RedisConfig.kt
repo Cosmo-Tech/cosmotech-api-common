@@ -17,11 +17,4 @@ open class RedisConfig {
     open fun jedisConnectionFactory(): JedisConnectionFactory? {
         return JedisConnectionFactory()
     }
-
-    @Bean
-    open fun redisTemplate(redisConnectionFactory: RedisConnectionFactory?): RedisTemplate<*, *> {
-        val template = RedisTemplate<ByteArray, ByteArray>()
-        template.connectionFactory = redisConnectionFactory!!
-        return template
-    }
 }
