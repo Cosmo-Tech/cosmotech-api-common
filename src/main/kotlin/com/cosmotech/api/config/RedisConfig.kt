@@ -19,7 +19,7 @@ open class RedisConfig {
     }
 
     @Bean
-    fun redisTemplate(redisConnectionFactory: RedisConnectionFactory?): RedisTemplate<*, *> {
+    open fun redisTemplate(redisConnectionFactory: RedisConnectionFactory?): RedisTemplate<*, *> {
         val template = RedisTemplate<ByteArray, ByteArray>()
         template.connectionFactory = redisConnectionFactory!!
         return template
