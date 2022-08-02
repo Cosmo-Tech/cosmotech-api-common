@@ -96,6 +96,9 @@ data class CsmPlatformProperties(
 
       /** Workflow Management */
       val workflows: Workflows,
+
+      /** Default Main Container Image Pull Policy */
+      val imagePullPolicy: String = "IfNotPresent",
   ) {
     data class Workflows(
         /** The Kubernetes namespace in which Argo Workflows should be submitted */
