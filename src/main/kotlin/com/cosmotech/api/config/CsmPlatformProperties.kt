@@ -441,7 +441,7 @@ data class CsmPlatformProperties(
   )
 
   data class CsmRbac(
-    /** Enable Rbac */
-    val enabled: Boolean = true,
+      /** Enable Rbac */
+      val enabled: Boolean = true,
   )
 }

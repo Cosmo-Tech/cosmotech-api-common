@@ -1,16 +1,15 @@
+// Copyright (c) Cosmo Tech.
+// Licensed under the MIT license.
 package com.cosmotech.api.rbac
 
 import com.cosmotech.api.config.CsmPlatformProperties
-import org.springframework.beans.factory.annotation.Autowired
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import com.cosmotech.api.security.ROLE_PLATFORM_ADMIN
-import com.cosmotech.api.utils.getCurrentAuthenticatedUserName
-import com.cosmotech.api.utils.getCurrentAuthenticatedRoles
+import org.springframework.beans.factory.annotation.Autowired
 
 class CsmRbac(
-  val roleDefinition: RolesDefinition,
-  val resourceSecurity: ResourceSecurity = ResourceSecurity(),
+    val rolesDefinition: RolesDefinition,
+    val resourceSecurity: ResourceSecurity = ResourceSecurity(),
 ) {
   @Autowired lateinit var csmPlatformProperties: CsmPlatformProperties
   private val logger: Logger = LoggerFactory.getLogger(this::class.java)
@@ -29,14 +28,14 @@ class CsmRbac(
   }
 
   fun getRolePermissions(role: String): List<String> {
-    return this.roleDefinition.permissions.get(role) ?: listOf()
+    return this.rolesDefinition.permissions.get(role) ?: listOf()
   }
 
   fun getRoles(user: String): List<String> {
     return this.resourceSecurity.accessControlList.roles.get(user) ?: listOf()
   }
 
-  fun verifyUser(permission: String, user:String): Boolean {
+  fun verifyUser(permission: String, user: String): Boolean {
     logger.debug("Verifying $user has $permission permission")
     return this.verifyPermissionFromRoles(permission, getRoles(user))
   }
@@ -57,10 +56,7 @@ class CsmRbac(
   }
 
   fun verifyRbac(permission: String, user: String): Boolean {
-    return (
-      this.verifyDefault(permission) ||
-      this.verifyUser(permission, user)
-    )
+    return (this.verifyDefault(permission) || this.verifyUser(permission, user))
   }
 
   fun setDefault(roles: List<String>) {
@@ -69,9 +65,14 @@ class CsmRbac(
 
   // This is the default method to call to check RBAC
   fun verify(permission: String, user: String): Boolean {
-    return (
-      csmAdmin.verifyCurrentRolesAdmin() ||
-      this.verifyRbac(permission, user)
-    )
+    return (csmAdmin.verifyCurrentRolesAdmin() || this.verifyRbac(permission, user))
+  }
+
+  fun isAdmin(user: String): Boolean {
+    return csmAdmin.verifyCurrentRolesAdmin()
+  }
+
+  fun getAdminRole(): String {
+    return this.rolesDefinition.adminRole
   }
 }
