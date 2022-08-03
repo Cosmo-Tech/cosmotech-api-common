@@ -10,6 +10,7 @@ import com.cosmotech.api.utils.getCurrentAuthenticatedRoles
 
 class CsmNoRbac {
   private val logger: Logger = LoggerFactory.getLogger(this::class.java)
+  private val csmAdmin = CsmAdmin()
 
   fun verifyOwner(ownerId: String, userId: String): Boolean {
     logger.debug("Verifying $userId is Owner")
@@ -18,5 +19,12 @@ class CsmNoRbac {
 
   fun verifyCurrentOwner(ownerId: String): Boolean {
     return this.verifyOwner(ownerId, getCurrentAuthenticatedUserName())
+  }
+
+  fun isAdmin(ownerId: String): Boolean {
+    return (
+      csmAdmin.verifyCurrentRolesAdmin() ||
+      this.verifyCurrentOwner(ownerId)
+    )
   }
 }

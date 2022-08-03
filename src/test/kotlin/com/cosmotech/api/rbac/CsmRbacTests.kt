@@ -66,6 +66,7 @@ class CsmRbacTests {
   private lateinit var securityContext: SecurityContext
   private lateinit var adminAuthentication: BearerTokenAuthentication
   private lateinit var userAuthentication: BearerTokenAuthentication
+  private lateinit var ownerAuthentication: BearerTokenAuthentication
 
   private val resourceSecurity = ResourceSecurity(
     default = listOf(ROLE_READER),
@@ -92,12 +93,16 @@ class CsmRbacTests {
     com.cosmotech.api.utils.configuration = csmPlatformProperties
 
     adminAuthentication = mockk<BearerTokenAuthentication>(relaxed = true)
-    every { adminAuthentication.name } answers { OWNER_ID }
+    every { adminAuthentication.name } answers { USER_ID }
     every { adminAuthentication.token.tokenValue } answers { ADMIN_TOKEN }
 
     userAuthentication = mockk<BearerTokenAuthentication>(relaxed = true)
     every { userAuthentication.name } answers { USER_ID }
     every { userAuthentication.token.tokenValue } answers { USER_TOKEN }
+
+    ownerAuthentication = mockk<BearerTokenAuthentication>(relaxed = true)
+    every { ownerAuthentication.name } answers { OWNER_ID }
+    every { ownerAuthentication.token.tokenValue } answers { USER_TOKEN }
 
     securityContext = mockk<SecurityContext>(relaxed = true)
     every { securityContext.authentication } returns (adminAuthentication as Authentication)
@@ -111,26 +116,7 @@ class CsmRbacTests {
     assertTrue(CsmPlatformProperties.CsmRbac().enabled)
   }
 
-  @Test
-  fun `ownerId OK`() {
-    val userId = OWNER_ID
-    val ownerId = OWNER_ID
-    assertTrue(noRbac.verifyOwner(userId, ownerId))
-  }
-
-  @Test
-  fun `ownerId KO`() {
-    val userId = USER_ID
-    val ownerId = OWNER_ID
-    assertFalse(noRbac.verifyOwner(userId, ownerId))
-  }
-  @Test
-  fun `current user OK`() {
-    val ownerId = OWNER_ID
-    assertTrue(noRbac.verifyCurrentOwner(ownerId))
-  }
-
-
+  // CsmAdmin tests
   @Test
   fun `role Platform Admin OK`() {
     val userRoles = listOf(ROLE_PLATFORM_ADMIN)
@@ -166,6 +152,40 @@ class CsmRbacTests {
     assertFalse(admin.verifyCurrentRolesAdmin())
   }
 
+  // CsmNoRBac tests
+  @Test
+  fun `ownerId OK`() {
+    assertTrue(noRbac.verifyOwner(OWNER_ID, OWNER_ID))
+  }
+
+  @Test
+  fun `ownerId KO`() {
+    assertFalse(noRbac.verifyOwner(USER_ID, OWNER_ID))
+  }
+
+  @Test
+  fun `current user OK`() {
+    every { securityContext.authentication } returns (ownerAuthentication as Authentication)
+    assertTrue(noRbac.verifyCurrentOwner(OWNER_ID))
+  }
+
+  @Test
+  fun `current user KO`() {
+    assertFalse(noRbac.verifyCurrentOwner(OWNER_ID))
+  }
+
+  @Test
+  fun `owner with PLATFORM USER token admin`() {
+    every { securityContext.authentication } returns (ownerAuthentication as Authentication)
+    assertTrue(noRbac.isAdmin(OWNER_ID))
+  }
+
+  @Test
+  fun `user with PLATFORM ADMIN token admin`() {
+    assertTrue(noRbac.isAdmin(OWNER_ID))
+  }
+
+  // CsmRBac tests
   @Test
   fun `verify permission read OK`() {
     assertTrue(rbac.verifyPermission(PERM_READ, ROLE_READER_PERMS))
@@ -295,11 +315,4 @@ class CsmRbacTests {
     every { securityContext.authentication } returns (userAuthentication as Authentication)
     assertFalse(rbac.verify(PERM_WRITE, USER_NONE))
   }
-
-  /*
-  @Test
-  fun `rbac disabled, owner with PLATFORM USER token admin`() {
-    every { csmPlatformProperties.rbac.enabled } answers { false }
-    assertFalse(rbac.verifyAdminNoRbac(PERM_READ
-  }*/
 }
