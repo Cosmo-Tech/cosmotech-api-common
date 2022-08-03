@@ -8,7 +8,8 @@ import com.cosmotech.api.security.ROLE_PLATFORM_ADMIN
 import com.cosmotech.api.utils.getCurrentAuthenticatedUserName
 import com.cosmotech.api.utils.getCurrentAuthenticatedRoles
 
-class CsmRbac(@Autowired(required = true) val csmPlatformProperties: CsmPlatformProperties) {
+class CsmRbac(val roleDefinition: RoleDefinition) {
+  @Autowired lateinit var csmPlatformProperties: CsmPlatformProperties
   private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
   fun verifyOwner(ownerId: String, userId: String): Boolean {
@@ -30,5 +31,13 @@ class CsmRbac(@Autowired(required = true) val csmPlatformProperties: CsmPlatform
 
   fun verifyPermission(permission: String, userPermissions: List<String>): Boolean {
     return userPermissions.contains(permission)
+  }
+
+  fun verifyPermissionFromRole(permission: String, role: String): Boolean {
+    return true
+  }
+
+  fun getRolePermissions(role: String): List<String> {
+    return this.roleDefinition.permissions.get(role) ?: listOf()
   }
 }

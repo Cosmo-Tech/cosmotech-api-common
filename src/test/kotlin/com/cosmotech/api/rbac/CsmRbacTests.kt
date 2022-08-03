@@ -7,6 +7,7 @@ import com.cosmotech.api.rbac.CsmRbac
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertFalse
+import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 import org.junit.jupiter.api.assertDoesNotThrow
@@ -33,6 +34,8 @@ const val USER_TOKEN=
 
 const val PERM_READ = "readtestperm"
 
+const val ROLE_READER = "readertestrole"
+
 class CsmRbacTests {
   private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
@@ -41,8 +44,11 @@ class CsmRbacTests {
   private lateinit var securityContext: SecurityContext
   private lateinit var adminAuthentication: BearerTokenAuthentication
   private lateinit var userAuthentication: BearerTokenAuthentication
+
   private val user_permissions_read: List<String> = listOf(PERM_READ)
   private val user_permissions_none: List<String> = listOf()
+
+  private val user_roles_reader: List<String> = listOf(ROLE_READER)
 
   @BeforeTest
   fun beforeEachTest() {
@@ -50,7 +56,11 @@ class CsmRbacTests {
     csmPlatformProperties = mockk<CsmPlatformProperties>(relaxed = true)
     every { csmPlatformProperties.rbac.enabled } answers { true }
     every { csmPlatformProperties.authorization.rolesJwtClaim } answers { "roles" }
-    rbac = CsmRbac(csmPlatformProperties)
+    val roleDefinition = RoleDefinition(permissions=mapOf(
+      ROLE_READER to listOf(PERM_READ)
+    ))
+    rbac = CsmRbac(roleDefinition)
+    rbac.csmPlatformProperties = csmPlatformProperties
     com.cosmotech.api.utils.configuration = csmPlatformProperties
 
     adminAuthentication = mockk<BearerTokenAuthentication>(relaxed = true)
@@ -136,5 +146,15 @@ class CsmRbacTests {
   @Test
   fun `verify permission read KO`() {
     assertFalse(rbac.verifyPermission(PERM_READ, user_permissions_none))
+  }
+
+  @Test
+  fun `get permission from role`() {
+    assertEquals(listOf(PERM_READ), rbac.getRolePermissions(ROLE_READER))
+  }
+
+  @Test
+  fun `verify permission read from roles OK`() {
+    assertTrue(rbac.verifyPermissionFromRole(PERM_READ, ROLE_READER))
   }
 }
