@@ -11,6 +11,7 @@ class CsmAdmin {
   private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
   fun verifyRolesAdmin(roles: List<String>): Boolean {
+    logger.debug("Verifying if token roles contains Platform Admin")
     return roles.contains(ROLE_PLATFORM_ADMIN)
   }
 

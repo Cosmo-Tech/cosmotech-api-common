@@ -3,10 +3,12 @@
 package com.cosmotech.api.rbac
 
 import com.cosmotech.api.config.CsmPlatformProperties
+import com.cosmotech.api.exceptions.CsmAccessForbiddenException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 
+@Suppress("TooManyFunctions")
 class CsmRbac(
     val rolesDefinition: RolesDefinition,
     val resourceSecurity: ResourceSecurity = ResourceSecurity(),
@@ -52,6 +54,11 @@ class CsmRbac(
 
   fun removeUser(user: String) {
     logger.debug("Removing user $user to security")
+    val roles = this.getRoles(user)
+    if (roles.contains(this.getAdminRole()) && this.getAdminCount() == 1) {
+      throw CsmAccessForbiddenException("It is forbidden to remove the last administrator")
+    }
+
     this.resourceSecurity.accessControlList.roles.remove(user)
   }
 
@@ -65,14 +72,37 @@ class CsmRbac(
 
   // This is the default method to call to check RBAC
   fun verify(permission: String, user: String): Boolean {
-    return (csmAdmin.verifyCurrentRolesAdmin() || this.verifyRbac(permission, user))
+    return (this.isAdmin(user) || this.verifyRbac(permission, user))
+  }
+
+  fun verifyAdminRole(user: String): Boolean {
+    logger.debug("Verifying if $user has default admin rbac role")
+    return this.getRoles(user).contains(this.getAdminRole())
   }
 
   fun isAdmin(user: String): Boolean {
-    return csmAdmin.verifyCurrentRolesAdmin()
+    return (csmAdmin.verifyCurrentRolesAdmin() || this.verifyAdminRole(user))
   }
 
   fun getAdminRole(): String {
     return this.rolesDefinition.adminRole
+  }
+
+  fun getAdminCount(): Int {
+    return (this.resourceSecurity
+        .accessControlList
+        .roles
+        .filterValues { it.contains(this.getAdminRole()) }
+        .count())
+  }
+
+  fun getUserInfo(user: String): UserInfo {
+    val roles = this.getRoles(user)
+    val permissions = roles.flatMap { this.getRolePermissions(it) }.toSet().toList()
+    return UserInfo(
+      id=user,
+      roles=roles,
+      permissions=permissions
+    )
   }
 }
