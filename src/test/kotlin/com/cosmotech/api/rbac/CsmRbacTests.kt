@@ -38,6 +38,7 @@ class CsmRbacTests {
   private lateinit var rbac : CsmRbac
   private lateinit var securityContext: SecurityContext
   private lateinit var adminAuthentication: BearerTokenAuthentication
+  private lateinit var userAuthentication: BearerTokenAuthentication
 
   @BeforeTest
   fun beforeEachTest() {
@@ -45,13 +46,20 @@ class CsmRbacTests {
     csmPlatformProperties = mockk<CsmPlatformProperties>(relaxed = true)
     every { csmPlatformProperties.rbac.enabled } answers { true }
     rbac = CsmRbac(csmPlatformProperties)
-    mockkStatic("org.springframework.security.core.context.SecurityContextHolder")
-    securityContext = mockk<SecurityContext>(relaxed = true)
+
     adminAuthentication = mockk<BearerTokenAuthentication>(relaxed = true)
     every { adminAuthentication.name } answers { "owner" }
     every { adminAuthentication.token.tokenValue } answers { ADMIN_TOKEN }
-    every { SecurityContextHolder.getContext() } returns securityContext
+
+    userAuthentication = mockk<BearerTokenAuthentication>(relaxed = true)
+    every { userAuthentication.name } answers { "user" }
+    every { userAuthentication.token.tokenValue } answers { USER_TOKEN }
+
+    securityContext = mockk<SecurityContext>(relaxed = true)
     every { securityContext.authentication } returns (adminAuthentication as Authentication)
+
+    mockkStatic("org.springframework.security.core.context.SecurityContextHolder")
+    every { SecurityContextHolder.getContext() } returns securityContext
   }
 
   @Test
