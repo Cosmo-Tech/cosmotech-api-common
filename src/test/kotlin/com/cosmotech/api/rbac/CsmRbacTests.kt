@@ -15,6 +15,8 @@ import io.mockk.every
 import io.mockk.mockk
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import com.cosmotech.api.security.ROLE_PLATFORM_ADMIN
+import com.cosmotech.api.security.ROLE_ORGANIZATION_USER
 
 
 class CsmRbacTests {
@@ -41,5 +43,36 @@ class CsmRbacTests {
     val userId = "owner"
     val ownerId = "owner"
     assertTrue(rbac.verifyOwner(userId, ownerId))
+  }
+
+  @Test
+  fun `ownerId KO`() {
+    val userId = "user"
+    val ownerId = "owner"
+    assertFalse(rbac.verifyOwner(userId, ownerId))
+  }
+
+  @Test
+  fun `role Platform Admin OK`() {
+    val userRoles = listOf(ROLE_PLATFORM_ADMIN)
+    assertTrue(rbac.verifyRoles(userRoles))
+  }
+
+  @Test
+  fun `roles with Platform Admin OK`() {
+    val userRoles = listOf(ROLE_PLATFORM_ADMIN, ROLE_ORGANIZATION_USER)
+    assertTrue(rbac.verifyRoles(userRoles))
+  }
+
+  @Test
+  fun `role Organization User KO`() {
+    val userRoles = listOf(ROLE_ORGANIZATION_USER)
+    assertFalse(rbac.verifyRoles(userRoles))
+  }
+
+  @Test
+  fun `No role KO`() {
+    val userRoles: List<String> = listOf()
+    assertFalse(rbac.verifyRoles(userRoles))
   }
 }
