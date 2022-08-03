@@ -8,7 +8,10 @@ import com.cosmotech.api.security.ROLE_PLATFORM_ADMIN
 import com.cosmotech.api.utils.getCurrentAuthenticatedUserName
 import com.cosmotech.api.utils.getCurrentAuthenticatedRoles
 
-class CsmRbac(val roleDefinition: RoleDefinition) {
+class CsmRbac(
+  val roleDefinition: RolesDefinition,
+  val resourceSecurity: ResourceSecurity?,
+) {
   @Autowired lateinit var csmPlatformProperties: CsmPlatformProperties
   private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
@@ -26,7 +29,7 @@ class CsmRbac(val roleDefinition: RoleDefinition) {
   }
 
   fun verifyCurrentRolesAdmin(): Boolean {
-    return verifyRolesAdmin(getCurrentAuthenticatedRoles())
+    return this.verifyRolesAdmin(getCurrentAuthenticatedRoles())
   }
 
   fun verifyPermission(permission: String, userPermissions: List<String>): Boolean {
@@ -34,10 +37,18 @@ class CsmRbac(val roleDefinition: RoleDefinition) {
   }
 
   fun verifyPermissionFromRole(permission: String, role: String): Boolean {
-    return true
+    return this.verifyPermission(permission, this.getRolePermissions(role))
+  }
+
+  fun verifyPermissionFromRoles(permission: String, roles: List<String>): Boolean {
+    return roles.any { role -> this.verifyPermissionFromRole(permission, role) }
   }
 
   fun getRolePermissions(role: String): List<String> {
     return this.roleDefinition.permissions.get(role) ?: listOf()
+  }
+
+  fun getRoles(user: String): List<String> {
+    return this.resourceSecurity?.accessControlList?.roles?.get(user) ?: listOf()
   }
 }

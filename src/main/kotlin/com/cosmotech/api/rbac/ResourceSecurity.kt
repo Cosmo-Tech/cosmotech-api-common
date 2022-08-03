@@ -1,5 +1,6 @@
 package com.cosmotech.api.rbac
 
-data class RbacResourceSecurity(
-  val default: List<String>?
+data class ResourceSecurity(
+  val default: List<String>?,
+  val accessControlList: UsersAccess,
 )

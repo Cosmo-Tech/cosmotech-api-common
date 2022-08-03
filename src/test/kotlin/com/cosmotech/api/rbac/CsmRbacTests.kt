@@ -33,10 +33,23 @@ const val USER_TOKEN=
       "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSIsImtpZCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSJ9.eyJhdWQiOiJodHRwOi8vZGV2LmFwaS5jb3Ntb3RlY2guY29tIiwiaXNzIjoiaHR0cHM6Ly9zdHMud2luZG93cy5uZXQvZTQxM2I4MzQtOGJlOC00ODIyLWEzNzAtYmU2MTk1NDVjYjQ5LyIsImlhdCI6MTY1OTUyNjcxMSwibmJmIjoxNjU5NTI2NzExLCJleHAiOjE2NTk1MzIwNzUsImFjciI6IjEiLCJhaW8iOiJBU1FBMi84VEFBQUFqRzY4cEwrUGI4dER5bnJSejMzOURoRkxqWFcrdnpJZ3V0NlR0UXFrM1I4PSIsImFtciI6WyJwd2QiXSwiYXBwaWQiOiI1ZTk5ODM1Yi00Y2NkLTRjMTYtODRjNy1lOTc5NmJlMTA3NzIiLCJhcHBpZGFjciI6IjAiLCJmYW1pbHlfbmFtZSI6IkNhcmx1ZXIiLCJnaXZlbl9uYW1lIjoiVmluY2VudCIsImlwYWRkciI6IjgwLjExOS4xMTkuMjQ0IiwibmFtZSI6IlZpbmNlbnQgQ2FybHVlciIsIm9pZCI6IjNhODY5OTA1LWU5ZjUtNDg1MS1hN2E5LTMwNzlhYWQ0OWRmZiIsInJoIjoiMC5BVEVBTkxnVDVPaUxJa2lqY0w1aGxVWExTUm5WLV9aVG1tdE1xcnRKR2JzdEViNHhBTFUuIiwicm9sZXMiOlsiT3JnYW5pemF0aW9uLlVzZXIiXSwic2NwIjoicGxhdGZvcm0iLCJzdWIiOiJIMlU5ZVgwUi1LR0tJang3TG9WRHd2VFZxeE1PT3pGcmFlZVJKYkdDR1ZvIiwidGlkIjoiZTQxM2I4MzQtOGJlOC00ODIyLWEzNzAtYmU2MTk1NDVjYjQ5IiwidW5pcXVlX25hbWUiOiJ2aW5jZW50LmNhcmx1ZXJAY29zbW90ZWNoLmNvbSIsInVwbiI6InZpbmNlbnQuY2FybHVlckBjb3Ntb3RlY2guY29tIiwidXRpIjoicERBd2FnZDI4VUdqLVlhSk9FaGVBQSIsInZlciI6IjEuMCJ9.j5g7hHcusxnftE-1GDceKBgDpeeCijsL4KoUAPNOb5dd2H-pN0-p7za5xbvZscH_Tw5YF8rY5b_MeqMa-6qJQZhG4tUpRml92qIIjzuvF-v3JkVhpUVqE34MAfRMfp8NMR-ATY-XMZ_HekpD_aH0SDWQzoeSlvqhrzMnJ6l4G4v5kSwMeP8MgNxu8TGElPS65PP-639IguHvsgtaaiAJOjHbZ4jQtZdDm34IEpSzJj6eBIxkPv3ADn06A4bbQm63owUKZFRmnKuQIESzHCdI-3jAz-YH-gGbquD-dGUxKTsmi80rsYNsZZg1Nb_lHeSLaTdiJ8NNZkl1WAOUVALglQ"
 
 const val PERM_READ = "readtestperm"
+const val PERM_WRITE = "writetestperm"
 
 const val ROLE_READER = "readertestrole"
+const val ROLE_WRITER = "writertestrole"
+const val ROLE_BAD = "badtestrole"
+
+const val USER_WRITER = "usertestwriter@cosmotech.com"
+const val USER_READER = "usertestreader@cosmotech.com"
 
 class CsmRbacTests {
+  private val ROLE_NONE_PERMS: List<String> = listOf()
+  private val ROLE_READER_PERMS = listOf(PERM_READ)
+  private val ROLE_WRITER_PERMS = listOf(PERM_READ, PERM_WRITE)
+
+  private val USER_READER_ROLES  = listOf(ROLE_READER)
+  private val USER_WRITER_ROLES  = listOf(ROLE_READER, ROLE_WRITER)
+
   private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
   private lateinit var csmPlatformProperties: CsmPlatformProperties
@@ -45,10 +58,14 @@ class CsmRbacTests {
   private lateinit var adminAuthentication: BearerTokenAuthentication
   private lateinit var userAuthentication: BearerTokenAuthentication
 
-  private val user_permissions_read: List<String> = listOf(PERM_READ)
-  private val user_permissions_none: List<String> = listOf()
-
-  private val user_roles_reader: List<String> = listOf(ROLE_READER)
+  private val resourceSecurity = ResourceSecurity(
+    default = null,
+    accessControlList = UsersAccess(roles = mapOf(
+        USER_WRITER to USER_WRITER_ROLES,
+        USER_READER to USER_READER_ROLES,
+      )
+    )
+  )
 
   @BeforeTest
   fun beforeEachTest() {
@@ -56,10 +73,11 @@ class CsmRbacTests {
     csmPlatformProperties = mockk<CsmPlatformProperties>(relaxed = true)
     every { csmPlatformProperties.rbac.enabled } answers { true }
     every { csmPlatformProperties.authorization.rolesJwtClaim } answers { "roles" }
-    val roleDefinition = RoleDefinition(permissions=mapOf(
-      ROLE_READER to listOf(PERM_READ)
+    val roleDefinition = RolesDefinition(permissions=mapOf(
+      ROLE_READER to ROLE_READER_PERMS,
+      ROLE_WRITER to ROLE_WRITER_PERMS,
     ))
-    rbac = CsmRbac(roleDefinition)
+    rbac = CsmRbac(roleDefinition, resourceSecurity)
     rbac.csmPlatformProperties = csmPlatformProperties
     com.cosmotech.api.utils.configuration = csmPlatformProperties
 
@@ -140,21 +158,46 @@ class CsmRbacTests {
 
   @Test
   fun `verify permission read OK`() {
-    assertTrue(rbac.verifyPermission(PERM_READ, user_permissions_read))
+    assertTrue(rbac.verifyPermission(PERM_READ, ROLE_READER_PERMS))
   }
 
   @Test
   fun `verify permission read KO`() {
-    assertFalse(rbac.verifyPermission(PERM_READ, user_permissions_none))
+    assertFalse(rbac.verifyPermission(PERM_READ, ROLE_NONE_PERMS))
   }
 
   @Test
   fun `get permission from role`() {
-    assertEquals(listOf(PERM_READ), rbac.getRolePermissions(ROLE_READER))
+    assertEquals(ROLE_READER_PERMS, rbac.getRolePermissions(ROLE_READER))
   }
 
   @Test
-  fun `verify permission read from roles OK`() {
+  fun `get permission from bad role`() {
+    assertEquals(listOf(), rbac.getRolePermissions(ROLE_BAD))
+  }
+
+  @Test
+  fun `verify permission read from role reader OK`() {
     assertTrue(rbac.verifyPermissionFromRole(PERM_READ, ROLE_READER))
+  }
+
+  @Test
+  fun `verify permission write from role reader KO`() {
+    assertFalse(rbac.verifyPermissionFromRole(PERM_WRITE, ROLE_READER))
+  }
+
+  @Test
+  fun `verify permission read from role writer OK`() {
+    assertTrue(rbac.verifyPermissionFromRole(PERM_READ, ROLE_WRITER))
+  }
+
+  @Test
+  fun `verify permission writer from roles reader writer OK`() {
+    assertTrue(rbac.verifyPermissionFromRoles(PERM_READ, USER_WRITER_ROLES))
+  }
+
+  @Test
+  fun `find roles for user from resource security`() {
+    assertEquals(listOf(ROLE_READER), rbac.getRoles(USER_READER))
   }
 }
