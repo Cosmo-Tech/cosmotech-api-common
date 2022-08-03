@@ -1,3 +1,3 @@
 package com.cosmotech.api.rbac
 
-data class UsersAccess (val roles: Map<String, List<String>>)
+data class UsersAccess (val roles: MutableMap<String, List<String>> = mutableMapOf())

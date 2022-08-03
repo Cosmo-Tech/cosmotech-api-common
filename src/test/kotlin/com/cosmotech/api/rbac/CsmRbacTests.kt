@@ -43,6 +43,8 @@ const val USER_WRITER = "usertestwriter@cosmotech.com"
 const val USER_READER = "usertestreader@cosmotech.com"
 const val USER_NONE = "usertestnone@cosmotech.com"
 
+const val USER_NEW_READER = "usertestnew@cosmotech.com"
+
 class CsmRbacTests {
   private val ROLE_NONE_PERMS: List<String> = listOf()
   private val ROLE_READER_PERMS = listOf(PERM_READ)
@@ -62,7 +64,7 @@ class CsmRbacTests {
 
   private val resourceSecurity = ResourceSecurity(
     default = listOf(ROLE_READER),
-    accessControlList = UsersAccess(roles = mapOf(
+    accessControlList = UsersAccess(roles = mutableMapOf(
         USER_WRITER to USER_WRITER_ROLES,
         USER_READER to USER_READER_ROLES,
         USER_NONE to USER_NONE_ROLES,
@@ -215,6 +217,11 @@ class CsmRbacTests {
   }
 
   @Test
+  fun `verify permission read for user none KO`() {
+    assertFalse(rbac.verifyUser(PERM_READ, USER_NONE))
+  }
+
+  @Test
   fun `verify permission read from default security OK`() {
     assertTrue(rbac.verifyDefault(PERM_READ))
   }
@@ -222,5 +229,54 @@ class CsmRbacTests {
   @Test
   fun `verify permission write from default security KO`() {
     assertFalse(rbac.verifyDefault(PERM_WRITE))
+  }
+
+  @Test
+  fun `add new reader user and verify read permission OK`() {
+    rbac.setUserRoles(USER_NEW_READER, USER_READER_ROLES)
+    assertTrue(rbac.verifyUser(PERM_READ, USER_NEW_READER))
+  }
+
+  @Test
+  fun `add new reader user and verify write permission KO`() {
+    rbac.setUserRoles(USER_NEW_READER, USER_READER_ROLES)
+    assertFalse(rbac.verifyUser(PERM_WRITE, USER_NEW_READER))
+  }
+
+  @Test
+  fun `remove new reader user and verify read permission KO`() {
+    rbac.setUserRoles(USER_NEW_READER, USER_READER_ROLES)
+    rbac.removeUser(USER_NEW_READER)
+    assertFalse(rbac.verifyUser(PERM_READ, USER_NEW_READER))
+  }
+
+  @Test
+  fun `update existing new user and verify write permission OK`() {
+    rbac.setUserRoles(USER_NEW_READER, USER_READER_ROLES)
+    rbac.setUserRoles(USER_NEW_READER, USER_WRITER_ROLES)
+    assertTrue(rbac.verifyUser(PERM_WRITE, USER_NEW_READER))
+  }
+
+  @Test
+  fun `user with no roles has default read permission`() {
+    assertTrue(rbac.verifyRbac(PERM_READ, USER_NONE))
+  }
+
+  @Test
+  fun `update default security to no roles and verify read KO for none user`() {
+    rbac.setDefault(listOf())
+    assertFalse(rbac.verifyRbac(PERM_READ, USER_NONE))
+  }
+
+  @Test
+  fun `update default security to no roles and verify read OK for reader user`() {
+    rbac.setDefault(listOf())
+    assertTrue(rbac.verifyRbac(PERM_READ, USER_READER))
+  }
+
+  @Test
+  fun `update default security to writer role and verify write OK for reader user`() {
+    rbac.setDefault(USER_WRITER_ROLES)
+    assertTrue(rbac.verifyRbac(PERM_WRITE, USER_READER))
   }
 }

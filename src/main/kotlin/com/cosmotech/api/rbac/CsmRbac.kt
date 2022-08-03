@@ -10,7 +10,7 @@ import com.cosmotech.api.utils.getCurrentAuthenticatedRoles
 
 class CsmRbac(
   val roleDefinition: RolesDefinition,
-  val resourceSecurity: ResourceSecurity?,
+  val resourceSecurity: ResourceSecurity = ResourceSecurity(),
 ) {
   @Autowired lateinit var csmPlatformProperties: CsmPlatformProperties
   private val logger: Logger = LoggerFactory.getLogger(this::class.java)
@@ -49,7 +49,7 @@ class CsmRbac(
   }
 
   fun getRoles(user: String): List<String> {
-    return this.resourceSecurity?.accessControlList?.roles?.get(user) ?: listOf()
+    return this.resourceSecurity.accessControlList.roles.get(user) ?: listOf()
   }
 
   fun verifyUser(permission: String, user:String): Boolean {
@@ -59,6 +59,27 @@ class CsmRbac(
 
   fun verifyDefault(permission: String): Boolean {
     logger.debug("Verifying default roles for $permission permission")
-    return this.verifyPermissionFromRoles(permission, this.resourceSecurity?.default ?: listOf())
+    return this.verifyPermissionFromRoles(permission, this.resourceSecurity.default)
+  }
+
+  fun setUserRoles(user: String, roles: List<String>) {
+    logger.debug("Adding user $user to security")
+    this.resourceSecurity.accessControlList.roles.put(user, roles)
+  }
+
+  fun removeUser(user: String) {
+    logger.debug("Removing user $user to security")
+    this.resourceSecurity.accessControlList.roles.remove(user)
+  }
+
+  fun verifyRbac(permission: String, user: String): Boolean {
+    return (
+      this.verifyDefault(permission) ||
+      this.verifyUser(permission, user)
+    )
+  }
+
+  fun setDefault(roles: List<String>) {
+    this.resourceSecurity.default = roles
   }
 }
