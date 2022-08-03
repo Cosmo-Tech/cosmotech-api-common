@@ -4,6 +4,7 @@ package com.cosmotech.api.rbac
 
 import com.cosmotech.api.config.CsmPlatformProperties
 import com.cosmotech.api.exceptions.CsmAccessForbiddenException
+import com.cosmotech.api.exceptions.CsmClientException
 import com.cosmotech.api.security.ROLE_ORGANIZATION_USER
 import com.cosmotech.api.security.ROLE_PLATFORM_ADMIN
 import io.mockk.every
@@ -14,6 +15,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -37,12 +39,13 @@ const val PERM_ADMIN = "admintestperm"
 const val ROLE_READER = "readertestrole"
 const val ROLE_WRITER = "writertestrole"
 const val ROLE_ADMIN = "adminrole"
-const val ROLE_BAD = "badtestrole"
+const val ROLE_NOTIN = "notintestrole"
 
 const val USER_WRITER = "usertestwriter@cosmotech.com"
 const val USER_READER = "usertestreader@cosmotech.com"
 const val USER_NONE = "usertestnone@cosmotech.com"
 const val USER_ADMIN = "usertestadmin@cosmotech.com"
+const val USER_NOTIN = "usertestnotin@cosmotech.com"
 
 const val USER_NEW_READER = "usertestnew@cosmotech.com"
 
@@ -222,7 +225,7 @@ class CsmRbacTests {
 
   @Test
   fun `get permission from bad role`() {
-    assertEquals(listOf(), rbac.getRolePermissions(ROLE_BAD))
+    assertEquals(listOf(), rbac.getRolePermissions(ROLE_NOTIN))
   }
 
   @Test
@@ -325,32 +328,48 @@ class CsmRbacTests {
   }
 
   @Test
-  fun `verify admin user with PLATFORM USER token role write OK`() {
-    every { securityContext.authentication } returns (userAuthentication as Authentication)
-    assertTrue(rbac.verify(PERM_WRITE, USER_ADMIN))
+  fun `update default security to roles not in permission KO`() {
+    assertThrows<CsmClientException> { rbac.setDefault(listOf(ROLE_NOTIN)) }
   }
 
   @Test
-  fun `verify none user with PLATFORM ADMIN token role write OK`() {
-    assertTrue(rbac.verify(PERM_WRITE, USER_NONE))
+  fun `check admin user with PLATFORM USER token role write OK`() {
+    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    assertTrue(rbac.check(PERM_WRITE, USER_ADMIN))
   }
 
   @Test
-  fun `verify writer user with PLATFORM USER token role write OK`() {
-    every { securityContext.authentication } returns (userAuthentication as Authentication)
-    assertTrue(rbac.verify(PERM_WRITE, USER_WRITER))
+  fun `check none user with PLATFORM ADMIN token role write OK`() {
+    assertTrue(rbac.check(PERM_WRITE, USER_NONE))
   }
 
   @Test
-  fun `verify none user with PLATFORM USER token role write KO`() {
+  fun `check writer user with PLATFORM USER token role write OK`() {
     every { securityContext.authentication } returns (userAuthentication as Authentication)
-    assertFalse(rbac.verify(PERM_WRITE, USER_NONE))
+    assertTrue(rbac.check(PERM_WRITE, USER_WRITER))
   }
 
   @Test
-  fun `verify reader user with PLATFORM USER token role write KO`() {
+  fun `check none user with PLATFORM USER token role write KO`() {
     every { securityContext.authentication } returns (userAuthentication as Authentication)
-    assertFalse(rbac.verify(PERM_WRITE, USER_READER))
+    assertFalse(rbac.check(PERM_WRITE, USER_NONE))
+  }
+
+  @Test
+  fun `check reader user with PLATFORM USER token role write KO`() {
+    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    assertFalse(rbac.check(PERM_WRITE, USER_READER))
+  }
+
+  @Test
+  fun `verify KO throw exception`() {
+    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    assertThrows<CsmAccessForbiddenException> { rbac.verify(PERM_WRITE, USER_READER) }
+  }
+
+  @Test
+  fun `verify OK does not throw exception`() {
+    assertDoesNotThrow { rbac.verify(PERM_WRITE, USER_WRITER) }
   }
 
   @Test
@@ -427,6 +446,11 @@ class CsmRbacTests {
   }
 
   @Test
+  fun `throw exception if role does not exist with setRole`() {
+    assertThrows<CsmClientException> { rbac.setUserRoles(USER_READER, listOf(ROLE_NOTIN)) }
+  }
+
+  @Test
   fun `get user info id`() {
     assertEquals(USER_WRITER, rbac.getUserInfo(USER_WRITER).id)
   }
@@ -439,6 +463,21 @@ class CsmRbacTests {
   @Test
   fun `get user info permissions`() {
     assertEquals(ROLE_WRITER_PERMS, rbac.getUserInfo(USER_WRITER).permissions)
+  }
+
+  @Test
+  fun `get user not in info id`() {
+    assertEquals(USER_NOTIN, rbac.getUserInfo(USER_NOTIN).id)
+  }
+
+  @Test
+  fun `get user not in info roles`() {
+    assertEquals(listOf(), rbac.getUserInfo(USER_NOTIN).roles)
+  }
+
+  @Test
+  fun `get user not in info permissions`() {
+    assertEquals(listOf(), rbac.getUserInfo(USER_NOTIN).permissions)
   }
 
   @Test
@@ -507,13 +546,14 @@ class CsmRbacTests {
   }
 
   @Test
-  fun `verify new permission custom ok`() {
+  fun `check new permission custom ok`() {
     val definition = getCommonRolesDefinition()
     val customRole = "custom_role"
     val customPermission = "custom_permission"
     val customRolePermissions = listOf(COMMON_PERMISSION_READ, customPermission)
     definition.permissions.put(customRole, customRolePermissions)
-    rbac.setUserRoles(USER_NEW_READER, listOf(customRole))
-    rbac.verify(customPermission, USER_NEW_READER)
+    val rbacTest = CsmRbac(definition)
+    rbacTest.setUserRoles(USER_NEW_READER, listOf(customRole))
+    rbacTest.check(customPermission, USER_NEW_READER)
   }
 }
