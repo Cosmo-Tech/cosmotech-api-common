@@ -47,6 +47,7 @@ const val USER_READER = "usertestreader@cosmotech.com"
 const val USER_NONE = "usertestnone@cosmotech.com"
 const val USER_ADMIN = "usertestadmin@cosmotech.com"
 const val USER_NOTIN = "usertestnotin@cosmotech.com"
+const val USER_MAIL_TOKEN = "vincent.carluer@cosmotech.com"
 
 const val USER_NEW_READER = "usertestnew@cosmotech.com"
 
@@ -88,6 +89,7 @@ class CsmRbacTests {
                           USER_READER to USER_READER_ROLES,
                           USER_NONE to USER_NONE_ROLES,
                           USER_ADMIN to USER_ADMIN_ROLES,
+                          USER_MAIL_TOKEN to USER_READER_ROLES,
                       )))
 
   @BeforeTest
@@ -96,6 +98,7 @@ class CsmRbacTests {
     csmPlatformProperties = mockk<CsmPlatformProperties>(relaxed = true)
     every { csmPlatformProperties.rbac.enabled } answers { true }
     every { csmPlatformProperties.authorization.rolesJwtClaim } answers { "roles" }
+    every { csmPlatformProperties.authorization.mailJwtClaim } answers { "upn" }
     rolesDefinition =
         RolesDefinition(
             adminRole = ROLE_ADMIN,
@@ -371,6 +374,17 @@ class CsmRbacTests {
   @Test
   fun `verify OK does not throw exception`() {
     assertDoesNotThrow { rbac.verify(PERM_WRITE, USER_WRITER) }
+  }
+
+  @Test
+  fun `verify KO current user throw exception`() {
+    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    assertThrows<CsmAccessForbiddenException> { rbac.verify(PERM_WRITE) }
+  }
+
+  @Test
+  fun `verify OK current user does not throw exception`() {
+    assertDoesNotThrow { rbac.verify(PERM_READ) }
   }
 
   @Test

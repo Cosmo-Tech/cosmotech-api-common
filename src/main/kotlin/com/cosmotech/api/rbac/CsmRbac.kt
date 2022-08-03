@@ -5,6 +5,7 @@ package com.cosmotech.api.rbac
 import com.cosmotech.api.config.CsmPlatformProperties
 import com.cosmotech.api.exceptions.CsmAccessForbiddenException
 import com.cosmotech.api.exceptions.CsmClientException
+import com.cosmotech.api.utils.getCurrentAuthenticatedMail
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,9 +21,14 @@ class CsmRbac(
   private val csmAdmin = CsmAdmin()
 
   // This is the default method to call to check RBAC
+  fun verify(permission: String) {
+    this.verify(permission, getCurrentAuthenticatedMail())
+  }
+
   fun verify(permission: String, user: String) {
     if (!check(permission, user))
-        throw CsmAccessForbiddenException("RBAC $resourceId - User $user does not have permission $permission")
+        throw CsmAccessForbiddenException(
+            "RBAC $resourceId - User $user does not have permission $permission")
   }
 
   fun check(permission: String, user: String): Boolean {
@@ -51,7 +57,8 @@ class CsmRbac(
     if (currentRoles.contains(adminRole) &&
         (!roles.contains(adminRole)) &&
         this.getAdminCount() == 1) {
-      throw CsmAccessForbiddenException("RBAC $resourceId - It is forbidden to unset the last administrator")
+      throw CsmAccessForbiddenException(
+          "RBAC $resourceId - It is forbidden to unset the last administrator")
     }
     this.resourceSecurity.accessControlList.roles.put(user, roles)
   }
@@ -60,7 +67,8 @@ class CsmRbac(
     logger.info("RBAC $resourceId - Removing user $user from security")
     val roles = this.getRoles(user)
     if (roles.contains(this.getAdminRole()) && this.getAdminCount() == 1) {
-      throw CsmAccessForbiddenException("RBAC $resourceId - It is forbidden to remove the last administrator")
+      throw CsmAccessForbiddenException(
+          "RBAC $resourceId - It is forbidden to remove the last administrator")
     }
 
     this.resourceSecurity.accessControlList.roles.remove(user)
