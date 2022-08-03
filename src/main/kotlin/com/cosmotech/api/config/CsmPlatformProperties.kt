@@ -60,7 +60,10 @@ data class CsmPlatformProperties(
 
     /** Data Ingestion reporting behavior */
     val dataIngestion: DataIngestion = DataIngestion(),
-    val twincache: CsmTwinCacheProperties?
+    val twincache: CsmTwinCacheProperties?,
+
+    /** RBAC / ACL configuration */
+    val rbac: CsmRbac = CsmRbac(),
 ) {
 
   data class Authorization(
@@ -429,5 +432,10 @@ data class CsmPlatformProperties(
 
       /** Twin cache password */
       val password: String
+  )
+
+  data class CsmRbac(
+    /** Enable Rbac */
+    val enabled: Boolean = true,
   )
 }
