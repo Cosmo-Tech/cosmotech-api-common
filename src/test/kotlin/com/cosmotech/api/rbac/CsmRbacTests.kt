@@ -71,6 +71,8 @@ class CsmRbacTests {
   private lateinit var userAuthentication: BearerTokenAuthentication
   private lateinit var ownerAuthentication: BearerTokenAuthentication
 
+  private lateinit var rolesDefinition: RolesDefinition
+
   private val resourceSecurity =
       ResourceSecurity(
           default = listOf(ROLE_READER),
@@ -90,7 +92,7 @@ class CsmRbacTests {
     csmPlatformProperties = mockk<CsmPlatformProperties>(relaxed = true)
     every { csmPlatformProperties.rbac.enabled } answers { true }
     every { csmPlatformProperties.authorization.rolesJwtClaim } answers { "roles" }
-    val roleDefinition =
+    rolesDefinition =
         RolesDefinition(
             adminRole = ROLE_ADMIN,
             permissions =
@@ -99,7 +101,7 @@ class CsmRbacTests {
                     ROLE_WRITER to ROLE_WRITER_PERMS,
                     ROLE_ADMIN to ROLE_ADMIN_PERMS,
                 ))
-    rbac = CsmRbac(roleDefinition, resourceSecurity)
+    rbac = CsmRbac(rolesDefinition, resourceSecurity)
     rbac.csmPlatformProperties = csmPlatformProperties
     com.cosmotech.api.utils.configuration = csmPlatformProperties
 
@@ -420,6 +422,11 @@ class CsmRbacTests {
   }
 
   @Test
+  fun `throw exception if last admin removed from setRole`() {
+    assertThrows<CsmAccessForbiddenException> { rbac.setUserRoles(USER_ADMIN, USER_READER_ROLES) }
+  }
+
+  @Test
   fun `get user info id`() {
     assertEquals(USER_WRITER, rbac.getUserInfo(USER_WRITER).id)
   }
@@ -432,6 +439,36 @@ class CsmRbacTests {
   @Test
   fun `get user info permissions`() {
     assertEquals(ROLE_WRITER_PERMS, rbac.getUserInfo(USER_WRITER).permissions)
+  }
+
+  @Test
+  fun `create resource security with default admin`() {
+    val resourceSecurity = createResourceSecurity(USER_ADMIN, rolesDefinition)
+    assertTrue(
+        resourceSecurity
+            .accessControlList
+            .roles
+            .get(USER_ADMIN)
+            ?.contains(rolesDefinition.adminRole)
+            ?: false)
+  }
+
+  @Test
+  fun `create resource security with two admins`() {
+    val resourceSecurity = createResourceSecurity(listOf(USER_ADMIN, USER_READER), rolesDefinition)
+    assertTrue(
+        (resourceSecurity
+            .accessControlList
+            .roles
+            .get(USER_ADMIN)
+            ?.contains(rolesDefinition.adminRole)
+            ?: false) &&
+            (resourceSecurity
+                .accessControlList
+                .roles
+                .get(USER_READER)
+                ?.contains(rolesDefinition.adminRole)
+                ?: false))
   }
 
   // Role definition tests
