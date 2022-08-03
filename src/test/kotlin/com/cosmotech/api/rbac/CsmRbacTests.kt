@@ -45,6 +45,9 @@ const val USER_NONE = "usertestnone@cosmotech.com"
 
 const val USER_NEW_READER = "usertestnew@cosmotech.com"
 
+const val OWNER_ID = "3a869905-e9f5-4851-a7a9-3079aad49dfa"
+const val USER_ID = "2a869905-e9f5-4851-a7a9-3079aad49dfb"
+
 class CsmRbacTests {
   private val ROLE_NONE_PERMS: List<String> = listOf()
   private val ROLE_READER_PERMS = listOf(PERM_READ)
@@ -58,6 +61,8 @@ class CsmRbacTests {
 
   private lateinit var csmPlatformProperties: CsmPlatformProperties
   private lateinit var rbac : CsmRbac
+  private var noRbac : CsmNoRbac = CsmNoRbac()
+  private var admin : CsmAdmin = CsmAdmin()
   private lateinit var securityContext: SecurityContext
   private lateinit var adminAuthentication: BearerTokenAuthentication
   private lateinit var userAuthentication: BearerTokenAuthentication
@@ -87,11 +92,11 @@ class CsmRbacTests {
     com.cosmotech.api.utils.configuration = csmPlatformProperties
 
     adminAuthentication = mockk<BearerTokenAuthentication>(relaxed = true)
-    every { adminAuthentication.name } answers { "owner" }
+    every { adminAuthentication.name } answers { OWNER_ID }
     every { adminAuthentication.token.tokenValue } answers { ADMIN_TOKEN }
 
     userAuthentication = mockk<BearerTokenAuthentication>(relaxed = true)
-    every { userAuthentication.name } answers { "user" }
+    every { userAuthentication.name } answers { USER_ID }
     every { userAuthentication.token.tokenValue } answers { USER_TOKEN }
 
     securityContext = mockk<SecurityContext>(relaxed = true)
@@ -108,57 +113,57 @@ class CsmRbacTests {
 
   @Test
   fun `ownerId OK`() {
-    val userId = "owner"
-    val ownerId = "owner"
-    assertTrue(rbac.verifyOwner(userId, ownerId))
+    val userId = OWNER_ID
+    val ownerId = OWNER_ID
+    assertTrue(noRbac.verifyOwner(userId, ownerId))
   }
 
   @Test
   fun `ownerId KO`() {
-    val userId = "user"
-    val ownerId = "owner"
-    assertFalse(rbac.verifyOwner(userId, ownerId))
+    val userId = USER_ID
+    val ownerId = OWNER_ID
+    assertFalse(noRbac.verifyOwner(userId, ownerId))
   }
   @Test
   fun `current user OK`() {
-    val ownerId = "owner"
-    assertTrue(rbac.verifyCurrentOwner(ownerId))
+    val ownerId = OWNER_ID
+    assertTrue(noRbac.verifyCurrentOwner(ownerId))
   }
 
 
   @Test
   fun `role Platform Admin OK`() {
     val userRoles = listOf(ROLE_PLATFORM_ADMIN)
-    assertTrue(rbac.verifyRolesAdmin(userRoles))
+    assertTrue(admin.verifyRolesAdmin(userRoles))
   }
 
   @Test
   fun `roles with Platform Admin OK`() {
     val userRoles = listOf(ROLE_PLATFORM_ADMIN, ROLE_ORGANIZATION_USER)
-    assertTrue(rbac.verifyRolesAdmin(userRoles))
+    assertTrue(admin.verifyRolesAdmin(userRoles))
   }
 
   @Test
   fun `role Organization User KO`() {
     val userRoles = listOf(ROLE_ORGANIZATION_USER)
-    assertFalse(rbac.verifyRolesAdmin(userRoles))
+    assertFalse(admin.verifyRolesAdmin(userRoles))
   }
 
   @Test
   fun `No role KO`() {
     val userRoles: List<String> = listOf()
-    assertFalse(rbac.verifyRolesAdmin(userRoles))
+    assertFalse(admin.verifyRolesAdmin(userRoles))
   }
 
   @Test
   fun `current user role Admin OK`() {
-    assertTrue(rbac.verifyCurrentRolesAdmin())
+    assertTrue(admin.verifyCurrentRolesAdmin())
   }
 
   @Test
   fun `current user role Admin KO`() {
     every { securityContext.authentication } returns (userAuthentication as Authentication)
-    assertFalse(rbac.verifyCurrentRolesAdmin())
+    assertFalse(admin.verifyCurrentRolesAdmin())
   }
 
   @Test
@@ -279,4 +284,22 @@ class CsmRbacTests {
     rbac.setDefault(USER_WRITER_ROLES)
     assertTrue(rbac.verifyRbac(PERM_WRITE, USER_READER))
   }
+
+  @Test
+  fun `verify none user with PLATFORM ADMIN token role write OK`() {
+    assertTrue(rbac.verify(PERM_WRITE, USER_NONE))
+  }
+
+  @Test
+  fun `verify none user with PLATFORM USER token role write KO`() {
+    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    assertFalse(rbac.verify(PERM_WRITE, USER_NONE))
+  }
+
+  /*
+  @Test
+  fun `rbac disabled, owner with PLATFORM USER token admin`() {
+    every { csmPlatformProperties.rbac.enabled } answers { false }
+    assertFalse(rbac.verifyAdminNoRbac(PERM_READ
+  }*/
 }

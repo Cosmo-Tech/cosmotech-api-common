@@ -14,23 +14,7 @@ class CsmRbac(
 ) {
   @Autowired lateinit var csmPlatformProperties: CsmPlatformProperties
   private val logger: Logger = LoggerFactory.getLogger(this::class.java)
-
-  fun verifyOwner(ownerId: String, userId: String): Boolean {
-    logger.debug("Verifying $userId is Owner")
-    return ownerId.equals(userId)
-  }
-
-  fun verifyCurrentOwner(ownerId: String): Boolean {
-    return this.verifyOwner(ownerId, getCurrentAuthenticatedUserName())
-  }
-
-  fun verifyRolesAdmin(roles: List<String>): Boolean {
-    return roles.contains(ROLE_PLATFORM_ADMIN)
-  }
-
-  fun verifyCurrentRolesAdmin(): Boolean {
-    return this.verifyRolesAdmin(getCurrentAuthenticatedRoles())
-  }
+  private val csmAdmin = CsmAdmin()
 
   fun verifyPermission(permission: String, userPermissions: List<String>): Boolean {
     return userPermissions.contains(permission)
@@ -81,5 +65,13 @@ class CsmRbac(
 
   fun setDefault(roles: List<String>) {
     this.resourceSecurity.default = roles
+  }
+
+  // This is the default method to call to check RBAC
+  fun verify(permission: String, user: String): Boolean {
+    return (
+      csmAdmin.verifyCurrentRolesAdmin() ||
+      this.verifyRbac(permission, user)
+    )
   }
 }
