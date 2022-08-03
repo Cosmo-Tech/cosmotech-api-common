@@ -51,4 +51,14 @@ class CsmRbac(
   fun getRoles(user: String): List<String> {
     return this.resourceSecurity?.accessControlList?.roles?.get(user) ?: listOf()
   }
+
+  fun verifyUser(permission: String, user:String): Boolean {
+    logger.debug("Verifying $user has $permission permission")
+    return this.verifyPermissionFromRoles(permission, getRoles(user))
+  }
+
+  fun verifyDefault(permission: String): Boolean {
+    logger.debug("Verifying default roles for $permission permission")
+    return this.verifyPermissionFromRoles(permission, this.resourceSecurity?.default ?: listOf())
+  }
 }

@@ -41,6 +41,7 @@ const val ROLE_BAD = "badtestrole"
 
 const val USER_WRITER = "usertestwriter@cosmotech.com"
 const val USER_READER = "usertestreader@cosmotech.com"
+const val USER_NONE = "usertestnone@cosmotech.com"
 
 class CsmRbacTests {
   private val ROLE_NONE_PERMS: List<String> = listOf()
@@ -49,6 +50,7 @@ class CsmRbacTests {
 
   private val USER_READER_ROLES  = listOf(ROLE_READER)
   private val USER_WRITER_ROLES  = listOf(ROLE_READER, ROLE_WRITER)
+  private val USER_NONE_ROLES: List<String>  = listOf()
 
   private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
@@ -59,10 +61,11 @@ class CsmRbacTests {
   private lateinit var userAuthentication: BearerTokenAuthentication
 
   private val resourceSecurity = ResourceSecurity(
-    default = null,
+    default = listOf(ROLE_READER),
     accessControlList = UsersAccess(roles = mapOf(
         USER_WRITER to USER_WRITER_ROLES,
         USER_READER to USER_READER_ROLES,
+        USER_NONE to USER_NONE_ROLES,
       )
     )
   )
@@ -199,5 +202,25 @@ class CsmRbacTests {
   @Test
   fun `find roles for user from resource security`() {
     assertEquals(listOf(ROLE_READER), rbac.getRoles(USER_READER))
+  }
+
+  @Test
+  fun `verify permission read for user writer OK`() {
+    assertTrue(rbac.verifyUser(PERM_READ, USER_READER))
+  }
+
+  @Test
+  fun `verify permission write for user writer KO`() {
+    assertFalse(rbac.verifyUser(PERM_WRITE, USER_READER))
+  }
+
+  @Test
+  fun `verify permission read from default security OK`() {
+    assertTrue(rbac.verifyDefault(PERM_READ))
+  }
+
+  @Test
+  fun `verify permission write from default security KO`() {
+    assertFalse(rbac.verifyDefault(PERM_WRITE))
   }
 }
