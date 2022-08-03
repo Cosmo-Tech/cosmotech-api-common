@@ -31,6 +31,8 @@ const val ADMIN_TOKEN=
 const val USER_TOKEN=
       "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSIsImtpZCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSJ9.eyJhdWQiOiJodHRwOi8vZGV2LmFwaS5jb3Ntb3RlY2guY29tIiwiaXNzIjoiaHR0cHM6Ly9zdHMud2luZG93cy5uZXQvZTQxM2I4MzQtOGJlOC00ODIyLWEzNzAtYmU2MTk1NDVjYjQ5LyIsImlhdCI6MTY1OTUyNjcxMSwibmJmIjoxNjU5NTI2NzExLCJleHAiOjE2NTk1MzIwNzUsImFjciI6IjEiLCJhaW8iOiJBU1FBMi84VEFBQUFqRzY4cEwrUGI4dER5bnJSejMzOURoRkxqWFcrdnpJZ3V0NlR0UXFrM1I4PSIsImFtciI6WyJwd2QiXSwiYXBwaWQiOiI1ZTk5ODM1Yi00Y2NkLTRjMTYtODRjNy1lOTc5NmJlMTA3NzIiLCJhcHBpZGFjciI6IjAiLCJmYW1pbHlfbmFtZSI6IkNhcmx1ZXIiLCJnaXZlbl9uYW1lIjoiVmluY2VudCIsImlwYWRkciI6IjgwLjExOS4xMTkuMjQ0IiwibmFtZSI6IlZpbmNlbnQgQ2FybHVlciIsIm9pZCI6IjNhODY5OTA1LWU5ZjUtNDg1MS1hN2E5LTMwNzlhYWQ0OWRmZiIsInJoIjoiMC5BVEVBTkxnVDVPaUxJa2lqY0w1aGxVWExTUm5WLV9aVG1tdE1xcnRKR2JzdEViNHhBTFUuIiwicm9sZXMiOlsiT3JnYW5pemF0aW9uLlVzZXIiXSwic2NwIjoicGxhdGZvcm0iLCJzdWIiOiJIMlU5ZVgwUi1LR0tJang3TG9WRHd2VFZxeE1PT3pGcmFlZVJKYkdDR1ZvIiwidGlkIjoiZTQxM2I4MzQtOGJlOC00ODIyLWEzNzAtYmU2MTk1NDVjYjQ5IiwidW5pcXVlX25hbWUiOiJ2aW5jZW50LmNhcmx1ZXJAY29zbW90ZWNoLmNvbSIsInVwbiI6InZpbmNlbnQuY2FybHVlckBjb3Ntb3RlY2guY29tIiwidXRpIjoicERBd2FnZDI4VUdqLVlhSk9FaGVBQSIsInZlciI6IjEuMCJ9.j5g7hHcusxnftE-1GDceKBgDpeeCijsL4KoUAPNOb5dd2H-pN0-p7za5xbvZscH_Tw5YF8rY5b_MeqMa-6qJQZhG4tUpRml92qIIjzuvF-v3JkVhpUVqE34MAfRMfp8NMR-ATY-XMZ_HekpD_aH0SDWQzoeSlvqhrzMnJ6l4G4v5kSwMeP8MgNxu8TGElPS65PP-639IguHvsgtaaiAJOjHbZ4jQtZdDm34IEpSzJj6eBIxkPv3ADn06A4bbQm63owUKZFRmnKuQIESzHCdI-3jAz-YH-gGbquD-dGUxKTsmi80rsYNsZZg1Nb_lHeSLaTdiJ8NNZkl1WAOUVALglQ"
 
+const val PERM_READ = "readtestperm"
+
 class CsmRbacTests {
   private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
@@ -39,6 +41,8 @@ class CsmRbacTests {
   private lateinit var securityContext: SecurityContext
   private lateinit var adminAuthentication: BearerTokenAuthentication
   private lateinit var userAuthentication: BearerTokenAuthentication
+  private val user_permissions_read: List<String> = listOf(PERM_READ)
+  private val user_permissions_none: List<String> = listOf()
 
   @BeforeTest
   fun beforeEachTest() {
@@ -122,5 +126,15 @@ class CsmRbacTests {
   fun `current user role Admin KO`() {
     every { securityContext.authentication } returns (userAuthentication as Authentication)
     assertFalse(rbac.verifyCurrentRolesAdmin())
+  }
+
+  @Test
+  fun `verify permission read OK`() {
+    assertTrue(rbac.verifyPermission(PERM_READ, user_permissions_read))
+  }
+
+  @Test
+  fun `verify permission read KO`() {
+    assertFalse(rbac.verifyPermission(PERM_READ, user_permissions_none))
   }
 }

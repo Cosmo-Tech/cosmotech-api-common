@@ -27,4 +27,8 @@ class CsmRbac(@Autowired(required = true) val csmPlatformProperties: CsmPlatform
   fun verifyCurrentRolesAdmin(): Boolean {
     return verifyRolesAdmin(getCurrentAuthenticatedRoles())
   }
+
+  fun verifyPermission(permission: String, userPermissions: List<String>): Boolean {
+    return userPermissions.contains(permission)
+  }
 }
