@@ -7,16 +7,16 @@ data class ResourceSecurity(
     val accessControlList: UsersAccess = UsersAccess(),
 )
 
-fun createResourceSecurity(user: String, rolesDefinition: RolesDefinition): ResourceSecurity {
+fun createResourceSecurity(admin: String, rolesDefinition: RolesDefinition): ResourceSecurity {
   val adminRoles = listOf(rolesDefinition.adminRole)
-  return ResourceSecurity(accessControlList = UsersAccess(roles = mutableMapOf(user to adminRoles)))
+  return ResourceSecurity(accessControlList = UsersAccess(roles = mutableMapOf(admin to adminRoles)))
 }
 
 fun createResourceSecurity(
-    users: List<String>,
+    admins: List<String>,
     rolesDefinition: RolesDefinition
 ): ResourceSecurity {
   val adminRoles = listOf(rolesDefinition.adminRole)
   return ResourceSecurity(
-      accessControlList = UsersAccess(roles = users.associate { it to adminRoles }.toMutableMap()))
+      accessControlList = UsersAccess(roles = admins.associate { it to adminRoles }.toMutableMap()))
 }
