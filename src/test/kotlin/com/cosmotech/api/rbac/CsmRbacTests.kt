@@ -45,7 +45,9 @@ class CsmRbacTests {
     logger.trace("Begin test")
     csmPlatformProperties = mockk<CsmPlatformProperties>(relaxed = true)
     every { csmPlatformProperties.rbac.enabled } answers { true }
+    every { csmPlatformProperties.authorization.rolesJwtClaim } answers { "roles" }
     rbac = CsmRbac(csmPlatformProperties)
+    com.cosmotech.api.utils.configuration = csmPlatformProperties
 
     adminAuthentication = mockk<BearerTokenAuthentication>(relaxed = true)
     every { adminAuthentication.name } answers { "owner" }
@@ -90,24 +92,35 @@ class CsmRbacTests {
   @Test
   fun `role Platform Admin OK`() {
     val userRoles = listOf(ROLE_PLATFORM_ADMIN)
-    assertTrue(rbac.verifyRoles(userRoles))
+    assertTrue(rbac.verifyRolesAdmin(userRoles))
   }
 
   @Test
   fun `roles with Platform Admin OK`() {
     val userRoles = listOf(ROLE_PLATFORM_ADMIN, ROLE_ORGANIZATION_USER)
-    assertTrue(rbac.verifyRoles(userRoles))
+    assertTrue(rbac.verifyRolesAdmin(userRoles))
   }
 
   @Test
   fun `role Organization User KO`() {
     val userRoles = listOf(ROLE_ORGANIZATION_USER)
-    assertFalse(rbac.verifyRoles(userRoles))
+    assertFalse(rbac.verifyRolesAdmin(userRoles))
   }
 
   @Test
   fun `No role KO`() {
     val userRoles: List<String> = listOf()
-    assertFalse(rbac.verifyRoles(userRoles))
+    assertFalse(rbac.verifyRolesAdmin(userRoles))
+  }
+
+  @Test
+  fun `current user role Admin OK`() {
+    assertTrue(rbac.verifyCurrentRolesAdmin())
+  }
+
+  @Test
+  fun `current user role Admin KO`() {
+    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    assertFalse(rbac.verifyCurrentRolesAdmin())
   }
 }

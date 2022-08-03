@@ -77,6 +77,9 @@ data class CsmPlatformProperties(
       /** The JWT Claim where the mail information is stored */
       val mailJwtClaim: String = "upn",
 
+      /** The JWT Claim where the roles information is stored */
+      val rolesJwtClaim: String = "roles",
+
       /**
        * List of additional tenants allowed to register, besides the configured
        * `csm.platform.azure.credentials.tenantId`
