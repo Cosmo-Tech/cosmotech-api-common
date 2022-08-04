@@ -316,6 +316,24 @@ class CsmRbacTests {
   }
 
   @Test
+  fun `add new reader and then get info id OK`() {
+    rbac.setUserRoles(USER_NEW_READER, USER_READER_ROLES)
+    assertEquals(USER_NEW_READER, rbac.getUserInfo(USER_NEW_READER).id)
+  }
+
+  @Test
+  fun `add new reader and then get info roles OK`() {
+    rbac.setUserRoles(USER_NEW_READER, USER_READER_ROLES)
+    assertEquals(USER_READER_ROLES, rbac.getUserInfo(USER_NEW_READER).roles)
+  }
+
+  @Test
+  fun `add new reader and then get info permission OK`() {
+    rbac.setUserRoles(USER_NEW_READER, USER_READER_ROLES)
+    assertEquals(ROLE_READER_PERMS, rbac.getUserInfo(USER_NEW_READER).permissions)
+  }
+
+  @Test
   fun `user with no roles has default read permission`() {
     assertTrue(rbac.verifyRbac(PERM_READ, USER_NONE))
   }
