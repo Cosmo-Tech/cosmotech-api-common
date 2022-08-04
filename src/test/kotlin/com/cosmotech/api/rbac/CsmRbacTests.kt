@@ -260,6 +260,11 @@ class CsmRbacTests {
   }
 
   @Test
+  fun `find roles for admin from resource security`() {
+    assertEquals(listOf(ROLE_ADMIN), rbac.getRoles(USER_ADMIN))
+  }
+
+  @Test
   fun `verify permission read for user writer OK`() {
     assertTrue(rbac.verifyUser(PERM_READ, USER_READER))
   }
