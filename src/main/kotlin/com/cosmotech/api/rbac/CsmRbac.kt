@@ -26,7 +26,7 @@ open class CsmRbac(
   // This is the default method to call to check RBAC
   fun verify(permission: String) {
     if (!this.csmPlatformProperties.rbac.enabled) {
-      logger.debug("RBAC $resourceId - RBAC not enabled")
+      logger.debug("RBAC $resourceId - RBAC verify not enabled")
       return
     }
     this.verify(permission, getCurrentAuthenticatedMail(this.csmPlatformProperties))
@@ -38,10 +38,18 @@ open class CsmRbac(
             "RBAC $resourceId - User $user does not have permission $permission")
   }
 
+  fun check(permission: String): Boolean {
+    if (!this.csmPlatformProperties.rbac.enabled) {
+      logger.debug("RBAC $resourceId - RBAC check not enabled")
+      return true
+    }
+    return this.check(permission, getCurrentAuthenticatedMail(this.csmPlatformProperties))
+  }
+
   fun check(permission: String, user: String): Boolean {
     logger.info("RBAC $resourceId - Verifying permission $permission for user $user")
     if (!this.csmPlatformProperties.rbac.enabled) {
-      logger.debug("RBAC $resourceId - RBAC not enabled")
+      logger.debug("RBAC $resourceId - RBAC check not enabled")
       return true
     }
     return (this.isAdmin(user) || this.verifyRbac(permission, user))
@@ -104,6 +112,10 @@ open class CsmRbac(
   ) {
     this.resourceId = newResourceId
     this.resourceSecurity = createResourceSecurity(default, roles)
+  }
+
+  fun getUsers(): List<String> {
+    return this.resourceSecurity.accessControlList.roles.keys.toList()
   }
 
   internal fun verifyRolesOrThrow(roles: List<String>) {

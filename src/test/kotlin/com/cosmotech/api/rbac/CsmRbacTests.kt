@@ -375,6 +375,19 @@ class CsmRbacTests {
   }
 
   @Test
+  fun `check return OK if rbac flag set to false for current user`() {
+    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    every { csmPlatformProperties.rbac.enabled } answers { false }
+    assertTrue(rbac.check(PERM_WRITE))
+  }
+
+  @Test
+  fun `check current user with PLATFORM USER token role read OK`() {
+    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    assertTrue(rbac.check(PERM_READ))
+  }
+
+  @Test
   fun `verify KO throw exception`() {
     every { securityContext.authentication } returns (userAuthentication as Authentication)
     assertThrows<CsmAccessForbiddenException> { rbac.verify(PERM_WRITE, USER_READER) }
@@ -524,6 +537,12 @@ class CsmRbacTests {
   @Test
   fun `get user not in info permissions`() {
     assertEquals(listOf(), rbac.getUserInfo(USER_NOTIN).permissions)
+  }
+
+  @Test
+  fun `get user list`() {
+    assertEquals(
+        listOf(USER_WRITER, USER_READER, USER_NONE, USER_ADMIN, USER_MAIL_TOKEN), rbac.getUsers())
   }
 
   @Test
