@@ -4,16 +4,18 @@ package com.cosmotech.api.rbac
 
 import org.springframework.stereotype.Component
 
-public const val COMMON_ROLE_ADMIN = "common_role_admin"
-public const val COMMON_ROLE_WRITER = "common_role_writer"
-public const val COMMON_ROLE_CREATOR = "common_role_creator"
-public const val COMMON_ROLE_READER = "common_role_reader"
+// openapi generator takes only last term if _ in name or bad parsing if -
+public const val COMMON_ROLE_ADMIN = "commonroleadmin"
+public const val COMMON_ROLE_WRITER = "commonrolewriter"
+public const val COMMON_ROLE_CREATOR = "commonrolecreator"
+public const val COMMON_ROLE_READER = "commonrolereader"
 
-public const val COMMON_PERMISSION_ADMIN = "common_permission_admin"
-public const val COMMON_PERMISSION_DELETE = "common_permission_delete"
-public const val COMMON_PERMISSION_WRITE = "common_permission_write"
-public const val COMMON_PERMISSION_CREATE_CHILDREN = "common_permission_create_children"
-public const val COMMON_PERMISSION_READ = "common_permission_read"
+// apply same format rules for permission for consistency
+public const val COMMON_PERMISSION_ADMIN = "commonpermissionadmin"
+public const val COMMON_PERMISSION_DELETE = "commonpermissiondelete"
+public const val COMMON_PERMISSION_WRITE = "commonpermissionwrite"
+public const val COMMON_PERMISSION_CREATE_CHILDREN = "commonpermissioncreatechildren"
+public const val COMMON_PERMISSION_READ = "commonpermissionread"
 
 public val COMMON_ROLE_ADMIN_PERMISSIONS =
     listOf(
