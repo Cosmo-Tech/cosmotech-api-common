@@ -2,13 +2,15 @@
 // Licensed under the MIT license.
 package com.cosmotech.api.rbac
 
+import com.cosmotech.api.config.CsmPlatformProperties
 import com.cosmotech.api.utils.getCurrentAuthenticatedUserName
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Component
 
-class CsmNoRbac {
+@Component
+class CsmNoRbac(val csmPlatformProperties: CsmPlatformProperties, val csmAdmin: CsmAdmin) {
   private val logger: Logger = LoggerFactory.getLogger(this::class.java)
-  private val csmAdmin = CsmAdmin()
 
   fun verifyOwner(ownerId: String, userId: String): Boolean {
     logger.debug("Verifying $userId is Owner")

@@ -2,6 +2,8 @@
 // Licensed under the MIT license.
 package com.cosmotech.api.rbac
 
+import org.springframework.stereotype.Component
+
 public const val COMMON_ROLE_ADMIN = "common_role_admin"
 public const val COMMON_ROLE_WRITER = "common_role_writer"
 public const val COMMON_ROLE_CREATOR = "common_role_creator"
@@ -26,8 +28,9 @@ public val COMMON_ROLE_CREATOR_PERMISSIONS =
     listOf(COMMON_PERMISSION_CREATE_CHILDREN, COMMON_PERMISSION_READ)
 public val COMMON_ROLE_READER_PERMISSIONS = listOf(COMMON_PERMISSION_READ)
 
+@Component
 data class RolesDefinition(
-    val permissions: MutableMap<String, List<String>>,
+    val permissions: MutableMap<String, List<String>> = mutableMapOf(),
     val adminRole: String = COMMON_ROLE_ADMIN
 )
 

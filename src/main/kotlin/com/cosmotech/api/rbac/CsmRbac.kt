@@ -8,17 +8,20 @@ import com.cosmotech.api.exceptions.CsmClientException
 import com.cosmotech.api.utils.getCurrentAuthenticatedMail
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Component
 
 @Suppress("TooManyFunctions")
-class CsmRbac(
-    val csmPlatformProperties: CsmPlatformProperties,
-    val rolesDefinition: RolesDefinition,
-    var resourceId: String = "Not defined",
-    var resourceSecurity: ResourceSecurity = ResourceSecurity(),
+@Component
+open class CsmRbac(
+    protected val csmPlatformProperties: CsmPlatformProperties,
+    protected val rolesDefinition: RolesDefinition,
+    protected val csmAdmin: CsmAdmin
 ) {
 
+  protected var resourceId: String = "Not defined"
+  protected var resourceSecurity: ResourceSecurity = ResourceSecurity()
+
   private val logger: Logger = LoggerFactory.getLogger(this::class.java)
-  private val csmAdmin = CsmAdmin()
 
   // This is the default method to call to check RBAC
   fun verify(permission: String) {
@@ -26,7 +29,7 @@ class CsmRbac(
       logger.debug("RBAC $resourceId - RBAC not enabled")
       return
     }
-    this.verify(permission, getCurrentAuthenticatedMail())
+    this.verify(permission, getCurrentAuthenticatedMail(this.csmPlatformProperties))
   }
 
   fun verify(permission: String, user: String) {
@@ -94,7 +97,6 @@ class CsmRbac(
     this.resourceId = newResourceId
     this.resourceSecurity = newSecurity
   }
-
   fun setResourceInfo(
       newResourceId: String,
       default: List<String>,
@@ -132,23 +134,31 @@ class CsmRbac(
   }
 
   internal fun verifyUser(permission: String, user: String): Boolean {
-    logger.debug("RBAC $resourceId - Verifying $user has permission: $permission")
-    return this.verifyPermissionFromRoles(permission, getRoles(user))
+    logger.debug("RBAC $resourceId - Verifying $user has permission in ACL: $permission")
+    val isAuthorized = this.verifyPermissionFromRoles(permission, getRoles(user))
+    logger.debug("RBAC $resourceId - $user has permission $permission in ACL: $isAuthorized")
+    return isAuthorized
   }
 
   internal fun verifyDefault(permission: String): Boolean {
     logger.debug("RBAC $resourceId - Verifying default roles for permission: $permission")
-    return this.verifyPermissionFromRoles(permission, this.resourceSecurity.default)
+    val isAuthorized = this.verifyPermissionFromRoles(permission, this.resourceSecurity.default)
+    logger.debug("RBAC $resourceId - default roles for permission $permission: $isAuthorized")
+    return isAuthorized
   }
 
   internal fun verifyAdminRole(user: String): Boolean {
     logger.debug("RBAC $resourceId - Verifying if $user has default admin rbac role")
-    return this.getRoles(user).contains(this.getAdminRole())
+    val isAdmin = this.getRoles(user).contains(this.getAdminRole())
+    logger.debug("RBAC $resourceId - $user has default admin rbac role: $isAdmin")
+    return isAdmin
   }
 
   internal fun isAdminToken(user: String): Boolean {
     logger.debug("RBAC $resourceId - Verifying if $user has platform admin role in token")
-    return csmAdmin.verifyCurrentRolesAdmin()
+    val isAdmin = csmAdmin.verifyCurrentRolesAdmin()
+    logger.debug("RBAC $resourceId - $user has platform admin role in token: $isAdmin")
+    return isAdmin
   }
 
   internal fun verifyRbac(permission: String, user: String): Boolean {

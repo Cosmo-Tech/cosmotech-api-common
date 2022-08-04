@@ -25,8 +25,11 @@ fun createResourceSecurity(
       accessControlList = UsersAccess(roles = admins.associate { it to adminRoles }.toMutableMap()))
 }
 
-fun createResourceSecurityCurrentAdmin(rolesDefinition: RolesDefinition): ResourceSecurity {
-  val admins = listOf(getCurrentAuthenticatedMail())
+fun createResourceSecurityCurrentAdmin(
+    csmPlatformProperties: CsmPlatformProperties,
+    rolesDefinition: RolesDefinition
+): ResourceSecurity {
+  val admins = listOf(getCurrentAuthenticatedMail(csmPlatformProperties))
   val adminRoles = listOf(rolesDefinition.adminRole)
   return ResourceSecurity(
       accessControlList = UsersAccess(roles = admins.associate { it to adminRoles }.toMutableMap()))
@@ -46,7 +49,7 @@ fun migrateResourceSecurity(
   val listOfAdmins: MutableList<String> = mutableListOf()
 
   if (csmPlatformProperties.rbac.migrateCurrentAsAdmin) {
-    listOfAdmins.add(getCurrentAuthenticatedMail())
+    listOfAdmins.add(getCurrentAuthenticatedMail(csmPlatformProperties))
   }
 
   if (csmPlatformProperties.rbac.migrateAdminFromList) {

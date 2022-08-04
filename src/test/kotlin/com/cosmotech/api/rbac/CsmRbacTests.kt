@@ -68,9 +68,9 @@ class CsmRbacTests {
   private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
   private lateinit var csmPlatformProperties: CsmPlatformProperties
+  private lateinit var admin: CsmAdmin
+  private lateinit var noRbac: CsmNoRbac
   private lateinit var rbac: CsmRbac
-  private var noRbac: CsmNoRbac = CsmNoRbac()
-  private var admin: CsmAdmin = CsmAdmin()
   private lateinit var securityContext: SecurityContext
   private lateinit var adminAuthentication: BearerTokenAuthentication
   private lateinit var userAuthentication: BearerTokenAuthentication
@@ -108,8 +108,11 @@ class CsmRbacTests {
                     ROLE_WRITER to ROLE_WRITER_PERMS,
                     ROLE_ADMIN to ROLE_ADMIN_PERMS,
                 ))
-    rbac = CsmRbac(csmPlatformProperties, rolesDefinition, RESOURCE_ID, resourceSecurity)
-    com.cosmotech.api.utils.configuration = csmPlatformProperties
+
+    admin = CsmAdmin(csmPlatformProperties)
+    noRbac = CsmNoRbac(csmPlatformProperties, admin)
+    rbac = CsmRbac(csmPlatformProperties, rolesDefinition, admin)
+    rbac.setResourceInfo(RESOURCE_ID, resourceSecurity)
 
     adminAuthentication = mockk<BearerTokenAuthentication>(relaxed = true)
     every { adminAuthentication.name } answers { USER_ID }
@@ -595,7 +598,8 @@ class CsmRbacTests {
     val customPermission = "custom_permission"
     val customRolePermissions = listOf(COMMON_PERMISSION_READ, customPermission)
     definition.permissions.put(customRole, customRolePermissions)
-    val rbacTest = CsmRbac(csmPlatformProperties, definition, RESOURCE_ID)
+    val rbacTest = CsmRbac(csmPlatformProperties, definition, admin)
+    rbacTest.setResourceInfo(RESOURCE_ID, ResourceSecurity())
     rbacTest.setUserRoles(USER_NEW_READER, listOf(customRole))
     every { securityContext.authentication } returns (userAuthentication as Authentication)
     assertTrue(rbacTest.check(customPermission, USER_NEW_READER))
@@ -605,8 +609,8 @@ class CsmRbacTests {
   @Test
   fun `can add resource id and resource security in a second step`() {
     val definition = getCommonRolesDefinition()
-    val rbacTest = CsmRbac(csmPlatformProperties, definition)
-    rbacTest.resourceId = RESOURCE_ID
+    val rbacTest = CsmRbac(csmPlatformProperties, definition, admin)
+    rbacTest.setResourceInfo(RESOURCE_ID, ResourceSecurity())
     rbacTest.setUserRoles(USER_READER, listOf(COMMON_ROLE_READER))
     every { securityContext.authentication } returns (userAuthentication as Authentication)
     assertTrue(rbacTest.check(COMMON_PERMISSION_READ, USER_READER))
@@ -615,7 +619,7 @@ class CsmRbacTests {
   @Test
   fun `can add resource id and resource security in one call`() {
     val definition = getCommonRolesDefinition()
-    val rbacTest = CsmRbac(csmPlatformProperties, definition)
+    val rbacTest = CsmRbac(csmPlatformProperties, definition, admin)
     val security =
         ResourceSecurity(
             accessControlList =
@@ -628,7 +632,7 @@ class CsmRbacTests {
   @Test
   fun `can create resource security from list and map directly`() {
     val definition = getCommonRolesDefinition()
-    val rbacTest = CsmRbac(csmPlatformProperties, definition)
+    val rbacTest = CsmRbac(csmPlatformProperties, definition, admin)
     val default = listOf(COMMON_ROLE_READER)
     val roles = mutableMapOf(USER_WRITER to listOf(COMMON_ROLE_WRITER))
     val security = createResourceSecurity(default, roles)
@@ -640,7 +644,7 @@ class CsmRbacTests {
   @Test
   fun `can create resource security from list and map directly KO`() {
     val definition = getCommonRolesDefinition()
-    val rbacTest = CsmRbac(csmPlatformProperties, definition)
+    val rbacTest = CsmRbac(csmPlatformProperties, definition, admin)
     val default = listOf(COMMON_ROLE_READER)
     val roles = mutableMapOf(USER_WRITER to listOf(COMMON_ROLE_WRITER))
     val security = createResourceSecurity(default, roles)
@@ -652,8 +656,8 @@ class CsmRbacTests {
   @Test
   fun `can create resource security with current user as admin`() {
     val definition = getCommonRolesDefinition()
-    val rbacTest = CsmRbac(csmPlatformProperties, definition)
-    val security = createResourceSecurityCurrentAdmin(definition)
+    val rbacTest = CsmRbac(csmPlatformProperties, definition, admin)
+    val security = createResourceSecurityCurrentAdmin(csmPlatformProperties, definition)
     rbacTest.setResourceInfo(RESOURCE_ID, security)
     every { securityContext.authentication } returns (userAuthentication as Authentication)
     assertTrue(rbacTest.check(COMMON_PERMISSION_ADMIN, USER_MAIL_TOKEN))
@@ -662,7 +666,7 @@ class CsmRbacTests {
   @Test
   fun `can create resource security from list and map directly writer`() {
     val definition = getCommonRolesDefinition()
-    val rbacTest = CsmRbac(csmPlatformProperties, definition)
+    val rbacTest = CsmRbac(csmPlatformProperties, definition, admin)
     val default = listOf(COMMON_ROLE_READER)
     val roles = mutableMapOf(USER_WRITER to listOf(COMMON_ROLE_WRITER))
     val security = createResourceSecurity(default, roles)
@@ -674,7 +678,7 @@ class CsmRbacTests {
   @Test
   fun `can create resource security from list and map directly token`() {
     val definition = getCommonRolesDefinition()
-    val rbacTest = CsmRbac(csmPlatformProperties, definition)
+    val rbacTest = CsmRbac(csmPlatformProperties, definition, admin)
     val default = listOf(COMMON_ROLE_READER)
     val roles = mutableMapOf(USER_MAIL_TOKEN to listOf(COMMON_ROLE_WRITER))
     val security = createResourceSecurity(default, roles)
@@ -686,7 +690,7 @@ class CsmRbacTests {
   @Test
   fun `can create resource security from list and map directly in rbac writer`() {
     val definition = getCommonRolesDefinition()
-    val rbacTest = CsmRbac(csmPlatformProperties, definition)
+    val rbacTest = CsmRbac(csmPlatformProperties, definition, admin)
     val default = listOf(COMMON_ROLE_READER)
     val roles = mutableMapOf(USER_WRITER to listOf(COMMON_ROLE_WRITER))
     rbacTest.setResourceInfo(RESOURCE_ID, default, roles)
