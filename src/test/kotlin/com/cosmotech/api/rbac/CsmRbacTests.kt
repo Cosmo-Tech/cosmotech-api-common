@@ -108,8 +108,7 @@ class CsmRbacTests {
                     ROLE_WRITER to ROLE_WRITER_PERMS,
                     ROLE_ADMIN to ROLE_ADMIN_PERMS,
                 ))
-    rbac = CsmRbac(RESOURCE_ID, rolesDefinition, resourceSecurity)
-    rbac.csmPlatformProperties = csmPlatformProperties
+    rbac = CsmRbac(RESOURCE_ID, csmPlatformProperties, rolesDefinition, resourceSecurity)
     com.cosmotech.api.utils.configuration = csmPlatformProperties
 
     adminAuthentication = mockk<BearerTokenAuthentication>(relaxed = true)
@@ -366,6 +365,13 @@ class CsmRbacTests {
   }
 
   @Test
+  fun `check return OK if rbac flag set to false`() {
+    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    every { csmPlatformProperties.rbac.enabled } answers { false }
+    assertTrue(rbac.check(PERM_WRITE, USER_READER))
+  }
+
+  @Test
   fun `verify KO throw exception`() {
     every { securityContext.authentication } returns (userAuthentication as Authentication)
     assertThrows<CsmAccessForbiddenException> { rbac.verify(PERM_WRITE, USER_READER) }
@@ -385,6 +391,13 @@ class CsmRbacTests {
   @Test
   fun `verify OK current user does not throw exception`() {
     assertDoesNotThrow { rbac.verify(PERM_READ) }
+  }
+
+  @Test
+  fun `verify return OK if rbac flag set to false`() {
+    every { csmPlatformProperties.rbac.enabled } answers { false }
+    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    assertDoesNotThrow { rbac.verify(PERM_WRITE) }
   }
 
   @Test
@@ -463,6 +476,21 @@ class CsmRbacTests {
   @Test
   fun `throw exception if role does not exist with setRole`() {
     assertThrows<CsmClientException> { rbac.setUserRoles(USER_READER, listOf(ROLE_NOTIN)) }
+  }
+
+  @Test
+  fun `add new user roles throw exception if not in the allowed list`() {
+    assertThrows<CsmClientException> {
+      rbac.setUserRoles(USER_NEW_READER, USER_READER_ROLES, listOf(USER_ADMIN, USER_WRITER))
+    }
+  }
+
+  @Test
+  fun `add new user roles OK if in the allowed list`() {
+    assertDoesNotThrow {
+      rbac.setUserRoles(
+          USER_NEW_READER, USER_READER_ROLES, listOf(USER_ADMIN, USER_WRITER, USER_NEW_READER))
+    }
   }
 
   @Test
@@ -567,8 +595,8 @@ class CsmRbacTests {
     val customPermission = "custom_permission"
     val customRolePermissions = listOf(COMMON_PERMISSION_READ, customPermission)
     definition.permissions.put(customRole, customRolePermissions)
-    val rbacTest = CsmRbac(RESOURCE_ID, definition)
+    val rbacTest = CsmRbac(RESOURCE_ID, csmPlatformProperties, definition)
     rbacTest.setUserRoles(USER_NEW_READER, listOf(customRole))
-    rbacTest.check(customPermission, USER_NEW_READER)
+    assertTrue(rbacTest.check(customPermission, USER_NEW_READER))
   }
 }

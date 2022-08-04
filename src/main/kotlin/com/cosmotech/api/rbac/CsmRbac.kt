@@ -8,20 +8,24 @@ import com.cosmotech.api.exceptions.CsmClientException
 import com.cosmotech.api.utils.getCurrentAuthenticatedMail
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
 
 @Suppress("TooManyFunctions")
 class CsmRbac(
     val resourceId: String,
+    val csmPlatformProperties: CsmPlatformProperties,
     val rolesDefinition: RolesDefinition,
     val resourceSecurity: ResourceSecurity = ResourceSecurity(),
 ) {
-  @Autowired lateinit var csmPlatformProperties: CsmPlatformProperties
+
   private val logger: Logger = LoggerFactory.getLogger(this::class.java)
   private val csmAdmin = CsmAdmin()
 
   // This is the default method to call to check RBAC
   fun verify(permission: String) {
+    if (!this.csmPlatformProperties.rbac.enabled) {
+      logger.debug("RBAC $resourceId - RBAC not enabled")
+      return
+    }
     this.verify(permission, getCurrentAuthenticatedMail())
   }
 
@@ -33,6 +37,10 @@ class CsmRbac(
 
   fun check(permission: String, user: String): Boolean {
     logger.info("RBAC $resourceId - Verifying permission $permission for user $user")
+    if (!this.csmPlatformProperties.rbac.enabled) {
+      logger.debug("RBAC $resourceId - RBAC not enabled")
+      return true
+    }
     return (this.isAdmin(user) || this.verifyRbac(permission, user))
   }
 
@@ -47,6 +55,14 @@ class CsmRbac(
     logger.info("RBAC $resourceId - Setting default security")
     this.verifyRolesOrThrow(roles)
     this.resourceSecurity.default = roles
+  }
+
+  fun setUserRoles(user: String, roles: List<String>, authorizedUsers: List<String>) {
+    logger.info("RBAC $resourceId - Setting user $user roles with validation list")
+    if (!authorizedUsers.contains(user))
+        throw CsmClientException(
+            "RBAC $resourceId - user $user not in the list of authorized users to be added. Check parent RBAC.")
+    this.setUserRoles(user, roles)
   }
 
   fun setUserRoles(user: String, roles: List<String>) {
