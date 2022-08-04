@@ -650,6 +650,16 @@ class CsmRbacTests {
   }
 
   @Test
+  fun `can create resource security with current user as admin`() {
+    val definition = getCommonRolesDefinition()
+    val rbacTest = CsmRbac(csmPlatformProperties, definition)
+    val security = createResourceSecurityCurrentAdmin(definition)
+    rbacTest.setResourceInfo(RESOURCE_ID, security)
+    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    assertTrue(rbacTest.check(COMMON_PERMISSION_ADMIN, USER_MAIL_TOKEN))
+  }
+
+  @Test
   fun `can create resource security from list and map directly writer`() {
     val definition = getCommonRolesDefinition()
     val rbacTest = CsmRbac(csmPlatformProperties, definition)
