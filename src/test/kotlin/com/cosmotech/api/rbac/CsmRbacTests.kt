@@ -672,4 +672,15 @@ class CsmRbacTests {
     every { securityContext.authentication } returns (userAuthentication as Authentication)
     assertDoesNotThrow { rbacTest.verify(COMMON_PERMISSION_WRITE) }
   }
+
+  @Test
+  fun `can create resource security from list and map directly in rbac writer`() {
+    val definition = getCommonRolesDefinition()
+    val rbacTest = CsmRbac(csmPlatformProperties, definition)
+    val default = listOf(COMMON_ROLE_READER)
+    val roles = mutableMapOf(USER_WRITER to listOf(COMMON_ROLE_WRITER))
+    rbacTest.setResourceInfo(RESOURCE_ID, default, roles)
+    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    assertTrue(rbacTest.check(COMMON_PERMISSION_WRITE, USER_WRITER))
+  }
 }

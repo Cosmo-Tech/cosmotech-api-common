@@ -95,6 +95,15 @@ class CsmRbac(
     this.resourceSecurity = newSecurity
   }
 
+  fun setResourceInfo(
+      newResourceId: String,
+      default: List<String>,
+      roles: MutableMap<String, List<String>>
+  ) {
+    this.resourceId = newResourceId
+    this.resourceSecurity = createResourceSecurity(default, roles)
+  }
+
   internal fun verifyRolesOrThrow(roles: List<String>) {
     roles.forEach {
       if (!this.rolesDefinition.permissions.keys.contains(it))
