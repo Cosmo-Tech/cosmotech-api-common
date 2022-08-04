@@ -108,7 +108,7 @@ class CsmRbacTests {
                     ROLE_WRITER to ROLE_WRITER_PERMS,
                     ROLE_ADMIN to ROLE_ADMIN_PERMS,
                 ))
-    rbac = CsmRbac(RESOURCE_ID, csmPlatformProperties, rolesDefinition, resourceSecurity)
+    rbac = CsmRbac(csmPlatformProperties, rolesDefinition, RESOURCE_ID, resourceSecurity)
     com.cosmotech.api.utils.configuration = csmPlatformProperties
 
     adminAuthentication = mockk<BearerTokenAuthentication>(relaxed = true)
@@ -595,8 +595,81 @@ class CsmRbacTests {
     val customPermission = "custom_permission"
     val customRolePermissions = listOf(COMMON_PERMISSION_READ, customPermission)
     definition.permissions.put(customRole, customRolePermissions)
-    val rbacTest = CsmRbac(RESOURCE_ID, csmPlatformProperties, definition)
+    val rbacTest = CsmRbac(csmPlatformProperties, definition, RESOURCE_ID)
     rbacTest.setUserRoles(USER_NEW_READER, listOf(customRole))
+    every { securityContext.authentication } returns (userAuthentication as Authentication)
     assertTrue(rbacTest.check(customPermission, USER_NEW_READER))
+  }
+
+  // Utilitary methods for rbac creation
+  @Test
+  fun `can add resource id and resource security in a second step`() {
+    val definition = getCommonRolesDefinition()
+    val rbacTest = CsmRbac(csmPlatformProperties, definition)
+    rbacTest.resourceId = RESOURCE_ID
+    rbacTest.setUserRoles(USER_READER, listOf(COMMON_ROLE_READER))
+    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    assertTrue(rbacTest.check(COMMON_PERMISSION_READ, USER_READER))
+  }
+
+  @Test
+  fun `can add resource id and resource security in one call`() {
+    val definition = getCommonRolesDefinition()
+    val rbacTest = CsmRbac(csmPlatformProperties, definition)
+    val security =
+        ResourceSecurity(
+            accessControlList =
+                UsersAccess(roles = mutableMapOf(USER_READER to listOf(COMMON_ROLE_READER))))
+    rbacTest.setResourceInfo(RESOURCE_ID, security)
+    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    assertTrue(rbacTest.check(COMMON_PERMISSION_READ, USER_READER))
+  }
+
+  @Test
+  fun `can create resource security from list and map directly`() {
+    val definition = getCommonRolesDefinition()
+    val rbacTest = CsmRbac(csmPlatformProperties, definition)
+    val default = listOf(COMMON_ROLE_READER)
+    val roles = mutableMapOf(USER_WRITER to listOf(COMMON_ROLE_WRITER))
+    val security = createResourceSecurity(default, roles)
+    rbacTest.setResourceInfo(RESOURCE_ID, security)
+    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    assertTrue(rbacTest.check(COMMON_PERMISSION_READ, USER_READER))
+  }
+
+  @Test
+  fun `can create resource security from list and map directly KO`() {
+    val definition = getCommonRolesDefinition()
+    val rbacTest = CsmRbac(csmPlatformProperties, definition)
+    val default = listOf(COMMON_ROLE_READER)
+    val roles = mutableMapOf(USER_WRITER to listOf(COMMON_ROLE_WRITER))
+    val security = createResourceSecurity(default, roles)
+    rbacTest.setResourceInfo(RESOURCE_ID, security)
+    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    assertFalse(rbacTest.check(COMMON_PERMISSION_WRITE, USER_READER))
+  }
+
+  @Test
+  fun `can create resource security from list and map directly writer`() {
+    val definition = getCommonRolesDefinition()
+    val rbacTest = CsmRbac(csmPlatformProperties, definition)
+    val default = listOf(COMMON_ROLE_READER)
+    val roles = mutableMapOf(USER_WRITER to listOf(COMMON_ROLE_WRITER))
+    val security = createResourceSecurity(default, roles)
+    rbacTest.setResourceInfo(RESOURCE_ID, security)
+    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    assertTrue(rbacTest.check(COMMON_PERMISSION_WRITE, USER_WRITER))
+  }
+
+  @Test
+  fun `can create resource security from list and map directly token`() {
+    val definition = getCommonRolesDefinition()
+    val rbacTest = CsmRbac(csmPlatformProperties, definition)
+    val default = listOf(COMMON_ROLE_READER)
+    val roles = mutableMapOf(USER_MAIL_TOKEN to listOf(COMMON_ROLE_WRITER))
+    val security = createResourceSecurity(default, roles)
+    rbacTest.setResourceInfo(RESOURCE_ID, security)
+    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    assertDoesNotThrow { rbacTest.verify(COMMON_PERMISSION_WRITE) }
   }
 }

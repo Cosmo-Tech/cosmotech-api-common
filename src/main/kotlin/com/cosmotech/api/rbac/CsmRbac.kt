@@ -11,10 +11,10 @@ import org.slf4j.LoggerFactory
 
 @Suppress("TooManyFunctions")
 class CsmRbac(
-    val resourceId: String,
     val csmPlatformProperties: CsmPlatformProperties,
     val rolesDefinition: RolesDefinition,
-    val resourceSecurity: ResourceSecurity = ResourceSecurity(),
+    var resourceId: String = "Not defined",
+    var resourceSecurity: ResourceSecurity = ResourceSecurity(),
 ) {
 
   private val logger: Logger = LoggerFactory.getLogger(this::class.java)
@@ -88,6 +88,11 @@ class CsmRbac(
     }
 
     this.resourceSecurity.accessControlList.roles.remove(user)
+  }
+
+  fun setResourceInfo(newResourceId: String, newSecurity: ResourceSecurity) {
+    this.resourceId = newResourceId
+    this.resourceSecurity = newSecurity
   }
 
   internal fun verifyRolesOrThrow(roles: List<String>) {

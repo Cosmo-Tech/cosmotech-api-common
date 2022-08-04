@@ -21,3 +21,10 @@ fun createResourceSecurity(
   return ResourceSecurity(
       accessControlList = UsersAccess(roles = admins.associate { it to adminRoles }.toMutableMap()))
 }
+
+fun createResourceSecurity(
+    default: List<String>,
+    roles: MutableMap<String, List<String>>
+): ResourceSecurity {
+  return ResourceSecurity(default = default, accessControlList = UsersAccess(roles = roles))
+}
