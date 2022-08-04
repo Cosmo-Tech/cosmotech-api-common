@@ -37,6 +37,7 @@ const val ROLE_SOLUTION_READER = "Solution.Reader"
 const val ROLE_SOLUTION_WRITER = "Solution.Writer"
 const val ROLE_WORKSPACE_READER = "Workspace.Reader"
 const val ROLE_WORKSPACE_WRITER = "Workspace.Writer"
+const val ROLE_PROMETHEUS_READER = "Prometheus.Reader"
 
 // Allowed read scopes
 const val SCOPE_CONNECTOR_READ = "SCOPE_csm.connector.read"
@@ -107,11 +108,11 @@ const val PATH_WORKSPACES = "/organizations/*/workspaces"
 const val PATH_WORKSPACES_USERS = "/organizations/*/workspaces/*/users"
 val PATHS_WORKSPACES = listOf(PATH_WORKSPACES, PATH_WORKSPACES_USERS)
 const val PATH_WORKSPACES_FILES = "/organizations/*/workspaces/*/files"
+const val PATH_PROMETHEUS_ENDPOINT = "/actuator/prometheus"
 
 // Endpoints roles
 val endpointSecurityPublic =
     listOf(
-        "/actuator/prometheus",
         "/actuator/health/**",
         "/actuator/info",
         "/",
@@ -359,6 +360,10 @@ abstract class AbstractSecurityConfiguration : WebSecurityConfigurerAdapter() {
           endpointSecurityPublic.forEach { path ->
             requests.antMatchers(HttpMethod.GET, path).permitAll()
           }
+
+          //prometheus metrics path
+          requests.antMatchers(HttpMethod.GET, PATH_PROMETHEUS_ENDPOINT)
+          .hasAnyAuthority(ROLE_PLATFORM_ADMIN, ROLE_PROMETHEUS_READER)
 
           // Endpoint security for reader roles
           endpointSecurityReaders(
