@@ -693,4 +693,19 @@ class CsmRbacTests {
     every { securityContext.authentication } returns (userAuthentication as Authentication)
     assertTrue(rbacTest.check(COMMON_PERMISSION_WRITE, USER_WRITER))
   }
+
+  @Test
+  fun `migrate with current user`() {
+    every { csmPlatformProperties.rbac.migrateCurrentAsAdmin } returns true
+    val migratedSecurity = migrateResourceSecurity(csmPlatformProperties, rolesDefinition)
+    assertTrue(migratedSecurity?.accessControlList?.roles?.containsKey(USER_MAIL_TOKEN) ?: false)
+  }
+
+  @Test
+  fun `migrate with configured admin list`() {
+    every { csmPlatformProperties.rbac.migrateAdminFromList } returns true
+    every { csmPlatformProperties.rbac.migrateAdminList } returns listOf(USER_READER)
+    val migratedSecurity = migrateResourceSecurity(csmPlatformProperties, rolesDefinition)
+    assertTrue(migratedSecurity?.accessControlList?.roles?.containsKey(USER_READER) ?: false)
+  }
 }
