@@ -135,7 +135,7 @@ class CsmRbacTests {
 
   @Test
   fun `rbac option is true by default`() {
-    assertTrue(CsmPlatformProperties.CsmRbac().enabled)
+    assertFalse(CsmPlatformProperties.CsmRbac().enabled)
   }
 
   // CsmAdmin tests
