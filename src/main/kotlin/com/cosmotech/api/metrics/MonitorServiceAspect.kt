@@ -15,6 +15,7 @@ import org.aspectj.lang.reflect.CodeSignature
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
+import java.util.UUID
 
 @Aspect
 @Component
@@ -50,6 +51,7 @@ class MonitorServiceAspect(private var meterRegistry: MeterRegistry) {
     Counter.builder("cosmotech.${signature.name}")
         .description("${signature.name}")
         .tag("method", signature.name)
+        .tag("counterId", UUID.randomUUID().toString())
         .tag("user", getCurrentAuthenticatedUserName())
         .tag("issuer", getCurrentAuthenticatedIssuer())
         .tags(argsTags)
