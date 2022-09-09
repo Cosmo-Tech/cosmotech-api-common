@@ -5,8 +5,7 @@ import io.gitlab.arturbosch.detekt.Detekt
 import pl.allegro.tech.build.axion.release.domain.TagNameSerializationConfig
 
 plugins {
-  val kotlinVersion = "1.6.0"
-  kotlin("jvm") version kotlinVersion
+  kotlin("jvm") version "1.7.10"
   id("com.diffplug.spotless") version "6.4.2"
   id("org.springframework.boot") version "2.7.0" apply false
   id("io.gitlab.arturbosch.detekt") version "1.19.0"
@@ -137,9 +136,7 @@ dependencies {
 
   // Align versions of all Kotlin components
   implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
-
-  // Use the Kotlin JDK 8 standard library.
-  implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 
   implementation("org.hashids:hashids:${hashidsVersion}")
 

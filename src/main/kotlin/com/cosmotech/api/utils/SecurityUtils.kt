@@ -7,7 +7,10 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication
 
-fun getCurrentAuthentication(): Authentication? = SecurityContextHolder.getContext().authentication
+fun getCurrentAuthentication(): Authentication? {
+  val context = SecurityContextHolder.getContext()
+  return context.authentication
+}
 
 fun getCurrentUserName(): String? = getCurrentAuthentication()?.name
 
