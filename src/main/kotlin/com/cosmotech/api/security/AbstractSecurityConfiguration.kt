@@ -2,7 +2,9 @@
 // Licensed under the MIT license.
 package com.cosmotech.api.security
 
+import org.springframework.context.annotation.Bean
 import org.springframework.http.HttpMethod
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer
@@ -11,6 +13,7 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidator
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.jwt.JwtClaimValidator
+import org.springframework.security.task.DelegatingSecurityContextAsyncTaskExecutor
 import org.springframework.web.cors.CorsConfiguration
 
 // Business roles
@@ -416,6 +419,11 @@ internal class CsmSecurityEndpointsRolesReader(
           .hasAnyAuthority(ROLE_PLATFORM_ADMIN, customAdmin, *this.roles)
     }
   }
+}
+
+@Bean
+fun taskExecutor(delegate: ThreadPoolTaskExecutor?): DelegatingSecurityContextAsyncTaskExecutor? {
+  return DelegatingSecurityContextAsyncTaskExecutor(delegate)
 }
 
 class CsmJwtClaimValueInCollectionValidator(
