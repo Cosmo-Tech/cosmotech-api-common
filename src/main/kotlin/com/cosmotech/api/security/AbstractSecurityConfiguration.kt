@@ -422,7 +422,7 @@ internal class CsmSecurityEndpointsRolesReader(
 }
 
 @Bean
-fun taskExecutor(delegate: ThreadPoolTaskExecutor?): DelegatingSecurityContextAsyncTaskExecutor? {
+fun taskExecutor(delegate: ThreadPoolTaskExecutor): DelegatingSecurityContextAsyncTaskExecutor {
   return DelegatingSecurityContextAsyncTaskExecutor(delegate)
 }
 

@@ -11,7 +11,7 @@ import org.aspectj.lang.JoinPoint
 import org.aspectj.lang.annotation.Aspect
 import org.aspectj.lang.annotation.Before
 import org.aspectj.lang.annotation.Pointcut
-import org.aspectj.lang.reflect.CodeSignature
+import org.aspectj.lang.reflect.MethodSignature
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -31,29 +31,35 @@ class MonitorServiceAspect(private var meterRegistry: MeterRegistry) {
           "datasetId",
           "connectorId")
 
-  @Pointcut(
-      "within(@org.springframework.stereotype.Service *)" + " && within(com.cosmotech..*Impl)")
+  @Pointcut("within(@org.springframework.stereotype.Service *) && within(com.cosmotech..*Impl)")
   @Suppress("EmptyFunctionBlock")
-  fun cosmotechPointcut() {}
+  fun servicePointcut() {}
 
-  @Before("cosmotechPointcut()")
+  @Pointcut("@annotation(com.cosmotech.api.metrics.Monitored)")
+  @Suppress("EmptyFunctionBlock")
+  fun monitoredPointcut() {}
+
+  @Before("servicePointcut()")
   fun monitorBefore(joinPoint: JoinPoint) {
-    val signature: CodeSignature = joinPoint.signature as CodeSignature
-    val args = joinPoint.args
-    val parameterNames = signature.parameterNames
-    logger.debug("$signature: $args")
-    logger.debug("$signature: $parameterNames")
-    val argsTags =
-        List(parameterNames.filter { listOfArgs.contains(it.toString()) }.size) { idx ->
-          Tag.of(parameterNames[idx], args[idx] as String)
-        }
-    Counter.builder("cosmotech.${signature.name}")
-        .description("${signature.name}")
-        .tag("method", signature.name)
-        .tag("user", getCurrentAuthenticatedUserName())
-        .tag("issuer", getCurrentAuthenticatedIssuer())
-        .tags(argsTags)
-        .register(meterRegistry)
-        .increment()
+    val signature: MethodSignature = joinPoint.signature as MethodSignature
+    val monitorAnnotations = signature.method.annotations.filterIsInstance<Monitored>()
+    if (monitorAnnotations.isNotEmpty() && monitorAnnotations[0].value) {
+      val args = joinPoint.args
+      val parameterNames = signature.parameterNames
+      logger.debug("$signature: $args")
+      logger.debug("$signature: $parameterNames")
+      val argsTags =
+          List(parameterNames.filter { listOfArgs.contains(it.toString()) }.size) { idx ->
+            Tag.of(parameterNames[idx], args[idx] as String)
+          }
+      Counter.builder("cosmotech.${signature.name}")
+          .description("${signature.name}")
+          .tag("method", signature.name)
+          .tag("user", getCurrentAuthenticatedUserName())
+          .tag("issuer", getCurrentAuthenticatedIssuer())
+          .tags(argsTags)
+          .register(meterRegistry)
+          .increment()
+    }
   }
 }
