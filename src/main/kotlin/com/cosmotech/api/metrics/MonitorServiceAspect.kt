@@ -35,31 +35,26 @@ class MonitorServiceAspect(private var meterRegistry: MeterRegistry) {
   @Suppress("EmptyFunctionBlock")
   fun servicePointcut() {}
 
-  @Pointcut("@annotation(com.cosmotech.api.metrics.Monitored)")
-  @Suppress("EmptyFunctionBlock")
-  fun monitoredPointcut() {}
+  @Pointcut("@annotation(Monitored)") @Suppress("EmptyFunctionBlock") fun monitoredPointcut() {}
 
-  @Before("servicePointcut()")
+  @Before("servicePointcut() && monitoredPointcut()")
   fun monitorBefore(joinPoint: JoinPoint) {
     val signature: MethodSignature = joinPoint.signature as MethodSignature
-    val monitorAnnotations = signature.method.annotations.filterIsInstance<Monitored>()
-    if (monitorAnnotations.isNotEmpty() && monitorAnnotations[0].value) {
-      val args = joinPoint.args
-      val parameterNames = signature.parameterNames
-      logger.debug("$signature: $args")
-      logger.debug("$signature: $parameterNames")
-      val argsTags =
-          List(parameterNames.filter { listOfArgs.contains(it.toString()) }.size) { idx ->
-            Tag.of(parameterNames[idx], args[idx] as String)
-          }
-      Counter.builder("cosmotech.${signature.name}")
-          .description("${signature.name}")
-          .tag("method", signature.name)
-          .tag("user", getCurrentAuthenticatedUserName())
-          .tag("issuer", getCurrentAuthenticatedIssuer())
-          .tags(argsTags)
-          .register(meterRegistry)
-          .increment()
-    }
+    val args = joinPoint.args
+    val parameterNames = signature.parameterNames
+    logger.debug("$signature: $args")
+    logger.debug("$signature: $parameterNames")
+    val argsTags =
+        List(parameterNames.filter { listOfArgs.contains(it.toString()) }.size) { idx ->
+          Tag.of(parameterNames[idx], args[idx] as String)
+        }
+    Counter.builder("cosmotech.${signature.name}")
+        .description("${signature.name}")
+        .tag("method", signature.name)
+        .tag("user", getCurrentAuthenticatedUserName())
+        .tag("issuer", getCurrentAuthenticatedIssuer())
+        .tags(argsTags)
+        .register(meterRegistry)
+        .increment()
   }
 }
