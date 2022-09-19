@@ -23,12 +23,14 @@ import org.springframework.core.env.ConfigurableEnvironment
 import org.springframework.http.MediaType
 import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter
 import org.springframework.scheduling.annotation.EnableAsync
+import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.web.servlet.config.annotation.CorsRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @Configuration
 @ConfigurationPropertiesScan(basePackages = ["com.cosmotech"])
 @EnableAsync(mode = AdviceMode.PROXY, proxyTargetClass = true)
+@EnableScheduling
 open class CsmApiConfiguration {
 
   @Bean(name = ["csm-in-process-event-executor"])
