@@ -11,7 +11,7 @@ import org.aspectj.lang.JoinPoint
 import org.aspectj.lang.annotation.Aspect
 import org.aspectj.lang.annotation.Before
 import org.aspectj.lang.annotation.Pointcut
-import org.aspectj.lang.reflect.MethodSignature
+import org.aspectj.lang.reflect.CodeSignature
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -31,15 +31,16 @@ class MonitorServiceAspect(private var meterRegistry: MeterRegistry) {
           "datasetId",
           "connectorId")
 
-  @Pointcut("within(@org.springframework.stereotype.Service *) && within(com.cosmotech..*Impl)")
+  @Pointcut(
+      "within(@org.springframework.stereotype.Service *) && within(com.cosmotech..*Impl)" +
+          " && !execution(* com.cosmotech.scenariorun.azure.ScenarioRunServiceImpl.onScenarioDeleted(..))" +
+          " && !execution(* com.cosmotech.workspace.api.WorkspaceApiService.findWorkspaceById(..))")
   @Suppress("EmptyFunctionBlock")
-  fun servicePointcut() {}
+  fun cosmotechPointcut() {}
 
-  @Pointcut("@annotation(Monitored)") @Suppress("EmptyFunctionBlock") fun monitoredPointcut() {}
-
-  @Before("servicePointcut() && monitoredPointcut()")
+  @Before("cosmotechPointcut()")
   fun monitorBefore(joinPoint: JoinPoint) {
-    val signature: MethodSignature = joinPoint.signature as MethodSignature
+    val signature: CodeSignature = joinPoint.signature as CodeSignature
     val args = joinPoint.args
     val parameterNames = signature.parameterNames
     logger.debug("$signature: $args")
