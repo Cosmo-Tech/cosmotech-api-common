@@ -32,7 +32,7 @@ class MonitorServiceAspect(private var meterRegistry: MeterRegistry) {
           "connectorId")
 
   @Pointcut(
-      "within(@org.springframework.stereotype.Service *)" + " && within(com.cosmotech..*Impl)")
+      "within(@org.springframework.web.bind.annotation.RestController *) && within(com.cosmotech..*Controller)")
   @Suppress("EmptyFunctionBlock")
   fun cosmotechPointcut() {}
 
