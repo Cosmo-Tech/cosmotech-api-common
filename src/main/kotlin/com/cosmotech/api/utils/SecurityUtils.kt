@@ -46,3 +46,4 @@ fun getCurrentAuthenticatedRoles(configuration: CsmPlatformProperties): List<Str
     JWTParser.parse(it).jwtClaimsSet.getStringListClaim(configuration.authorization.rolesJwtClaim)
   }
 }
+

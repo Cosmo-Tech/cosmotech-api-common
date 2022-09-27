@@ -442,15 +442,6 @@ data class CsmPlatformProperties(
 
   data class CsmRbac(
       /** Enable Rbac */
-      val enabled: Boolean = false,
-
-      /** Migrate existing resource with admin role for current user */
-      val migrateCurrentAsAdmin: Boolean = false,
-
-      /** Migrate resource with administrator list */
-      val migrateAdminFromList: Boolean = false,
-
-      /** List of administrators to be added in case of migration */
-      val migrateAdminList: List<String> = listOf()
+      val enabled: Boolean = false
   )
 }

@@ -5,6 +5,8 @@ package com.cosmotech.api.rbac
 import com.cosmotech.api.config.CsmPlatformProperties
 import com.cosmotech.api.exceptions.CsmAccessForbiddenException
 import com.cosmotech.api.exceptions.CsmClientException
+import com.cosmotech.api.rbac.model.RbacAccessControl
+import com.cosmotech.api.rbac.model.RbacSecurity
 import com.cosmotech.api.utils.getCurrentAuthenticatedMail
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -14,182 +16,173 @@ import org.springframework.stereotype.Component
 @Component
 open class CsmRbac(
     protected val csmPlatformProperties: CsmPlatformProperties,
-    protected val rolesDefinition: RolesDefinition,
     protected val csmAdmin: CsmAdmin
 ) {
 
-  protected var resourceId: String = "Not defined"
-  protected var resourceSecurity: ResourceSecurity = ResourceSecurity()
-
   private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
-  // This is the default method to call to check RBAC
-  fun verify(permission: String) {
-    if (!this.csmPlatformProperties.rbac.enabled) {
-      logger.debug("RBAC $resourceId - RBAC verify not enabled")
-      return
-    }
-    this.verify(permission, getCurrentAuthenticatedMail(this.csmPlatformProperties))
+  fun verify(rbacSecurity: RbacSecurity?, permission: String, rolesDefinition: RolesDefinition = getCommonRolesDefinition()) {
+    this.verify(rbacSecurity, permission, getCurrentAuthenticatedMail(this.csmPlatformProperties), rolesDefinition)
   }
 
-  fun verify(permission: String, user: String) {
-    if (!check(permission, user))
-        throw CsmAccessForbiddenException(
-            "RBAC $resourceId - User $user does not have permission $permission")
+  fun verify(rbacSecurity: RbacSecurity?, permission: String, user: String,
+             rolesDefinition: RolesDefinition = getCommonRolesDefinition()) {
+    if (!this.check(rbacSecurity, permission, user, rolesDefinition))
+      throw CsmAccessForbiddenException(
+        "RBAC ${rbacSecurity}- User $user does not have permission $permission")
   }
 
-  fun check(permission: String): Boolean {
+  fun check(rbacSecurity: RbacSecurity?, permission: String,
+            rolesDefinition: RolesDefinition = getCommonRolesDefinition()): Boolean {
+    return this.check(rbacSecurity, permission, getCurrentAuthenticatedMail(this.csmPlatformProperties),
+      rolesDefinition)
+  }
+
+  fun check(rbacSecurity: RbacSecurity?, permission: String, user: String,
+            rolesDefinition: RolesDefinition = getCommonRolesDefinition()): Boolean {
+    logger.info("RBAC ${rbacSecurity} - Verifying permission $permission for user $user")
     if (!this.csmPlatformProperties.rbac.enabled) {
-      logger.debug("RBAC $resourceId - RBAC check not enabled")
+      logger.debug("RBAC ${rbacSecurity} - RBAC check not enabled")
       return true
     }
-    return this.check(permission, getCurrentAuthenticatedMail(this.csmPlatformProperties))
-  }
-
-  fun check(permission: String, user: String): Boolean {
-    logger.info("RBAC $resourceId - Verifying permission $permission for user $user")
-    if (!this.csmPlatformProperties.rbac.enabled) {
-      logger.debug("RBAC $resourceId - RBAC check not enabled")
+    val userIsAdmin = this.isAdmin(rbacSecurity, user, rolesDefinition)
+    if (rbacSecurity == null) {
       return true
     }
-    return (this.isAdmin(user) || this.verifyRbac(permission, user))
+    return (userIsAdmin || this.verifyRbac(rbacSecurity, permission, rolesDefinition, user))
   }
 
-  fun getUserInfo(user: String): UserInfo {
-    logger.info("RBAC $resourceId - Getting user info: $user")
-    val roles = this.getRoles(user)
-    val permissions = roles.flatMap { this.getRolePermissions(it) }.toSet().toList()
-    return UserInfo(id = user, roles = roles, permissions = permissions)
+
+  fun setDefault(rbacSecurity: RbacSecurity?, defaultRole: String,
+                 rolesDefinition: RolesDefinition = getCommonRolesDefinition()) {
+    logger.info("RBAC ${rbacSecurity} - Setting default security")
+    this.verifyRoleOrThrow(rbacSecurity, defaultRole, rolesDefinition)
+    rbacSecurity ?: RbacSecurity()
+    rbacSecurity?.default = defaultRole
   }
 
-  fun setDefault(roles: List<String>) {
-    logger.info("RBAC $resourceId - Setting default security")
-    this.verifyRolesOrThrow(roles)
-    this.resourceSecurity.default = roles
-  }
 
-  fun setUserRoles(user: String, roles: List<String>, authorizedUsers: List<String>) {
-    logger.info("RBAC $resourceId - Setting user $user roles with validation list")
-    if (!authorizedUsers.contains(user))
-        throw CsmClientException(
-            "RBAC $resourceId - user $user not in the list of authorized users to be added. Check parent RBAC.")
-    this.setUserRoles(user, roles)
-  }
-
-  fun setUserRoles(user: String, roles: List<String>) {
-    logger.info("RBAC $resourceId - Setting user $user roles")
-    this.verifyRolesOrThrow(roles)
-    val currentRoles = this.getRoles(user)
-    val adminRole = this.getAdminRole()
-    if (currentRoles.contains(adminRole) &&
-        (!roles.contains(adminRole)) &&
-        this.getAdminCount() == 1) {
+  fun setUserRole(rbacSecurity: RbacSecurity?, user: String, role: String,
+                  rolesDefinition: RolesDefinition = getCommonRolesDefinition()) {
+    logger.info("RBAC ${rbacSecurity} - Setting user $user roles")
+    this.verifyRoleOrThrow(rbacSecurity, role, rolesDefinition)
+    val currentRole = this.getUserRole(rbacSecurity, user)
+    val adminRole = this.getAdminRole(rolesDefinition)
+    if (currentRole == adminRole && role != adminRole && this.getAdminCount(rbacSecurity,
+        rolesDefinition) == 1) {
       throw CsmAccessForbiddenException(
-          "RBAC $resourceId - It is forbidden to unset the last administrator")
+        "RBAC ${rbacSecurity} - It is forbidden to unset the last administrator")
     }
-    this.resourceSecurity.accessControlList.roles.put(user, roles)
+    val accessList = rbacSecurity?.accessControlList
+    val userAccess = accessList?.find{ it.id == user }
+    if (userAccess == null) {
+      accessList?.add(RbacAccessControl(user, role))
+    } else {
+      userAccess.role = role
+    }
   }
 
-  fun removeUser(user: String) {
-    logger.info("RBAC $resourceId - Removing user $user from security")
-    val roles = this.getRoles(user)
-    if (roles.contains(this.getAdminRole()) && this.getAdminCount() == 1) {
+  fun getUsers(rbacSecurity: RbacSecurity?): List<String> {
+    return (rbacSecurity?.accessControlList?.map { it.id } ?: mutableListOf())
+  }
+
+  fun getAccessControl(rbacSecurity: RbacSecurity?, identityId: String): RbacAccessControl {
+    return rbacSecurity?.accessControlList?.find{ it.id == identityId}!!
+  }
+
+  fun removeUser(rbacSecurity: RbacSecurity?, user: String, rolesDefinition: RolesDefinition = getCommonRolesDefinition()) {
+    logger.info("RBAC ${rbacSecurity} - Removing user $user from security")
+    val role = this.getUserRole(rbacSecurity, user)
+    if (role == (this.getAdminRole(rolesDefinition)) && this.getAdminCount(rbacSecurity,
+        rolesDefinition) == 1) {
       throw CsmAccessForbiddenException(
-          "RBAC $resourceId - It is forbidden to remove the last administrator")
+        "RBAC ${rbacSecurity} - It is forbidden to remove the last administrator")
     }
-
-    this.resourceSecurity.accessControlList.roles.remove(user)
+    rbacSecurity?.accessControlList?.removeIf{ it.id == user}
   }
 
-  fun setResourceInfo(newResourceId: String, newSecurity: ResourceSecurity) {
-    this.resourceId = newResourceId
-    this.resourceSecurity = newSecurity
-  }
-  fun setResourceInfo(
-      newResourceId: String,
-      default: List<String>,
-      roles: MutableMap<String, List<String>>
-  ) {
-    this.resourceId = newResourceId
-    this.resourceSecurity = createResourceSecurity(default, roles)
+
+  internal fun isAdmin(rbacSecurity: RbacSecurity?, user: String, rolesDefinition: RolesDefinition): Boolean {
+    return (this.isAdminToken(rbacSecurity, user) || this.verifyAdminRole(rbacSecurity, user, rolesDefinition))
   }
 
-  fun getUsers(): List<String> {
-    return this.resourceSecurity.accessControlList.roles.keys.toList()
+  internal fun verifyAdminRole(rbacSecurity: RbacSecurity?, user: String, rolesDefinition: RolesDefinition): Boolean {
+    logger.debug("RBAC ${rbacSecurity} - Verifying if $user has default admin rbac role")
+    val isAdmin = this.getUserRole(rbacSecurity, user) == this.getAdminRole(rolesDefinition)
+    logger.debug("RBAC ${rbacSecurity} - $user has default admin rbac role: $isAdmin")
+    return isAdmin
   }
 
-  internal fun verifyRolesOrThrow(roles: List<String>) {
-    roles.forEach {
-      if (!this.rolesDefinition.permissions.keys.contains(it))
-          throw CsmClientException("RBAC $resourceId - Role $it does not exist")
-    }
+  internal fun verifyUser(rbacSecurity: RbacSecurity?, permission: String, rolesDefinition: RolesDefinition,
+                          user: String): Boolean {
+    logger.debug("RBAC ${rbacSecurity} - Verifying $user has permission in ACL: $permission")
+    val isAuthorized = this.verifyPermissionFromRole(permission, getUserRole(rbacSecurity, user),
+      rolesDefinition)
+    logger.debug("RBAC ${rbacSecurity} - $user has permission $permission in ACL: $isAuthorized")
+    return isAuthorized
+  }
+
+  internal fun verifyDefault(rbacSecurity: RbacSecurity?, permission: String, rolesDefinition: RolesDefinition): Boolean {
+    logger.debug("RBAC ${rbacSecurity} - Verifying default roles for permission: $permission")
+    val isAuthorized = this.verifyPermissionFromRole(permission, rbacSecurity?.default ?: ROLE_VIEWER,
+      rolesDefinition)
+    logger.debug("RBAC ${rbacSecurity} - default roles for permission $permission: $isAuthorized")
+    return isAuthorized
+  }
+
+  internal fun verifyRbac(rbacSecurity: RbacSecurity?, permission: String, rolesDefinition: RolesDefinition,
+                          user: String): Boolean {
+    return (this.verifyDefault(rbacSecurity, permission, rolesDefinition) || this.verifyUser(rbacSecurity,
+      permission, rolesDefinition, user))
+  }
+
+  internal fun verifyPermissionFromRole(permission: String, role: String, rolesDefinition: RolesDefinition): Boolean {
+    return this.verifyPermission(permission, this.getRolePermissions(role, rolesDefinition.permissions))
+  }
+
+  internal fun getRolePermissions(role: String, rolesDefinition: MutableMap<String, List<String>>): List<String> {
+    return rolesDefinition[role] ?: listOf()
+  }
+
+  internal fun getUserRole(rbacSecurity: RbacSecurity?, user: String): String {
+    return rbacSecurity?.accessControlList?.firstOrNull{ it.id == user}?.role ?: ROLE_VIEWER
+  }
+
+  internal fun getAdminCount(rbacSecurity: RbacSecurity?, rolesDefinition: RolesDefinition): Int {
+    return rbacSecurity
+      ?.accessControlList?.map{ it.role }
+      ?.filter{it == this.getAdminRole(rolesDefinition)}
+      ?.count() ?: 0
+  }
+
+  internal fun verifyRoleOrThrow(rbacSecurity: RbacSecurity?, role: String, rolesDefinition: RolesDefinition) {
+    if (!rolesDefinition.permissions.keys.contains(role))
+        throw CsmClientException("RBAC ${rbacSecurity} - Role $role does not exist")
+
   }
 
   internal fun verifyPermission(permission: String, userPermissions: List<String>): Boolean {
     return userPermissions.contains(permission)
   }
 
-  internal fun verifyPermissionFromRole(permission: String, role: String): Boolean {
-    return this.verifyPermission(permission, this.getRolePermissions(role))
+  internal fun verifyPermissionFromRoles(permission: String, roles: List<String>,
+                                         rolesDefinition: RolesDefinition): Boolean {
+    return roles.any { role -> this.verifyPermissionFromRole(permission, role, rolesDefinition) }
   }
 
-  internal fun verifyPermissionFromRoles(permission: String, roles: List<String>): Boolean {
-    return roles.any { role -> this.verifyPermissionFromRole(permission, role) }
-  }
-
-  internal fun getRolePermissions(role: String): List<String> {
-    return this.rolesDefinition.permissions.get(role) ?: listOf()
-  }
-
-  internal fun getRoles(user: String): List<String> {
-    return this.resourceSecurity.accessControlList.roles.get(user) ?: listOf()
-  }
-
-  internal fun verifyUser(permission: String, user: String): Boolean {
-    logger.debug("RBAC $resourceId - Verifying $user has permission in ACL: $permission")
-    val isAuthorized = this.verifyPermissionFromRoles(permission, getRoles(user))
-    logger.debug("RBAC $resourceId - $user has permission $permission in ACL: $isAuthorized")
-    return isAuthorized
-  }
-
-  internal fun verifyDefault(permission: String): Boolean {
-    logger.debug("RBAC $resourceId - Verifying default roles for permission: $permission")
-    val isAuthorized = this.verifyPermissionFromRoles(permission, this.resourceSecurity.default)
-    logger.debug("RBAC $resourceId - default roles for permission $permission: $isAuthorized")
-    return isAuthorized
-  }
-
-  internal fun verifyAdminRole(user: String): Boolean {
-    logger.debug("RBAC $resourceId - Verifying if $user has default admin rbac role")
-    val isAdmin = this.getRoles(user).contains(this.getAdminRole())
-    logger.debug("RBAC $resourceId - $user has default admin rbac role: $isAdmin")
-    return isAdmin
-  }
-
-  internal fun isAdminToken(user: String): Boolean {
-    logger.debug("RBAC $resourceId - Verifying if $user has platform admin role in token")
+  internal fun isAdminToken(rbacSecurity: RbacSecurity?, user: String): Boolean {
+    logger.debug("RBAC ${rbacSecurity} - Verifying if $user has platform admin role in token")
     val isAdmin = csmAdmin.verifyCurrentRolesAdmin()
-    logger.debug("RBAC $resourceId - $user has platform admin role in token: $isAdmin")
+    logger.debug("RBAC ${rbacSecurity} - $user has platform admin role in token: $isAdmin")
     return isAdmin
   }
 
-  internal fun verifyRbac(permission: String, user: String): Boolean {
-    return (this.verifyDefault(permission) || this.verifyUser(permission, user))
+  internal fun getRolePermissions(role: String, rolesDefinition: RolesDefinition): List<String> {
+    return rolesDefinition.permissions[role] ?: listOf()
   }
 
-  internal fun isAdmin(user: String): Boolean {
-    return (this.isAdminToken(user) || this.verifyAdminRole(user))
-  }
-
-  internal fun getAdminRole(): String {
-    return this.rolesDefinition.adminRole
-  }
-
-  internal fun getAdminCount(): Int {
-    return (this.resourceSecurity
-        .accessControlList
-        .roles
-        .filterValues { it.contains(this.getAdminRole()) }
-        .count())
+  internal fun getAdminRole(rolesDefinition: RolesDefinition): String {
+    return rolesDefinition.adminRole
   }
 }
+
