@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 package com.cosmotech.api.utils
 
+import com.cosmotech.api.config.CsmPlatformProperties
 import com.nimbusds.jwt.JWTParser
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
@@ -22,4 +23,26 @@ fun getCurrentAuthenticatedIssuer(): String {
 
   val authentication = getCurrentAuthentication() as BearerTokenAuthentication
   return authentication.token.tokenValue.let { JWTParser.parse(it).jwtClaimsSet.issuer }
+}
+
+fun getCurrentAuthenticatedMail(configuration: CsmPlatformProperties): String {
+  if (getCurrentAuthentication() == null) {
+    throw IllegalStateException("User Authentication not found in Security Context")
+  }
+
+  val authentication = getCurrentAuthentication() as BearerTokenAuthentication
+  return authentication.token.tokenValue.let {
+    JWTParser.parse(it).jwtClaimsSet.getStringClaim(configuration.authorization.mailJwtClaim)
+  }
+}
+
+fun getCurrentAuthenticatedRoles(configuration: CsmPlatformProperties): List<String> {
+  if (getCurrentAuthentication() == null) {
+    throw IllegalStateException("User Authentication not found in Security Context")
+  }
+
+  val authentication = getCurrentAuthentication() as BearerTokenAuthentication
+  return authentication.token.tokenValue.let {
+    JWTParser.parse(it).jwtClaimsSet.getStringListClaim(configuration.authorization.rolesJwtClaim)
+  }
 }

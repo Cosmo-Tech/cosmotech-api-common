@@ -60,7 +60,10 @@ data class CsmPlatformProperties(
 
     /** Data Ingestion reporting behavior */
     val dataIngestion: DataIngestion = DataIngestion(),
-    val twincache: CsmTwinCacheProperties?
+    val twincache: CsmTwinCacheProperties?,
+
+    /** RBAC / ACL configuration */
+    val rbac: CsmRbac = CsmRbac(),
 ) {
 
   data class Authorization(
@@ -70,6 +73,12 @@ data class CsmPlatformProperties(
 
       /** The JWT Claim where the tenant id information is stored */
       val tenantIdJwtClaim: String = "iss",
+
+      /** The JWT Claim where the mail information is stored */
+      val mailJwtClaim: String = "upn",
+
+      /** The JWT Claim where the roles information is stored */
+      val rolesJwtClaim: String = "roles",
 
       /**
        * List of additional tenants allowed to register, besides the configured
@@ -429,5 +438,10 @@ data class CsmPlatformProperties(
 
       /** Twin cache password */
       val password: String
+  )
+
+  data class CsmRbac(
+      /** Enable Rbac */
+      val enabled: Boolean = false
   )
 }
