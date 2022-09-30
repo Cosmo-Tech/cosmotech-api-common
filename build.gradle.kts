@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 import com.diffplug.gradle.spotless.SpotlessExtension
 import io.gitlab.arturbosch.detekt.Detekt
-import org.jetbrains.kotlin.kapt3.base.Kapt.kapt
 import pl.allegro.tech.build.axion.release.domain.TagNameSerializationConfig
 
 plugins {

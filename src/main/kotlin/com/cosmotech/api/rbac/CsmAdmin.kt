@@ -22,4 +22,3 @@ class CsmAdmin(val csmPlatformProperties: CsmPlatformProperties) {
     return this.verifyRolesAdmin(getCurrentAuthenticatedRoles(this.csmPlatformProperties))
   }
 }
-

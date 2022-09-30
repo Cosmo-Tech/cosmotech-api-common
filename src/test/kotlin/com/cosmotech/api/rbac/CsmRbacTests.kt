@@ -13,6 +13,7 @@ import com.cosmotech.api.utils.getCurrentAuthenticatedMail
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import kotlin.test.*
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import org.slf4j.Logger
@@ -21,7 +22,6 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication
-import kotlin.test.*
 
 @Suppress("MaxLineLength")
 const val ADMIN_TOKEN =
@@ -37,7 +37,7 @@ const val PERM_ADMIN = "admintestperm"
 
 const val ROLE_READER = "readertestrole"
 const val ROLE_WRITER = "writertestrole"
-const val ROLE_ADMIN = "roleadmin"
+const val ROLE_ADMIN = "admin"
 const val ROLE_NOTIN = "notintestrole"
 
 const val USER_WRITER = "usertestwriter@cosmotech.com"
@@ -53,7 +53,7 @@ const val USER_NEW_READER = "usertestnew@cosmotech.com"
 const val OWNER_ID = "3a869905-e9f5-4851-a7a9-3079aad49dfa"
 const val USER_ID = "2a869905-e9f5-4851-a7a9-3079aad49dfb"
 
-class CsmRbacTests() {
+class CsmRbacTests {
   private val ROLE_NONE_PERMS: List<String> = listOf()
   private val ROLE_READER_PERMS = listOf(PERM_READ)
   private val ROLE_WRITER_PERMS = listOf(PERM_READ, PERM_WRITE)
@@ -94,15 +94,16 @@ class CsmRbacTests() {
                     ROLE_ADMIN to ROLE_ADMIN_PERMS,
                 ))
 
-    rbacSecurity = RbacSecurity(ROLE_READER,
-      mutableListOf(
-        RbacAccessControl(USER_WRITER, USER_WRITER_ROLE),
-        RbacAccessControl(USER_READER, USER_READER_ROLE),
-        RbacAccessControl(USER_NONE, USER_NONE_ROLE),
-        RbacAccessControl(USER_ADMIN, USER_ADMIN_ROLE),
-        RbacAccessControl(USER_MAIL_TOKEN, USER_READER_ROLE),
-      )
-    )
+    rbacSecurity =
+        RbacSecurity(
+            ROLE_READER,
+            mutableListOf(
+                RbacAccessControl(USER_WRITER, USER_WRITER_ROLE),
+                RbacAccessControl(USER_READER, USER_READER_ROLE),
+                RbacAccessControl(USER_NONE, USER_NONE_ROLE),
+                RbacAccessControl(USER_ADMIN, USER_ADMIN_ROLE),
+                RbacAccessControl(USER_MAIL_TOKEN, USER_READER_ROLE),
+            ))
 
     admin = CsmAdmin(csmPlatformProperties)
     rbac = CsmRbac(csmPlatformProperties, admin)
@@ -205,7 +206,9 @@ class CsmRbacTests() {
 
   @Test
   fun `verify permission writer from roles reader writer OK`() {
-    assertTrue(rbac.verifyPermissionFromRoles(PERM_READ, listOf(USER_WRITER_ROLE, USER_READER_ROLE), rolesDefinition))
+    assertTrue(
+        rbac.verifyPermissionFromRoles(
+            PERM_READ, listOf(USER_WRITER_ROLE, USER_READER_ROLE), rolesDefinition))
   }
 
   @Test
@@ -343,7 +346,9 @@ class CsmRbacTests() {
   @Test
   fun `verify KO throw exception`() {
     every { securityContext.authentication } returns (userAuthentication as Authentication)
-    assertThrows<CsmAccessForbiddenException> { rbac.verify(rbacSecurity, PERM_WRITE, USER_READER, rolesDefinition) }
+    assertThrows<CsmAccessForbiddenException> {
+      rbac.verify(rbacSecurity, PERM_WRITE, USER_READER, rolesDefinition)
+    }
   }
 
   @Test
@@ -354,7 +359,9 @@ class CsmRbacTests() {
   @Test
   fun `verify KO current user throw exception`() {
     every { securityContext.authentication } returns (userAuthentication as Authentication)
-    assertThrows<CsmAccessForbiddenException> { rbac.verify(rbacSecurity, PERM_WRITE, rolesDefinition) }
+    assertThrows<CsmAccessForbiddenException> {
+      rbac.verify(rbacSecurity, PERM_WRITE, rolesDefinition)
+    }
   }
 
   @Test
@@ -427,56 +434,66 @@ class CsmRbacTests() {
 
   @Test
   fun `throw exception if last admin deleted`() {
-    assertThrows<CsmAccessForbiddenException> { rbac.removeUser(rbacSecurity, USER_ADMIN, rolesDefinition) }
+    assertThrows<CsmAccessForbiddenException> {
+      rbac.removeUser(rbacSecurity, USER_ADMIN, rolesDefinition)
+    }
   }
 
   @Test
   fun `throw exception if last admin from two is deleted`() {
     rbac.setUserRole(rbacSecurity, USER_NEW_READER, USER_ADMIN_ROLE, rolesDefinition)
     rbac.removeUser(rbacSecurity, USER_NEW_READER, rolesDefinition)
-    assertThrows<CsmAccessForbiddenException> { rbac.removeUser(rbacSecurity, USER_ADMIN, rolesDefinition) }
+    assertThrows<CsmAccessForbiddenException> {
+      rbac.removeUser(rbacSecurity, USER_ADMIN, rolesDefinition)
+    }
   }
 
   @Test
   fun `throw exception if last admin removed from setRole`() {
-    assertThrows<CsmAccessForbiddenException> { rbac.setUserRole(rbacSecurity, USER_ADMIN, USER_READER_ROLE,
-      rolesDefinition) }
+    assertThrows<CsmAccessForbiddenException> {
+      rbac.setUserRole(rbacSecurity, USER_ADMIN, USER_READER_ROLE, rolesDefinition)
+    }
   }
 
   @Test
   fun `throw exception if role does not exist with setRole`() {
-    assertThrows<CsmClientException> { rbac.setUserRole(rbacSecurity, USER_READER, ROLE_NOTIN, rolesDefinition) }
+    assertThrows<CsmClientException> {
+      rbac.setUserRole(rbacSecurity, USER_READER, ROLE_NOTIN, rolesDefinition)
+    }
   }
 
   @Test
   fun `get user list`() {
     assertEquals(
-        listOf(USER_WRITER, USER_READER, USER_NONE, USER_ADMIN, USER_MAIL_TOKEN), rbac.getUsers(rbacSecurity))
+        listOf(USER_WRITER, USER_READER, USER_NONE, USER_ADMIN, USER_MAIL_TOKEN),
+        rbac.getUsers(rbacSecurity))
   }
 
   @Test
   fun `create resource security with default admin`() {
     val resourceSecurity = rbacSecurity
     assertTrue(
-        resourceSecurity
-            ?.accessControlList
-            ?.any{it.id == USER_ADMIN && it.role == rolesDefinition.adminRole}
-          ?: false)
+        resourceSecurity?.accessControlList?.any {
+          it.id == USER_ADMIN && it.role == rolesDefinition.adminRole
+        }
+            ?: false)
   }
 
   @Test
   fun `create resource security with two admins`() {
     val resourceSecurity = rbacSecurity
-    resourceSecurity.let { it?.accessControlList?.add(RbacAccessControl(USER_ADMIN_2, USER_ADMIN_ROLE)) }
+    resourceSecurity.let {
+      it?.accessControlList?.add(RbacAccessControl(USER_ADMIN_2, USER_ADMIN_ROLE))
+    }
     assertTrue(
-        (resourceSecurity
-            ?.accessControlList
-            ?.any{it.id == USER_ADMIN && it.role == rolesDefinition.adminRole}
+        (resourceSecurity?.accessControlList?.any {
+          it.id == USER_ADMIN && it.role == rolesDefinition.adminRole
+        }
             ?: false) &&
-            (resourceSecurity
-              ?.accessControlList
-              ?.any{it.id == USER_ADMIN_2 && it.role == rolesDefinition.adminRole}
-              ?: false))
+            (resourceSecurity?.accessControlList?.any {
+              it.id == USER_ADMIN_2 && it.role == rolesDefinition.adminRole
+            }
+                ?: false))
   }
 
   // Role definition tests
@@ -484,10 +501,10 @@ class CsmRbacTests() {
   fun `get default role definition permissions`() {
     val expected: MutableMap<String, List<String>> =
         mutableMapOf(
-          ROLE_VIEWER to COMMON_ROLE_READER_PERMISSIONS,
-          ROLE_USER to COMMON_ROLE_USER_PERMISSIONS,
-          ROLE_EDITOR to COMMON_ROLE_EDITOR_PERMISSIONS,
-          ROLE_ADMIN to COMMON_ROLE_ADMIN_PERMISSIONS,
+            ROLE_VIEWER to COMMON_ROLE_READER_PERMISSIONS,
+            ROLE_USER to COMMON_ROLE_USER_PERMISSIONS,
+            ROLE_EDITOR to COMMON_ROLE_EDITOR_PERMISSIONS,
+            ROLE_ADMIN to COMMON_ROLE_ADMIN_PERMISSIONS,
         )
     assertEquals(expected, getCommonRolesDefinition().permissions)
   }
@@ -505,11 +522,11 @@ class CsmRbacTests() {
     definition.permissions.put(customRole, customRolePermissions)
     val expected: MutableMap<String, List<String>> =
         mutableMapOf(
-          ROLE_VIEWER to COMMON_ROLE_READER_PERMISSIONS,
-          ROLE_USER to COMMON_ROLE_USER_PERMISSIONS,
-          ROLE_EDITOR to COMMON_ROLE_EDITOR_PERMISSIONS,
-          ROLE_ADMIN to COMMON_ROLE_ADMIN_PERMISSIONS,
-          customRole to customRolePermissions,
+            ROLE_VIEWER to COMMON_ROLE_READER_PERMISSIONS,
+            ROLE_USER to COMMON_ROLE_USER_PERMISSIONS,
+            ROLE_EDITOR to COMMON_ROLE_EDITOR_PERMISSIONS,
+            ROLE_ADMIN to COMMON_ROLE_ADMIN_PERMISSIONS,
+            customRole to customRolePermissions,
         )
     assertEquals(expected, definition.permissions)
   }
@@ -542,13 +559,13 @@ class CsmRbacTests() {
     val definition = getCommonRolesDefinition()
     val rbacTest = CsmRbac(csmPlatformProperties, admin)
     rbacSecurity =
-      RbacSecurity(ROLE_READER,
-        mutableListOf(
-          RbacAccessControl(USER_READER, ROLE_VIEWER),
-        )
-      )
+        RbacSecurity(
+            ROLE_READER,
+            mutableListOf(
+                RbacAccessControl(USER_READER, ROLE_VIEWER),
+            ))
     every { securityContext.authentication } returns (userAuthentication as Authentication)
-    assertTrue(rbacTest.check(rbacSecurity, PERMISSION_READ_DATA, USER_READER,  definition))
+    assertTrue(rbacTest.check(rbacSecurity, PERMISSION_READ_DATA, USER_READER, definition))
   }
 
   @Test
@@ -556,11 +573,11 @@ class CsmRbacTests() {
     val definition = getCommonRolesDefinition()
     val rbacTest = CsmRbac(csmPlatformProperties, admin)
     rbacSecurity =
-      RbacSecurity(ROLE_VIEWER,
-        mutableListOf(
-          RbacAccessControl(USER_WRITER, ROLE_EDITOR),
-        )
-      )
+        RbacSecurity(
+            ROLE_VIEWER,
+            mutableListOf(
+                RbacAccessControl(USER_WRITER, ROLE_EDITOR),
+            ))
     every { securityContext.authentication } returns (userAuthentication as Authentication)
     assertTrue(rbacTest.check(rbacSecurity, PERMISSION_READ_DATA, USER_READER, definition))
   }
@@ -570,11 +587,11 @@ class CsmRbacTests() {
     val definition = getCommonRolesDefinition()
     val rbacTest = CsmRbac(csmPlatformProperties, admin)
     rbacSecurity =
-      RbacSecurity(ROLE_VIEWER,
-        mutableListOf(
-          RbacAccessControl(USER_WRITER, ROLE_EDITOR),
-        )
-      )
+        RbacSecurity(
+            ROLE_VIEWER,
+            mutableListOf(
+                RbacAccessControl(USER_WRITER, ROLE_EDITOR),
+            ))
     every { securityContext.authentication } returns (userAuthentication as Authentication)
     assertFalse(rbacTest.check(rbacSecurity, PERMISSION_EDIT_SECURITY, USER_READER, definition))
   }
@@ -584,11 +601,12 @@ class CsmRbacTests() {
     val definition = getCommonRolesDefinition()
     val rbacTest = CsmRbac(csmPlatformProperties, admin)
     rbacSecurity =
-      RbacSecurity(ROLE_VIEWER,
-        mutableListOf(
-          RbacAccessControl(getCurrentAuthenticatedMail(csmPlatformProperties), definition.adminRole),
-        )
-      )
+        RbacSecurity(
+            ROLE_VIEWER,
+            mutableListOf(
+                RbacAccessControl(
+                    getCurrentAuthenticatedMail(csmPlatformProperties), definition.adminRole),
+            ))
     every { securityContext.authentication } returns (userAuthentication as Authentication)
     assertTrue(rbacTest.check(rbacSecurity, PERMISSION_READ_SECURITY, USER_MAIL_TOKEN, definition))
   }
@@ -598,11 +616,11 @@ class CsmRbacTests() {
     val definition = getCommonRolesDefinition()
     val rbacTest = CsmRbac(csmPlatformProperties, admin)
     rbacSecurity =
-      RbacSecurity(ROLE_VIEWER,
-        mutableListOf(
-          RbacAccessControl(USER_WRITER, ROLE_EDITOR),
-        )
-      )
+        RbacSecurity(
+            ROLE_VIEWER,
+            mutableListOf(
+                RbacAccessControl(USER_WRITER, ROLE_EDITOR),
+            ))
     every { securityContext.authentication } returns (userAuthentication as Authentication)
     assertTrue(rbacTest.check(rbacSecurity, PERMISSION_EDIT, USER_WRITER, definition))
   }
@@ -612,11 +630,11 @@ class CsmRbacTests() {
     val definition = getCommonRolesDefinition()
     val rbacTest = CsmRbac(csmPlatformProperties, admin)
     rbacSecurity =
-      RbacSecurity(ROLE_VIEWER,
-        mutableListOf(
-          RbacAccessControl(USER_MAIL_TOKEN , ROLE_EDITOR),
-        )
-      )
+        RbacSecurity(
+            ROLE_VIEWER,
+            mutableListOf(
+                RbacAccessControl(USER_MAIL_TOKEN, ROLE_EDITOR),
+            ))
     every { securityContext.authentication } returns (userAuthentication as Authentication)
     assertDoesNotThrow { rbacTest.verify(rbacSecurity, PERMISSION_EDIT, definition) }
   }
@@ -626,11 +644,11 @@ class CsmRbacTests() {
     val definition = getCommonRolesDefinition()
     val rbacTest = CsmRbac(csmPlatformProperties, admin)
     rbacSecurity =
-      RbacSecurity(ROLE_VIEWER,
-        mutableListOf(
-          RbacAccessControl(USER_WRITER, ROLE_EDITOR),
-        )
-      )
+        RbacSecurity(
+            ROLE_VIEWER,
+            mutableListOf(
+                RbacAccessControl(USER_WRITER, ROLE_EDITOR),
+            ))
     every { securityContext.authentication } returns (userAuthentication as Authentication)
     assertTrue(rbacTest.check(rbacSecurity, PERMISSION_EDIT, USER_WRITER, definition))
   }
@@ -640,6 +658,5 @@ class CsmRbacTests() {
     every { securityContext.authentication } returns (userAuthentication as Authentication)
     rbacSecurity = null
     assertTrue(rbac.check(rbacSecurity, ROLE_ADMIN, rolesDefinition))
-
   }
 }
