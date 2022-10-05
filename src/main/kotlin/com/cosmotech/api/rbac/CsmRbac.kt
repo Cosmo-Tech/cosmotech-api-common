@@ -174,7 +174,7 @@ open class CsmRbac(
     logger.debug("RBAC ${rbacSecurity} - Verifying default roles for permission: $permission")
     val isAuthorized =
         this.verifyPermissionFromRole(
-            permission, rbacSecurity?.default ?: ROLE_VIEWER, rolesDefinition)
+            permission, rbacSecurity?.default ?: ROLE_NONE, rolesDefinition)
     logger.debug("RBAC ${rbacSecurity} - default roles for permission $permission: $isAuthorized")
     return isAuthorized
   }
@@ -206,7 +206,7 @@ open class CsmRbac(
   }
 
   internal fun getUserRole(rbacSecurity: RbacSecurity?, user: String): String {
-    return rbacSecurity?.accessControlList?.firstOrNull { it.id == user }?.role ?: ROLE_VIEWER
+    return rbacSecurity?.accessControlList?.firstOrNull { it.id == user }?.role ?: ROLE_NONE
   }
 
   internal fun getAdminCount(rbacSecurity: RbacSecurity?, rolesDefinition: RolesDefinition): Int {
