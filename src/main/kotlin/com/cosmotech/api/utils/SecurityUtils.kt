@@ -1,5 +1,7 @@
 // Copyright (c) Cosmo Tech.
 // Licensed under the MIT license.
+@file:JvmName("SecurityUtilsKt")
+
 package com.cosmotech.api.utils
 
 import com.cosmotech.api.config.CsmPlatformProperties
