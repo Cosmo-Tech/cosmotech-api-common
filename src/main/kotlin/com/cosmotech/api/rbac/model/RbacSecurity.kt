@@ -2,9 +2,9 @@
 // Licensed under the MIT license.
 package com.cosmotech.api.rbac.model
 
-import com.cosmotech.api.rbac.ROLE_VIEWER
+import com.cosmotech.api.rbac.ROLE_NONE
 
 open class RbacSecurity(
-    open var default: String = ROLE_VIEWER,
+    open var default: String = ROLE_NONE,
     open var accessControlList: kotlin.collections.MutableList<RbacAccessControl> = mutableListOf()
 )
