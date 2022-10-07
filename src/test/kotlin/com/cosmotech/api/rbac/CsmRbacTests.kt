@@ -52,6 +52,7 @@ const val USER_NEW_READER = "usertestnew@cosmotech.com"
 
 const val OWNER_ID = "3a869905-e9f5-4851-a7a9-3079aad49dfa"
 const val USER_ID = "2a869905-e9f5-4851-a7a9-3079aad49dfb"
+const val COMPONENT_ID = "component_id"
 
 class CsmRbacTests {
   private val ROLE_NONE_PERMS: List<String> = listOf()
@@ -75,7 +76,7 @@ class CsmRbacTests {
   private lateinit var ownerAuthentication: BearerTokenAuthentication
 
   private lateinit var rolesDefinition: RolesDefinition
-  var rbacSecurity: RbacSecurity? = null
+  lateinit var rbacSecurity: RbacSecurity
 
   @BeforeTest
   fun beforeEachTest() {
@@ -96,6 +97,7 @@ class CsmRbacTests {
 
     rbacSecurity =
         RbacSecurity(
+            COMPONENT_ID,
             ROLE_READER,
             mutableListOf(
                 RbacAccessControl(USER_WRITER, USER_WRITER_ROLE),
@@ -473,27 +475,24 @@ class CsmRbacTests {
   fun `create resource security with default admin`() {
     val resourceSecurity = rbacSecurity
     assertTrue(
-        resourceSecurity?.accessControlList?.any {
+        resourceSecurity.accessControlList.any {
           it.id == USER_ADMIN && it.role == rolesDefinition.adminRole
-        }
-            ?: false)
+        })
   }
 
   @Test
   fun `create resource security with two admins`() {
     val resourceSecurity = rbacSecurity
     resourceSecurity.let {
-      it?.accessControlList?.add(RbacAccessControl(USER_ADMIN_2, USER_ADMIN_ROLE))
+      it.accessControlList.add(RbacAccessControl(USER_ADMIN_2, USER_ADMIN_ROLE))
     }
     assertTrue(
-        (resourceSecurity?.accessControlList?.any {
+        (resourceSecurity.accessControlList.any {
           it.id == USER_ADMIN && it.role == rolesDefinition.adminRole
-        }
-            ?: false) &&
-            (resourceSecurity?.accessControlList?.any {
+        }) &&
+            (resourceSecurity.accessControlList.any {
               it.id == USER_ADMIN_2 && it.role == rolesDefinition.adminRole
-            }
-                ?: false))
+            }))
   }
 
   // Role definition tests
@@ -562,6 +561,7 @@ class CsmRbacTests {
     val rbacTest = CsmRbac(csmPlatformProperties, admin)
     rbacSecurity =
         RbacSecurity(
+            COMPONENT_ID,
             ROLE_READER,
             mutableListOf(
                 RbacAccessControl(USER_READER, ROLE_VIEWER),
@@ -576,6 +576,7 @@ class CsmRbacTests {
     val rbacTest = CsmRbac(csmPlatformProperties, admin)
     rbacSecurity =
         RbacSecurity(
+            COMPONENT_ID,
             ROLE_VIEWER,
             mutableListOf(
                 RbacAccessControl(USER_WRITER, ROLE_EDITOR),
@@ -590,6 +591,7 @@ class CsmRbacTests {
     val rbacTest = CsmRbac(csmPlatformProperties, admin)
     rbacSecurity =
         RbacSecurity(
+            COMPONENT_ID,
             ROLE_VIEWER,
             mutableListOf(
                 RbacAccessControl(USER_WRITER, ROLE_EDITOR),
@@ -604,6 +606,7 @@ class CsmRbacTests {
     val rbacTest = CsmRbac(csmPlatformProperties, admin)
     rbacSecurity =
         RbacSecurity(
+            COMPONENT_ID,
             ROLE_VIEWER,
             mutableListOf(
                 RbacAccessControl(
@@ -619,6 +622,7 @@ class CsmRbacTests {
     val rbacTest = CsmRbac(csmPlatformProperties, admin)
     rbacSecurity =
         RbacSecurity(
+            COMPONENT_ID,
             ROLE_VIEWER,
             mutableListOf(
                 RbacAccessControl(USER_WRITER, ROLE_EDITOR),
@@ -633,6 +637,7 @@ class CsmRbacTests {
     val rbacTest = CsmRbac(csmPlatformProperties, admin)
     rbacSecurity =
         RbacSecurity(
+            COMPONENT_ID,
             ROLE_VIEWER,
             mutableListOf(
                 RbacAccessControl(USER_MAIL_TOKEN, ROLE_EDITOR),
@@ -647,18 +652,12 @@ class CsmRbacTests {
     val rbacTest = CsmRbac(csmPlatformProperties, admin)
     rbacSecurity =
         RbacSecurity(
+            COMPONENT_ID,
             ROLE_VIEWER,
             mutableListOf(
                 RbacAccessControl(USER_WRITER, ROLE_EDITOR),
             ))
     every { securityContext.authentication } returns (userAuthentication as Authentication)
     assertTrue(rbacTest.check(rbacSecurity, PERMISSION_EDIT, USER_WRITER, definition))
-  }
-
-  @Test
-  fun `create default security when it does not exist`() {
-    every { securityContext.authentication } returns (userAuthentication as Authentication)
-    rbacSecurity = null
-    assertTrue(rbac.check(rbacSecurity, ROLE_ADMIN, rolesDefinition))
   }
 }
