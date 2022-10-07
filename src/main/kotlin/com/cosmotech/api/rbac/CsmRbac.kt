@@ -71,7 +71,7 @@ open class CsmRbac(
     return (userIsAdmin || this.verifyRbac(rbacSecurity, permission, rolesDefinition, user))
   }
 
-  fun setDefault (
+  fun setDefault(
       rbacSecurity: RbacSecurity,
       defaultRole: String,
       rolesDefinition: RolesDefinition = getCommonRolesDefinition()
@@ -161,7 +161,8 @@ open class CsmRbac(
     logger.debug("RBAC ${rbacSecurity.id}} - Verifying $user has permission in ACL: $permission")
     val isAuthorized =
         this.verifyPermissionFromRole(permission, getUserRole(rbacSecurity, user), rolesDefinition)
-    logger.debug("RBAC ${rbacSecurity.id}} - $user has permission $permission in ACL: $isAuthorized")
+    logger.debug(
+        "RBAC ${rbacSecurity.id}} - $user has permission $permission in ACL: $isAuthorized")
     return isAuthorized
   }
 
@@ -172,9 +173,9 @@ open class CsmRbac(
   ): Boolean {
     logger.debug("RBAC ${rbacSecurity.id}} - Verifying default roles for permission: $permission")
     val isAuthorized =
-        this.verifyPermissionFromRole(
-            permission, rbacSecurity.default, rolesDefinition)
-    logger.debug("RBAC ${rbacSecurity.id}} - default roles for permission $permission: $isAuthorized")
+        this.verifyPermissionFromRole(permission, rbacSecurity.default, rolesDefinition)
+    logger.debug(
+        "RBAC ${rbacSecurity.id}} - default roles for permission $permission: $isAuthorized")
     return isAuthorized
   }
 
