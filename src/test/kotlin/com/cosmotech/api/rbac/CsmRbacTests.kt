@@ -518,7 +518,7 @@ class CsmRbacTests {
   fun `add custom role definition`() {
     val definition = getCommonRolesDefinition()
     val customRole = "custom_role"
-    val customRolePermissions = listOf(PERMISSION_READ_DATA, "custom_permission")
+    val customRolePermissions = listOf(PERMISSION_READ, "custom_permission")
     definition.permissions.put(customRole, customRolePermissions)
     val expected: MutableMap<String, List<String>> =
         mutableMapOf(
@@ -537,7 +537,7 @@ class CsmRbacTests {
     val definition = getCommonRolesDefinition()
     val customRole = "custom_role"
     val customPermission = "custom_permission"
-    val customRolePermissions = listOf(PERMISSION_READ_DATA, customPermission)
+    val customRolePermissions = listOf(PERMISSION_READ, customPermission)
     definition.permissions.put(customRole, customRolePermissions)
     val rbacTest = CsmRbac(csmPlatformProperties, admin)
     rbacTest.setUserRole(rbacSecurity, USER_NEW_READER, customRole, definition)
@@ -552,7 +552,7 @@ class CsmRbacTests {
     val rbacTest = CsmRbac(csmPlatformProperties, admin)
     rbacTest.setUserRole(rbacSecurity, USER_READER, ROLE_VIEWER, definition)
     every { securityContext.authentication } returns (userAuthentication as Authentication)
-    assertTrue(rbacTest.check(rbacSecurity, PERMISSION_READ_DATA, USER_READER, definition))
+    assertTrue(rbacTest.check(rbacSecurity, PERMISSION_READ, USER_READER, definition))
   }
 
   @Test
@@ -567,7 +567,7 @@ class CsmRbacTests {
                 RbacAccessControl(USER_READER, ROLE_VIEWER),
             ))
     every { securityContext.authentication } returns (userAuthentication as Authentication)
-    assertTrue(rbacTest.check(rbacSecurity, PERMISSION_READ_DATA, USER_READER, definition))
+    assertTrue(rbacTest.check(rbacSecurity, PERMISSION_READ, USER_READER, definition))
   }
 
   @Test
@@ -582,7 +582,7 @@ class CsmRbacTests {
                 RbacAccessControl(USER_WRITER, ROLE_EDITOR),
             ))
     every { securityContext.authentication } returns (userAuthentication as Authentication)
-    assertTrue(rbacTest.check(rbacSecurity, PERMISSION_READ_DATA, USER_READER, definition))
+    assertTrue(rbacTest.check(rbacSecurity, PERMISSION_READ, USER_READER, definition))
   }
 
   @Test
@@ -597,7 +597,7 @@ class CsmRbacTests {
                 RbacAccessControl(USER_WRITER, ROLE_EDITOR),
             ))
     every { securityContext.authentication } returns (userAuthentication as Authentication)
-    assertFalse(rbacTest.check(rbacSecurity, PERMISSION_EDIT_SECURITY, USER_READER, definition))
+    assertFalse(rbacTest.check(rbacSecurity, PERMISSION_WRITE_SECURITY, USER_READER, definition))
   }
 
   @Test
@@ -628,7 +628,7 @@ class CsmRbacTests {
                 RbacAccessControl(USER_WRITER, ROLE_EDITOR),
             ))
     every { securityContext.authentication } returns (userAuthentication as Authentication)
-    assertTrue(rbacTest.check(rbacSecurity, PERMISSION_EDIT, USER_WRITER, definition))
+    assertTrue(rbacTest.check(rbacSecurity, PERMISSION_WRITE, USER_WRITER, definition))
   }
 
   @Test
@@ -643,7 +643,7 @@ class CsmRbacTests {
                 RbacAccessControl(USER_MAIL_TOKEN, ROLE_EDITOR),
             ))
     every { securityContext.authentication } returns (userAuthentication as Authentication)
-    assertDoesNotThrow { rbacTest.verify(rbacSecurity, PERMISSION_EDIT, definition) }
+    assertDoesNotThrow { rbacTest.verify(rbacSecurity, PERMISSION_WRITE, definition) }
   }
 
   @Test
@@ -658,6 +658,6 @@ class CsmRbacTests {
                 RbacAccessControl(USER_WRITER, ROLE_EDITOR),
             ))
     every { securityContext.authentication } returns (userAuthentication as Authentication)
-    assertTrue(rbacTest.check(rbacSecurity, PERMISSION_EDIT, USER_WRITER, definition))
+    assertTrue(rbacTest.check(rbacSecurity, PERMISSION_WRITE, USER_WRITER, definition))
   }
 }
