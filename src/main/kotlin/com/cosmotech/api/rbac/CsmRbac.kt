@@ -115,7 +115,7 @@ open class CsmRbac(
 
   fun getAccessControl(rbacSecurity: RbacSecurity, identityId: String): RbacAccessControl {
     return rbacSecurity.accessControlList.find { it.id == identityId }
-      ?: throw CsmResourceNotFoundException("User '$identityId' not found")
+        ?: throw CsmResourceNotFoundException("User '$identityId' not found")
   }
 
   fun removeUser(
