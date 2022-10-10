@@ -5,6 +5,7 @@ package com.cosmotech.api.rbac
 import com.cosmotech.api.config.CsmPlatformProperties
 import com.cosmotech.api.exceptions.CsmAccessForbiddenException
 import com.cosmotech.api.exceptions.CsmClientException
+import com.cosmotech.api.exceptions.CsmResourceNotFoundException
 import com.cosmotech.api.rbac.model.RbacAccessControl
 import com.cosmotech.api.rbac.model.RbacSecurity
 import com.cosmotech.api.utils.getCurrentAuthenticatedMail
@@ -113,7 +114,8 @@ open class CsmRbac(
   }
 
   fun getAccessControl(rbacSecurity: RbacSecurity, identityId: String): RbacAccessControl {
-    return rbacSecurity.accessControlList.find { it.id == identityId }!!
+    return rbacSecurity.accessControlList.find { it.id == identityId }
+      ?: throw CsmResourceNotFoundException("User '$identityId' not found")
   }
 
   fun removeUser(
