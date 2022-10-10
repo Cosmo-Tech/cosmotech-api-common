@@ -134,11 +134,7 @@ open class CsmRbac(
     return rbacSecurity
   }
 
-  internal fun isAdmin(
-      rbacSecurity: RbacSecurity,
-      user: String,
-      rolesDefinition: RolesDefinition
-  ): Boolean {
+  fun isAdmin(rbacSecurity: RbacSecurity, user: String, rolesDefinition: RolesDefinition): Boolean {
     return (this.isAdminToken(rbacSecurity, user) ||
         this.verifyAdminRole(rbacSecurity, user, rolesDefinition))
   }
