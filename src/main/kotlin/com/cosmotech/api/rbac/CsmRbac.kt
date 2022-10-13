@@ -120,17 +120,19 @@ open class CsmRbac(
 
   fun removeUser(
       rbacSecurity: RbacSecurity,
-      user: String,
+      identityId: String,
       rolesDefinition: RolesDefinition = getCommonRolesDefinition()
   ): RbacSecurity {
-    logger.info("RBAC ${rbacSecurity.id}} - Removing user $user from security")
-    val role = this.getUserRole(rbacSecurity, user)
+    logger.info("RBAC ${rbacSecurity.id}} - Removing user $identityId from security")
+    rbacSecurity.accessControlList.find { it.id == identityId }
+        ?: throw CsmResourceNotFoundException("User '$identityId' not found")
+    val role = this.getUserRole(rbacSecurity, identityId)
     if (role == (this.getAdminRole(rolesDefinition)) &&
         this.getAdminCount(rbacSecurity, rolesDefinition) == 1) {
       throw CsmAccessForbiddenException(
           "RBAC ${rbacSecurity.id}} - It is forbidden to remove the last administrator")
     }
-    rbacSecurity.accessControlList.removeIf { it.id == user }
+    rbacSecurity.accessControlList.removeIf { it.id == identityId }
     return rbacSecurity
   }
 
