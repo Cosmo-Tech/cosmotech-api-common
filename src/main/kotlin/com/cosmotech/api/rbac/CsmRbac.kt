@@ -119,9 +119,9 @@ open class CsmRbac(
   }
 
   fun removeUser(
-    rbacSecurity: RbacSecurity,
-    userId: String,
-    rolesDefinition: RolesDefinition = getCommonRolesDefinition()
+      rbacSecurity: RbacSecurity,
+      userId: String,
+      rolesDefinition: RolesDefinition = getCommonRolesDefinition()
   ): RbacSecurity {
     logger.info("RBAC ${rbacSecurity.id}} - Removing user $userId from security")
     rbacSecurity.accessControlList.find { it.id == userId }
