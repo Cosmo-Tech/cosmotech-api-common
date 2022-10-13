@@ -113,24 +113,26 @@ open class CsmRbac(
     return (rbacSecurity.accessControlList.map { it.id })
   }
 
-  fun getAccessControl(rbacSecurity: RbacSecurity, identityId: String): RbacAccessControl {
-    return rbacSecurity.accessControlList.find { it.id == identityId }
-        ?: throw CsmResourceNotFoundException("User '$identityId' not found")
+  fun getAccessControl(rbacSecurity: RbacSecurity, userId: String): RbacAccessControl {
+    return rbacSecurity.accessControlList.find { it.id == userId }
+        ?: throw CsmResourceNotFoundException("User '$userId' not found")
   }
 
   fun removeUser(
       rbacSecurity: RbacSecurity,
-      user: String,
+      userId: String,
       rolesDefinition: RolesDefinition = getCommonRolesDefinition()
   ): RbacSecurity {
-    logger.info("RBAC ${rbacSecurity.id}} - Removing user $user from security")
-    val role = this.getUserRole(rbacSecurity, user)
+    logger.info("RBAC ${rbacSecurity.id}} - Removing user $userId from security")
+    rbacSecurity.accessControlList.find { it.id == userId }
+        ?: throw CsmResourceNotFoundException("User '$userId' not found")
+    val role = this.getUserRole(rbacSecurity, userId)
     if (role == (this.getAdminRole(rolesDefinition)) &&
         this.getAdminCount(rbacSecurity, rolesDefinition) == 1) {
       throw CsmAccessForbiddenException(
           "RBAC ${rbacSecurity.id}} - It is forbidden to remove the last administrator")
     }
-    rbacSecurity.accessControlList.removeIf { it.id == user }
+    rbacSecurity.accessControlList.removeIf { it.id == userId }
     return rbacSecurity
   }
 

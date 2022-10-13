@@ -5,6 +5,7 @@ package com.cosmotech.api.rbac
 import com.cosmotech.api.config.CsmPlatformProperties
 import com.cosmotech.api.exceptions.CsmAccessForbiddenException
 import com.cosmotech.api.exceptions.CsmClientException
+import com.cosmotech.api.exceptions.CsmResourceNotFoundException
 import com.cosmotech.api.rbac.model.RbacAccessControl
 import com.cosmotech.api.rbac.model.RbacSecurity
 import com.cosmotech.api.security.ROLE_ORGANIZATION_USER
@@ -659,5 +660,15 @@ class CsmRbacTests {
             ))
     every { securityContext.authentication } returns (userAuthentication as Authentication)
     assertTrue(rbacTest.check(rbacSecurity, PERMISSION_WRITE, USER_WRITER, definition))
+  }
+
+  @Test
+  fun `when removing throw 404 if user not exists`() {
+    assertThrows<CsmResourceNotFoundException> { rbac.removeUser(rbacSecurity, USER_NOTIN) }
+  }
+
+  @Test
+  fun `when getting AccessControl throw 404 if user not exists`() {
+    assertThrows<CsmResourceNotFoundException> { rbac.getAccessControl(rbacSecurity, USER_NOTIN) }
   }
 }
