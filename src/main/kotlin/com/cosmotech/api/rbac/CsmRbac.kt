@@ -161,8 +161,7 @@ open class CsmRbac(
     logger.debug("RBAC ${rbacSecurity.id} - Verifying $user has permission in ACL: $permission")
     val isAuthorized =
         this.verifyPermissionFromRole(permission, getUserRole(rbacSecurity, user), rolesDefinition)
-    logger.debug(
-        "RBAC ${rbacSecurity.id} - $user has permission $permission in ACL: $isAuthorized")
+    logger.debug("RBAC ${rbacSecurity.id} - $user has permission $permission in ACL: $isAuthorized")
     return isAuthorized
   }
 
