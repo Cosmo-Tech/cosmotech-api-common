@@ -42,7 +42,7 @@ open class CsmRbac(
   ) {
     if (!this.check(rbacSecurity, permission, user, rolesDefinition))
         throw CsmAccessForbiddenException(
-            "RBAC ${rbacSecurity.id}}- User $user does not have permission $permission")
+            "RBAC ${rbacSecurity.id} - User $user does not have permission $permission")
   }
 
   fun check(
@@ -63,9 +63,9 @@ open class CsmRbac(
       user: String,
       rolesDefinition: RolesDefinition = getCommonRolesDefinition()
   ): Boolean {
-    logger.info("RBAC ${rbacSecurity.id}} - Verifying permission $permission for user $user")
+    logger.info("RBAC ${rbacSecurity.id} - Verifying permission $permission for user $user")
     if (!this.csmPlatformProperties.rbac.enabled) {
-      logger.debug("RBAC ${rbacSecurity.id}} - RBAC check not enabled")
+      logger.debug("RBAC ${rbacSecurity.id} - RBAC check not enabled")
       return true
     }
     val userIsAdmin = this.isAdmin(rbacSecurity, user, rolesDefinition)
@@ -89,7 +89,7 @@ open class CsmRbac(
       role: String,
       rolesDefinition: RolesDefinition = getCommonRolesDefinition()
   ): RbacSecurity {
-    logger.info("RBAC ${rbacSecurity.id}} - Setting user $user roles")
+    logger.info("RBAC ${rbacSecurity.id} - Setting user $user roles")
     this.verifyRoleOrThrow(rbacSecurity, role, rolesDefinition)
     val currentRole = this.getUserRole(rbacSecurity, user)
     val adminRole = this.getAdminRole(rolesDefinition)
@@ -97,7 +97,7 @@ open class CsmRbac(
         role != adminRole &&
         this.getAdminCount(rbacSecurity, rolesDefinition) == 1) {
       throw CsmAccessForbiddenException(
-          "RBAC ${rbacSecurity.id}} - It is forbidden to unset the last administrator")
+          "RBAC ${rbacSecurity.id} - It is forbidden to unset the last administrator")
     }
     val accessList = rbacSecurity.accessControlList
     val userAccess = accessList.find { it.id == user }
@@ -123,14 +123,14 @@ open class CsmRbac(
       userId: String,
       rolesDefinition: RolesDefinition = getCommonRolesDefinition()
   ): RbacSecurity {
-    logger.info("RBAC ${rbacSecurity.id}} - Removing user $userId from security")
+    logger.info("RBAC ${rbacSecurity.id} - Removing user $userId from security")
     rbacSecurity.accessControlList.find { it.id == userId }
         ?: throw CsmResourceNotFoundException("User '$userId' not found")
     val role = this.getUserRole(rbacSecurity, userId)
     if (role == (this.getAdminRole(rolesDefinition)) &&
         this.getAdminCount(rbacSecurity, rolesDefinition) == 1) {
       throw CsmAccessForbiddenException(
-          "RBAC ${rbacSecurity.id}} - It is forbidden to remove the last administrator")
+          "RBAC ${rbacSecurity.id} - It is forbidden to remove the last administrator")
     }
     rbacSecurity.accessControlList.removeIf { it.id == userId }
     return rbacSecurity
@@ -146,9 +146,9 @@ open class CsmRbac(
       user: String,
       rolesDefinition: RolesDefinition
   ): Boolean {
-    logger.debug("RBAC ${rbacSecurity.id}} - Verifying if $user has default admin rbac role")
+    logger.debug("RBAC ${rbacSecurity.id} - Verifying if $user has default admin rbac role")
     val isAdmin = this.getUserRole(rbacSecurity, user) == this.getAdminRole(rolesDefinition)
-    logger.debug("RBAC ${rbacSecurity.id}} - $user has default admin rbac role: $isAdmin")
+    logger.debug("RBAC ${rbacSecurity.id} - $user has default admin rbac role: $isAdmin")
     return isAdmin
   }
 
@@ -158,11 +158,11 @@ open class CsmRbac(
       rolesDefinition: RolesDefinition,
       user: String
   ): Boolean {
-    logger.debug("RBAC ${rbacSecurity.id}} - Verifying $user has permission in ACL: $permission")
+    logger.debug("RBAC ${rbacSecurity.id} - Verifying $user has permission in ACL: $permission")
     val isAuthorized =
         this.verifyPermissionFromRole(permission, getUserRole(rbacSecurity, user), rolesDefinition)
     logger.debug(
-        "RBAC ${rbacSecurity.id}} - $user has permission $permission in ACL: $isAuthorized")
+        "RBAC ${rbacSecurity.id} - $user has permission $permission in ACL: $isAuthorized")
     return isAuthorized
   }
 
@@ -171,11 +171,11 @@ open class CsmRbac(
       permission: String,
       rolesDefinition: RolesDefinition
   ): Boolean {
-    logger.debug("RBAC ${rbacSecurity.id}} - Verifying default roles for permission: $permission")
+    logger.debug("RBAC ${rbacSecurity.id} - Verifying default roles for permission: $permission")
     val isAuthorized =
         this.verifyPermissionFromRole(permission, rbacSecurity.default, rolesDefinition)
     logger.debug(
-        "RBAC ${rbacSecurity.id}} - default roles for permission $permission: $isAuthorized")
+        "RBAC ${rbacSecurity.id} - default roles for permission $permission: $isAuthorized")
     return isAuthorized
   }
 
@@ -239,9 +239,9 @@ open class CsmRbac(
   }
 
   internal fun isAdminToken(rbacSecurity: RbacSecurity, user: String): Boolean {
-    logger.debug("RBAC ${rbacSecurity.id}} - Verifying if $user has platform admin role in token")
+    logger.debug("RBAC ${rbacSecurity.id} - Verifying if $user has platform admin role in token")
     val isAdmin = csmAdmin.verifyCurrentRolesAdmin()
-    logger.debug("RBAC ${rbacSecurity.id}} - $user has platform admin role in token: $isAdmin")
+    logger.debug("RBAC ${rbacSecurity.id} - $user has platform admin role in token: $isAdmin")
     return isAdmin
   }
 
