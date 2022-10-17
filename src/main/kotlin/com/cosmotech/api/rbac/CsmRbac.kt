@@ -83,15 +83,29 @@ open class CsmRbac(
     return rbacSecurity
   }
 
-  fun setUserRole(
+  fun addUserRole(
+      parentRbacSecurity: RbacSecurity,
       rbacSecurity: RbacSecurity,
-      user: String,
+      userId: String,
       role: String,
       rolesDefinition: RolesDefinition = getCommonRolesDefinition()
   ): RbacSecurity {
-    logger.info("RBAC ${rbacSecurity.id} - Setting user $user roles")
+    this.getAccessControlOrThrow(
+        parentRbacSecurity,
+        userId,
+        "User '$userId' not found in parent ${parentRbacSecurity.id} component")
+    return setUserRole(rbacSecurity, userId, role, rolesDefinition)
+  }
+
+  fun setUserRole(
+      rbacSecurity: RbacSecurity,
+      userId: String,
+      role: String,
+      rolesDefinition: RolesDefinition = getCommonRolesDefinition()
+  ): RbacSecurity {
+    logger.info("RBAC ${rbacSecurity.id} - Setting user $userId roles")
     this.verifyRoleOrThrow(rbacSecurity, role, rolesDefinition)
-    val currentRole = this.getUserRole(rbacSecurity, user)
+    val currentRole = this.getUserRole(rbacSecurity, userId)
     val adminRole = this.getAdminRole(rolesDefinition)
     if (currentRole == adminRole &&
         role != adminRole &&
@@ -100,9 +114,9 @@ open class CsmRbac(
           "RBAC ${rbacSecurity.id} - It is forbidden to unset the last administrator")
     }
     val accessList = rbacSecurity.accessControlList
-    val userAccess = accessList.find { it.id == user }
+    val userAccess = accessList.find { it.id == userId }
     if (userAccess == null) {
-      accessList.add(RbacAccessControl(user, role))
+      accessList.add(RbacAccessControl(userId, role))
     } else {
       userAccess.role = role
     }
@@ -114,8 +128,17 @@ open class CsmRbac(
   }
 
   fun getAccessControl(rbacSecurity: RbacSecurity, userId: String): RbacAccessControl {
+    return getAccessControlOrThrow(
+        rbacSecurity, userId, "User '$userId' not found in ${rbacSecurity.id} component")
+  }
+
+  fun getAccessControlOrThrow(
+      rbacSecurity: RbacSecurity,
+      userId: String,
+      exceptionUserNotFoundMessage: String
+  ): RbacAccessControl {
     return rbacSecurity.accessControlList.find { it.id == userId }
-        ?: throw CsmResourceNotFoundException("User '$userId' not found")
+        ?: throw CsmResourceNotFoundException(exceptionUserNotFoundMessage)
   }
 
   fun removeUser(
