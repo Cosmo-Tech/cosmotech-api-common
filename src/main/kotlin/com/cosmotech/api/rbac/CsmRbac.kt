@@ -78,7 +78,9 @@ open class CsmRbac(
       rolesDefinition: RolesDefinition = getCommonRolesDefinition()
   ): RbacSecurity {
     logger.info("RBAC ${rbacSecurity.id} - Setting default security")
-    this.verifyRoleOrThrow(rbacSecurity, defaultRole, rolesDefinition)
+    if (defaultRole != ROLE_NONE) {
+      this.verifyRoleOrThrow(rbacSecurity, defaultRole, rolesDefinition)
+    }
     rbacSecurity.default = defaultRole
     return rbacSecurity
   }
@@ -194,8 +196,8 @@ open class CsmRbac(
       rolesDefinition: RolesDefinition
   ): Boolean {
     logger.debug("RBAC ${rbacSecurity.id} - Verifying default roles for permission: $permission")
-    val isAuthorized =
-        this.verifyPermissionFromRole(permission, rbacSecurity.default, rolesDefinition)
+    val defaultRole = if (rbacSecurity.default == ROLE_NONE) null else rbacSecurity.default
+    val isAuthorized = this.verifyPermissionFromRole(permission, defaultRole, rolesDefinition)
     logger.debug(
         "RBAC ${rbacSecurity.id} - default roles for permission $permission: $isAuthorized")
     return isAuthorized
@@ -213,7 +215,7 @@ open class CsmRbac(
 
   internal fun verifyPermissionFromRole(
       permission: String,
-      role: String,
+      role: String?,
       rolesDefinition: RolesDefinition
   ): Boolean {
     return this.verifyPermission(
@@ -221,14 +223,14 @@ open class CsmRbac(
   }
 
   internal fun getRolePermissions(
-      role: String,
+      role: String?,
       rolesDefinition: MutableMap<String, List<String>>
   ): List<String> {
     return rolesDefinition[role] ?: listOf()
   }
 
-  internal fun getUserRole(rbacSecurity: RbacSecurity, user: String): String {
-    return rbacSecurity.accessControlList.firstOrNull { it.id == user }?.role ?: ROLE_NONE
+  internal fun getUserRole(rbacSecurity: RbacSecurity, user: String): String? {
+    return rbacSecurity.accessControlList.firstOrNull { it.id == user }?.role
   }
 
   internal fun getAdminCount(rbacSecurity: RbacSecurity, rolesDefinition: RolesDefinition): Int {

@@ -262,6 +262,13 @@ class CsmRbacTests {
   }
 
   @Test
+  fun `adding a user with role none throws exception`() {
+    assertThrows<CsmClientException> {
+      rbac.setUserRole(rbacSecurity, USER_NEW_READER, ROLE_NONE, rolesDefinition)
+    }
+  }
+
+  @Test
   fun `should throw NotFoundException if user not in parent user list`() {
     assertThrows<CsmResourceNotFoundException> {
       rbac.addUserRole(rbacSecurity, rbacSecurity, USER_NOTIN, USER_READER_ROLE, rolesDefinition)
@@ -508,7 +515,6 @@ class CsmRbacTests {
   fun `get default role definition permissions`() {
     val expected: MutableMap<String, List<String>> =
         mutableMapOf(
-            ROLE_NONE to COMMON_ROLE_NONE_PERMISSIONS,
             ROLE_VIEWER to COMMON_ROLE_READER_PERMISSIONS,
             ROLE_USER to COMMON_ROLE_USER_PERMISSIONS,
             ROLE_EDITOR to COMMON_ROLE_EDITOR_PERMISSIONS,
@@ -530,7 +536,6 @@ class CsmRbacTests {
     definition.permissions.put(customRole, customRolePermissions)
     val expected: MutableMap<String, List<String>> =
         mutableMapOf(
-            ROLE_NONE to COMMON_ROLE_NONE_PERMISSIONS,
             ROLE_VIEWER to COMMON_ROLE_READER_PERMISSIONS,
             ROLE_USER to COMMON_ROLE_USER_PERMISSIONS,
             ROLE_EDITOR to COMMON_ROLE_EDITOR_PERMISSIONS,
