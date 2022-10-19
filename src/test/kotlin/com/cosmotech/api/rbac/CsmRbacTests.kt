@@ -262,6 +262,13 @@ class CsmRbacTests {
   }
 
   @Test
+  fun `should throw NotFoundException if user not in parent user list`() {
+    assertThrows<CsmResourceNotFoundException> {
+      rbac.addUserRole(rbacSecurity, rbacSecurity, USER_NOTIN, USER_READER_ROLE, rolesDefinition)
+    }
+  }
+
+  @Test
   fun `remove new reader user and verify read permission KO`() {
     rbac.setUserRole(rbacSecurity, USER_NEW_READER, USER_READER_ROLE, rolesDefinition)
     rbac.removeUser(rbacSecurity, USER_NEW_READER, rolesDefinition)
