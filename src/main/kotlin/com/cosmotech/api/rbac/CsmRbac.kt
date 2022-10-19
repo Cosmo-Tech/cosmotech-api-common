@@ -90,10 +90,10 @@ open class CsmRbac(
       role: String,
       rolesDefinition: RolesDefinition = getCommonRolesDefinition()
   ): RbacSecurity {
-    this.getAccessControlOrThrow(
+    this.checkUserExists(
         parentRbacSecurity,
         userId,
-        "User '$userId' not found in parent ${parentRbacSecurity.id} component")
+        "User $userId not found in parent ${parentRbacSecurity.id} component")
     return setUserRole(rbacSecurity, userId, role, rolesDefinition)
   }
 
@@ -128,11 +128,11 @@ open class CsmRbac(
   }
 
   fun getAccessControl(rbacSecurity: RbacSecurity, userId: String): RbacAccessControl {
-    return getAccessControlOrThrow(
-        rbacSecurity, userId, "User '$userId' not found in ${rbacSecurity.id} component")
+    return rbacSecurity.accessControlList.find { it.id == userId }
+      ?: throw CsmResourceNotFoundException("User $userId not found in ${rbacSecurity.id} component")
   }
 
-  fun getAccessControlOrThrow(
+  private fun checkUserExists(
       rbacSecurity: RbacSecurity,
       userId: String,
       exceptionUserNotFoundMessage: String
@@ -147,8 +147,7 @@ open class CsmRbac(
       rolesDefinition: RolesDefinition = getCommonRolesDefinition()
   ): RbacSecurity {
     logger.info("RBAC ${rbacSecurity.id} - Removing user $userId from security")
-    rbacSecurity.accessControlList.find { it.id == userId }
-        ?: throw CsmResourceNotFoundException("User '$userId' not found")
+    checkUserExists(rbacSecurity, userId, "User $userId not found")
     val role = this.getUserRole(rbacSecurity, userId)
     if (role == (this.getAdminRole(rolesDefinition)) &&
         this.getAdminCount(rbacSecurity, rolesDefinition) == 1) {
