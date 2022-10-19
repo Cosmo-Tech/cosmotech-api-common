@@ -262,7 +262,7 @@ class CsmRbacTests {
   }
 
   @Test
-  fun `add a user with role none KO`() {
+  fun `adding a user with role none throws exception`() {
     assertThrows<CsmClientException> {
       rbac.setUserRole(rbacSecurity, USER_NEW_READER, ROLE_NONE, rolesDefinition)
     }
