@@ -129,7 +129,8 @@ open class CsmRbac(
 
   fun getAccessControl(rbacSecurity: RbacSecurity, userId: String): RbacAccessControl {
     return rbacSecurity.accessControlList.find { it.id == userId }
-      ?: throw CsmResourceNotFoundException("User $userId not found in ${rbacSecurity.id} component")
+        ?: throw CsmResourceNotFoundException(
+            "User $userId not found in ${rbacSecurity.id} component")
   }
 
   private fun checkUserExists(
