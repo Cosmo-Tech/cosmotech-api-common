@@ -262,6 +262,13 @@ class CsmRbacTests {
   }
 
   @Test
+  fun `add a user with role none KO`() {
+    assertThrows<CsmClientException> {
+      rbac.setUserRole(rbacSecurity, USER_NEW_READER, ROLE_NONE, rolesDefinition)
+    }
+  }
+
+  @Test
   fun `should throw NotFoundException if user not in parent user list`() {
     assertThrows<CsmResourceNotFoundException> {
       rbac.addUserRole(rbacSecurity, rbacSecurity, USER_NOTIN, USER_READER_ROLE, rolesDefinition)
