@@ -133,7 +133,7 @@ open class CsmRbac(
             "User $userId not found in ${rbacSecurity.id} component")
   }
 
-  private fun checkUserExists(
+  fun checkUserExists(
       rbacSecurity: RbacSecurity,
       userId: String,
       exceptionUserNotFoundMessage: String
