@@ -23,11 +23,33 @@ val kotlinJvmTarget = 17
 java { toolchain { languageVersion.set(JavaLanguageVersion.of(kotlinJvmTarget)) } }
 
 publishing {
+  repositories {
+    maven {
+      name = "GitHubPackages"
+      url = uri("https://maven.pkg.github.com/Cosmo-Tech/cosmotech-api-common")
+      credentials {
+        username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_ACTOR")
+        password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
+      }
+    }
+  }
+
   publications {
     create<MavenPublication>("maven") {
       groupId = "com.github.Cosmo-Tech"
       artifactId = "cosmotech-api-common"
       version = scmVersion.version
+      pom {
+        name.set("Cosmo Tech API common")
+        description.set("Cosmo Tech API common library for Platform")
+        url.set("https://github.com/Cosmo-Tech/cosmotech-api-common")
+        licenses {
+          license {
+            name.set("MIT License")
+            url.set("https://github.com/Cosmo-Tech/cosmotech-api-common/blob/main/LICENSE")
+          }
+        }
+      }
 
       from(components["java"])
     }
