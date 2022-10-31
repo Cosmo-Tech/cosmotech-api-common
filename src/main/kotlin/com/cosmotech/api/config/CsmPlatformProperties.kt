@@ -64,6 +64,9 @@ data class CsmPlatformProperties(
 
     /** RBAC / ACL configuration */
     val rbac: CsmRbac = CsmRbac(),
+
+    /** Kubernetes secrets namespace */
+    val namespace: String = "phoenix",
 ) {
 
   data class Authorization(
