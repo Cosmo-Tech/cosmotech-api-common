@@ -148,6 +148,7 @@ val azureSpringBootBomVersion = "3.14.0"
 val jUnitBomVersion = "5.8.2"
 val mockkVersion = "1.12.4"
 val awaitilityKVersion = "4.2.0"
+val kubernetesClient = "16.0.0"
 
 dependencies {
   implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
@@ -188,6 +189,8 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-actuator")
   implementation("io.micrometer:micrometer-registry-prometheus")
   implementation("org.springframework.boot:spring-boot-starter-aop")
+
+  implementation("io.kubernetes:client-java:$kubernetesClient")
 
   testImplementation(kotlin("test"))
   testImplementation(platform("org.junit:junit-bom:${jUnitBomVersion}"))
