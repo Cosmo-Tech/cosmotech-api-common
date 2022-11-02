@@ -14,3 +14,14 @@ updates:
     prefix: "GitHub Actions"
   labels:
   - dependencies
+- package-ecosystem: gradle
+  directory: "/"
+  registries:
+  - argo-maven-github
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  commit-message:
+    prefix: "Gradle"
+  labels:
+  - dependencies
