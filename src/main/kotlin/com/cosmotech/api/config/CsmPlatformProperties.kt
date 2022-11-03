@@ -365,12 +365,6 @@ data class CsmPlatformProperties(
        */
       val ingestionObservationWindowToBeConsideredAFailureMinutes: Long = 5,
 
-      /** number of seconds to wait after the checking the scenario validation ingestion status */
-      val sleepingTimeBeforeQueryingScenarioValidationStatusSeconds: Long = 5,
-
-      /** number of retry to query the scenario validation status */
-      val maxRetryAuthorized: Long = 5,
-
       /** Data ingestion state handling default behavior */
       val state: State = State()
   ) {
@@ -379,7 +373,7 @@ data class CsmPlatformProperties(
          * The timeout in second before considering no data in probes measures and control plane is
          * an issue
          */
-        val noDataTimeOutSeconds: Long = 60,
+        val noDataTimeOutSeconds: Long = 180,
     )
   }
 
