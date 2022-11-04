@@ -7,7 +7,7 @@ plugins {
   val kotlinVersion = "1.7.20"
   kotlin("jvm") version kotlinVersion
   id("com.diffplug.spotless") version "6.11.0"
-  id("org.springframework.boot") version "2.7.5" apply false
+  id("org.springframework.boot") version "2.7.2" apply false
   id("io.gitlab.arturbosch.detekt") version "1.21.0"
   id("pl.allegro.tech.build.axion-release") version "1.14.2"
   `maven-publish`
@@ -15,7 +15,7 @@ plugins {
   `java-library`
 }
 
-scmVersion { tag { prefix to "" } }
+scmVersion { tag { prefix.set("") } }
 
 val kotlinJvmTarget = 17
 
