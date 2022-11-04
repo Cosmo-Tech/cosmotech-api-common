@@ -6,7 +6,7 @@ import io.gitlab.arturbosch.detekt.Detekt
 plugins {
   val kotlinVersion = "1.7.20"
   kotlin("jvm") version kotlinVersion
-  id("com.diffplug.spotless") version "6.4.2"
+  id("com.diffplug.spotless") version "6.11.0"
   id("org.springframework.boot") version "2.7.0" apply false
   id("io.gitlab.arturbosch.detekt") version "1.19.0"
   id("pl.allegro.tech.build.axion-release") version "1.14.2"
@@ -133,7 +133,7 @@ tasks.jar {
 // Implementation
 val swaggerParserVersion = "2.0.31"
 val hashidsVersion = "1.0.3"
-val springOauthAutoConfigureVersion = "2.6.6"
+val springOauthAutoConfigureVersion = "2.6.8"
 val springSecurityJwtVersion = "1.1.1.RELEASE"
 val springBootStarterWebVersion = "2.7.0"
 val springDocVersion = "1.6.12"
