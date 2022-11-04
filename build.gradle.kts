@@ -10,7 +10,7 @@ plugins {
   id("com.diffplug.spotless") version "6.4.2"
   id("org.springframework.boot") version "2.7.0" apply false
   id("io.gitlab.arturbosch.detekt") version "1.19.0"
-  id("pl.allegro.tech.build.axion-release") version "1.13.6"
+  id("pl.allegro.tech.build.axion-release") version "1.14.2"
   `maven-publish`
   // Apply the java-library plugin for API and implementation separation.
   `java-library`
