@@ -2,6 +2,8 @@
 // Licensed under the MIT license.
 import com.diffplug.gradle.spotless.SpotlessExtension
 import io.gitlab.arturbosch.detekt.Detekt
+import org.gradle.api.internal.lambdas.SerializableLambdas.action
+import pl.allegro.tech.build.axion.release.domain.TagNameSerializationConfig
 
 plugins {
   val kotlinVersion = "1.7.20"
@@ -15,7 +17,7 @@ plugins {
   `java-library`
 }
 
-scmVersion { tag { prefix to "" } }
+scmVersion { tag { prefix.set("")} }
 
 val kotlinJvmTarget = 17
 
