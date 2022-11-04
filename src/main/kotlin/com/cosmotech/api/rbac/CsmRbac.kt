@@ -42,13 +42,12 @@ open class CsmRbac(
       logger.debug("RBAC ${rbacSecurity.id} - RBAC check not enabled")
       return true
     }
-    val userIsAdmin = this.isAdmin(rbacSecurity, rolesDefinition)
-    return if (userIsAdmin) {
-      true
-    } else {
+    var userIsAdminOrHasPermission = this.isAdmin(rbacSecurity, rolesDefinition)
+    if (!userIsAdminOrHasPermission) {
       val user = getCurrentAuthenticatedMail(this.csmPlatformProperties)
-      this.verifyRbac(rbacSecurity, permission, rolesDefinition, user)
+      userIsAdminOrHasPermission = this.verifyRbac(rbacSecurity, permission, rolesDefinition, user)
     }
+    return userIsAdminOrHasPermission
   }
 
   fun setDefault(
