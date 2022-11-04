@@ -145,7 +145,7 @@ val oktaSpringBootVersion = "2.1.5"
 val azureSpringBootBomVersion = "3.14.0"
 
 // Tests
-val jUnitBomVersion = "5.8.2"
+val jUnitBomVersion = "5.9.1"
 val mockkVersion = "1.12.4"
 val awaitilityKVersion = "4.2.0"
 
