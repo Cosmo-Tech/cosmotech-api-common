@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
-class KubernetesClient {
+class KubernetesClient : SecretManager {
 
   private val logger = LoggerFactory.getLogger(KubernetesClient::class.java)
   private lateinit var kubernetesApi: CoreV1Api
@@ -23,34 +23,35 @@ class KubernetesClient {
     kubernetesApi = CoreV1Api(Config.defaultClient())
   }
 
-  fun getSecretFromKubernetes(
+  override fun createSecret(
+      tenantName: String,
       secretName: String,
-      namespace: String = "phoenix"
-  ): Pair<String, String> {
+      secretData: Map<String, String>
+    ) = this.createSecretIntoKubernetes(tenantName, secretName, secretData)
+
+  override fun readSecret(
+      tenantName: String,
+      secretName: String
+    ): Map<String, String> = this.getSecretFromKubernetes(tenantName, secretName)
+
+
+  private fun getSecretFromKubernetes(
+      namespace: String = "phoenix",
+      secretName: String
+  ): Map<String, String> {
     var name = String()
     var key = String()
-    try {
-      val result = kubernetesApi.readNamespacedSecret(secretName, namespace, "")
+    val result = kubernetesApi.readNamespacedSecret(secretName, namespace, "")
 
-      result.data?.forEach { entry ->
-        run {
-          name = entry.key
-          key = String(Base64.getDecoder().decode(entry.value))
-        }
-      }
-
-      logger.info("Secret retrieved {}", result)
-    } catch (e: ApiException) {
-      logger.info("Exception when getting secret {}", e.message)
-    }
-
-    return Pair(name, key)
+    logger.debug("Secret retrieved {}", result)
+    return
+      result.data?.associate(it.key,String(Base64.getDecoder().decode(it.value))) ?: mapOf()
   }
 
   fun createSecretIntoKubernetes(
-      secretName: String,
       namespace: String,
-      secret: Pair<String, String>
+      secretName: String,
+      secretData: Map<String, String>
   ) {
     val metadata = V1ObjectMeta()
     metadata.name = secretName.lowercase()
