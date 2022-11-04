@@ -128,6 +128,9 @@ class CsmRbacTests {
 
     mockkStatic("org.springframework.security.core.context.SecurityContextHolder")
     every { SecurityContextHolder.getContext() } returns securityContext
+
+    mockkStatic(::getCurrentAuthenticatedMail)
+    every { getCurrentAuthenticatedMail(csmPlatformProperties) } returns USER_NOTIN
   }
 
   @Test
@@ -314,37 +317,43 @@ class CsmRbacTests {
   @Test
   fun `check admin user with PLATFORM USER token role write OK`() {
     every { securityContext.authentication } returns (userAuthentication as Authentication)
-    assertTrue(rbac.check(rbacSecurity, PERM_WRITE, USER_ADMIN, rolesDefinition))
+    every { getCurrentAuthenticatedMail(csmPlatformProperties) } returns USER_ADMIN
+    assertTrue(rbac.check(rbacSecurity, PERM_WRITE, rolesDefinition))
   }
 
   @Test
   fun `check none user with PLATFORM ADMIN token role write OK`() {
-    assertTrue(rbac.check(rbacSecurity, PERM_WRITE, USER_NONE, rolesDefinition))
+    every { getCurrentAuthenticatedMail(csmPlatformProperties) } returns USER_NONE
+    assertTrue(rbac.check(rbacSecurity, PERM_WRITE, rolesDefinition))
   }
 
   @Test
   fun `check writer user with PLATFORM USER token role write OK`() {
     every { securityContext.authentication } returns (userAuthentication as Authentication)
-    assertTrue(rbac.check(rbacSecurity, PERM_WRITE, USER_WRITER, rolesDefinition))
+    every { getCurrentAuthenticatedMail(csmPlatformProperties) } returns USER_WRITER
+    assertTrue(rbac.check(rbacSecurity, PERM_WRITE, rolesDefinition))
   }
 
   @Test
   fun `check none user with PLATFORM USER token role write KO`() {
     every { securityContext.authentication } returns (userAuthentication as Authentication)
-    assertFalse(rbac.check(rbacSecurity, PERM_WRITE, USER_NONE, rolesDefinition))
+    every { getCurrentAuthenticatedMail(csmPlatformProperties) } returns USER_NONE
+    assertFalse(rbac.check(rbacSecurity, PERM_WRITE, rolesDefinition))
   }
 
   @Test
   fun `check reader user with PLATFORM USER token role write KO`() {
     every { securityContext.authentication } returns (userAuthentication as Authentication)
-    assertFalse(rbac.check(rbacSecurity, PERM_WRITE, USER_READER, rolesDefinition))
+    every { getCurrentAuthenticatedMail(csmPlatformProperties) } returns USER_READER
+    assertFalse(rbac.check(rbacSecurity, PERM_WRITE, rolesDefinition))
   }
 
   @Test
   fun `check return OK if rbac flag set to false`() {
     every { securityContext.authentication } returns (userAuthentication as Authentication)
     every { csmPlatformProperties.rbac.enabled } answers { false }
-    assertTrue(rbac.check(rbacSecurity, PERM_WRITE, USER_READER, rolesDefinition))
+    every { getCurrentAuthenticatedMail(csmPlatformProperties) } returns USER_READER
+    assertTrue(rbac.check(rbacSecurity, PERM_WRITE, rolesDefinition))
   }
 
   @Test
@@ -364,13 +373,15 @@ class CsmRbacTests {
   fun `verify KO throw exception`() {
     every { securityContext.authentication } returns (userAuthentication as Authentication)
     assertThrows<CsmAccessForbiddenException> {
-      rbac.verify(rbacSecurity, PERM_WRITE, USER_READER, rolesDefinition)
+      every { getCurrentAuthenticatedMail(csmPlatformProperties) } returns USER_READER
+      rbac.verify(rbacSecurity, PERM_WRITE, rolesDefinition)
     }
   }
 
   @Test
   fun `verify OK does not throw exception`() {
-    assertDoesNotThrow { rbac.verify(rbacSecurity, PERM_WRITE, USER_WRITER, rolesDefinition) }
+    every { getCurrentAuthenticatedMail(csmPlatformProperties) } returns USER_WRITER
+    assertDoesNotThrow { rbac.verify(rbacSecurity, PERM_WRITE, rolesDefinition) }
   }
 
   @Test
@@ -396,12 +407,14 @@ class CsmRbacTests {
   @Test
   fun `owner with PLATFORM USER token not admin with rbac`() {
     every { securityContext.authentication } returns (ownerAuthentication as Authentication)
-    assertFalse(rbac.isAdmin(rbacSecurity, USER_NONE, rolesDefinition))
+    every { getCurrentAuthenticatedMail(csmPlatformProperties) } returns USER_NONE
+    assertFalse(rbac.isAdmin(rbacSecurity, rolesDefinition))
   }
 
   @Test
   fun `user with PLATFORM ADMIN token admin with rbac`() {
-    assertTrue(rbac.isAdmin(rbacSecurity, USER_NONE, rolesDefinition))
+    every { getCurrentAuthenticatedMail(csmPlatformProperties) } returns USER_NONE
+    assertTrue(rbac.isAdmin(rbacSecurity, rolesDefinition))
   }
 
   @Test
@@ -424,18 +437,21 @@ class CsmRbacTests {
   @Test
   fun `readerRole is not admin`() {
     every { securityContext.authentication } returns (userAuthentication as Authentication)
-    assertFalse(rbac.isAdmin(rbacSecurity, USER_READER, rolesDefinition))
+    every { getCurrentAuthenticatedMail(csmPlatformProperties) } returns USER_READER
+    assertFalse(rbac.isAdmin(rbacSecurity, rolesDefinition))
   }
 
   @Test
   fun `adminRole is admin`() {
     every { securityContext.authentication } returns (userAuthentication as Authentication)
-    assertTrue(rbac.isAdmin(rbacSecurity, USER_ADMIN, rolesDefinition))
+    every { getCurrentAuthenticatedMail(csmPlatformProperties) } returns USER_ADMIN
+    assertTrue(rbac.isAdmin(rbacSecurity, rolesDefinition))
   }
 
   @Test
   fun `user with PLATFORM ADMIN token is admin`() {
-    assertTrue(rbac.isAdmin(rbacSecurity, USER_ADMIN, rolesDefinition))
+    every { getCurrentAuthenticatedMail(csmPlatformProperties) } returns USER_ADMIN
+    assertTrue(rbac.isAdmin(rbacSecurity, rolesDefinition))
   }
 
   @Test
@@ -555,7 +571,8 @@ class CsmRbacTests {
     val rbacTest = CsmRbac(csmPlatformProperties, admin)
     rbacTest.setUserRole(rbacSecurity, USER_NEW_READER, customRole, definition)
     every { securityContext.authentication } returns (userAuthentication as Authentication)
-    assertTrue(rbacTest.check(rbacSecurity, customPermission, USER_NEW_READER, definition))
+    every { getCurrentAuthenticatedMail(csmPlatformProperties) } returns USER_NEW_READER
+    assertTrue(rbacTest.check(rbacSecurity, customPermission, definition))
   }
 
   // Utilitary methods for rbac creation
@@ -565,7 +582,8 @@ class CsmRbacTests {
     val rbacTest = CsmRbac(csmPlatformProperties, admin)
     rbacTest.setUserRole(rbacSecurity, USER_READER, ROLE_VIEWER, definition)
     every { securityContext.authentication } returns (userAuthentication as Authentication)
-    assertTrue(rbacTest.check(rbacSecurity, PERMISSION_READ, USER_READER, definition))
+    every { getCurrentAuthenticatedMail(csmPlatformProperties) } returns USER_READER
+    assertTrue(rbacTest.check(rbacSecurity, PERMISSION_READ, definition))
   }
 
   @Test
@@ -580,7 +598,8 @@ class CsmRbacTests {
                 RbacAccessControl(USER_READER, ROLE_VIEWER),
             ))
     every { securityContext.authentication } returns (userAuthentication as Authentication)
-    assertTrue(rbacTest.check(rbacSecurity, PERMISSION_READ, USER_READER, definition))
+    every { getCurrentAuthenticatedMail(csmPlatformProperties) } returns USER_READER
+    assertTrue(rbacTest.check(rbacSecurity, PERMISSION_READ, definition))
   }
 
   @Test
@@ -595,7 +614,8 @@ class CsmRbacTests {
                 RbacAccessControl(USER_WRITER, ROLE_EDITOR),
             ))
     every { securityContext.authentication } returns (userAuthentication as Authentication)
-    assertTrue(rbacTest.check(rbacSecurity, PERMISSION_READ, USER_READER, definition))
+    every { getCurrentAuthenticatedMail(csmPlatformProperties) } returns USER_READER
+    assertTrue(rbacTest.check(rbacSecurity, PERMISSION_READ, definition))
   }
 
   @Test
@@ -610,7 +630,8 @@ class CsmRbacTests {
                 RbacAccessControl(USER_WRITER, ROLE_EDITOR),
             ))
     every { securityContext.authentication } returns (userAuthentication as Authentication)
-    assertFalse(rbacTest.check(rbacSecurity, PERMISSION_WRITE_SECURITY, USER_READER, definition))
+    every { getCurrentAuthenticatedMail(csmPlatformProperties) } returns USER_READER
+    assertFalse(rbacTest.check(rbacSecurity, PERMISSION_WRITE_SECURITY, definition))
   }
 
   @Test
@@ -626,7 +647,8 @@ class CsmRbacTests {
                     getCurrentAuthenticatedMail(csmPlatformProperties), definition.adminRole),
             ))
     every { securityContext.authentication } returns (userAuthentication as Authentication)
-    assertTrue(rbacTest.check(rbacSecurity, PERMISSION_READ_SECURITY, USER_MAIL_TOKEN, definition))
+    every { getCurrentAuthenticatedMail(csmPlatformProperties) } returns USER_MAIL_TOKEN
+    assertTrue(rbacTest.check(rbacSecurity, PERMISSION_READ_SECURITY, definition))
   }
 
   @Test
@@ -641,7 +663,8 @@ class CsmRbacTests {
                 RbacAccessControl(USER_WRITER, ROLE_EDITOR),
             ))
     every { securityContext.authentication } returns (userAuthentication as Authentication)
-    assertTrue(rbacTest.check(rbacSecurity, PERMISSION_WRITE, USER_WRITER, definition))
+    every { getCurrentAuthenticatedMail(csmPlatformProperties) } returns USER_WRITER
+    assertTrue(rbacTest.check(rbacSecurity, PERMISSION_WRITE, definition))
   }
 
   @Test
@@ -656,6 +679,7 @@ class CsmRbacTests {
                 RbacAccessControl(USER_MAIL_TOKEN, ROLE_EDITOR),
             ))
     every { securityContext.authentication } returns (userAuthentication as Authentication)
+    every { getCurrentAuthenticatedMail(csmPlatformProperties) } returns USER_MAIL_TOKEN
     assertDoesNotThrow { rbacTest.verify(rbacSecurity, PERMISSION_WRITE, definition) }
   }
 
@@ -671,7 +695,8 @@ class CsmRbacTests {
                 RbacAccessControl(USER_WRITER, ROLE_EDITOR),
             ))
     every { securityContext.authentication } returns (userAuthentication as Authentication)
-    assertTrue(rbacTest.check(rbacSecurity, PERMISSION_WRITE, USER_WRITER, definition))
+    every { getCurrentAuthenticatedMail(csmPlatformProperties) } returns USER_WRITER
+    assertTrue(rbacTest.check(rbacSecurity, PERMISSION_WRITE, definition))
   }
 
   @Test
