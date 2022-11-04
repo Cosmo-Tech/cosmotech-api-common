@@ -133,7 +133,7 @@ tasks.jar {
 // Implementation
 val swaggerParserVersion = "2.0.31"
 val hashidsVersion = "1.0.3"
-val springOauthAutoConfigureVersion = "2.6.6"
+val springOauthAutoConfigureVersion = "2.6.8"
 val springSecurityJwtVersion = "1.1.1.RELEASE"
 val springBootStarterWebVersion = "2.7.0"
 val springDocVersion = "1.6.6"
