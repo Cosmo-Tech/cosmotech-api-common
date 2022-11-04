@@ -140,7 +140,7 @@ val springDocVersion = "1.6.6"
 val springOauthVersion = "5.7.1"
 val zalandoSpringProblemVersion = "0.27.0"
 val servletApiVersion = "4.0.1"
-val oktaSpringBootVersion = "2.1.5"
+val oktaSpringBootVersion = "2.1.6"
 val azureSpringBootBomVersion = "3.14.0"
 
 // Tests
