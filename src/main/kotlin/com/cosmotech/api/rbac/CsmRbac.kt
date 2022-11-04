@@ -27,22 +27,9 @@ open class CsmRbac(
       permission: String,
       rolesDefinition: RolesDefinition = getCommonRolesDefinition()
   ) {
-    this.verify(
-        rbacSecurity,
-        permission,
-        getCurrentAuthenticatedMail(this.csmPlatformProperties),
-        rolesDefinition)
-  }
-
-  fun verify(
-      rbacSecurity: RbacSecurity,
-      permission: String,
-      user: String,
-      rolesDefinition: RolesDefinition = getCommonRolesDefinition()
-  ) {
-    if (!this.check(rbacSecurity, permission, user, rolesDefinition))
+    if (!this.check(rbacSecurity, permission, rolesDefinition))
         throw CsmAccessForbiddenException(
-            "RBAC ${rbacSecurity.id} - User $user does not have permission $permission")
+            "RBAC ${rbacSecurity.id} - User does not have permission $permission")
   }
 
   fun check(
@@ -50,26 +37,18 @@ open class CsmRbac(
       permission: String,
       rolesDefinition: RolesDefinition = getCommonRolesDefinition()
   ): Boolean {
-    return this.check(
-        rbacSecurity,
-        permission,
-        getCurrentAuthenticatedMail(this.csmPlatformProperties),
-        rolesDefinition)
-  }
-
-  fun check(
-      rbacSecurity: RbacSecurity,
-      permission: String,
-      user: String,
-      rolesDefinition: RolesDefinition = getCommonRolesDefinition()
-  ): Boolean {
-    logger.info("RBAC ${rbacSecurity.id} - Verifying permission $permission for user $user")
+    logger.info("RBAC ${rbacSecurity.id} - Verifying permission $permission for user")
     if (!this.csmPlatformProperties.rbac.enabled) {
       logger.debug("RBAC ${rbacSecurity.id} - RBAC check not enabled")
       return true
     }
-    val userIsAdmin = this.isAdmin(rbacSecurity, user, rolesDefinition)
-    return (userIsAdmin || this.verifyRbac(rbacSecurity, permission, rolesDefinition, user))
+    val userIsAdmin = this.isAdmin(rbacSecurity, rolesDefinition)
+    return if (userIsAdmin) {
+      true
+    } else {
+      val user = getCurrentAuthenticatedMail(this.csmPlatformProperties)
+      this.verifyRbac(rbacSecurity, permission, rolesDefinition, user)
+    }
   }
 
   fun setDefault(
@@ -161,9 +140,13 @@ open class CsmRbac(
     return rbacSecurity
   }
 
-  fun isAdmin(rbacSecurity: RbacSecurity, user: String, rolesDefinition: RolesDefinition): Boolean {
-    return (this.isAdminToken(rbacSecurity, user) ||
-        this.verifyAdminRole(rbacSecurity, user, rolesDefinition))
+  fun isAdmin(rbacSecurity: RbacSecurity, rolesDefinition: RolesDefinition): Boolean {
+    var isAdmin = this.isAdminToken(rbacSecurity)
+    if (!isAdmin) {
+      val user = getCurrentAuthenticatedMail(this.csmPlatformProperties)
+      isAdmin = this.verifyAdminRole(rbacSecurity, user, rolesDefinition)
+    }
+    return isAdmin
   }
 
   internal fun verifyAdminRole(
@@ -262,10 +245,10 @@ open class CsmRbac(
     return roles.any { role -> this.verifyPermissionFromRole(permission, role, rolesDefinition) }
   }
 
-  internal fun isAdminToken(rbacSecurity: RbacSecurity, user: String): Boolean {
-    logger.debug("RBAC ${rbacSecurity.id} - Verifying if $user has platform admin role in token")
+  internal fun isAdminToken(rbacSecurity: RbacSecurity): Boolean {
+    logger.debug("RBAC ${rbacSecurity.id} - Verifying if user has platform admin role in token")
     val isAdmin = csmAdmin.verifyCurrentRolesAdmin()
-    logger.debug("RBAC ${rbacSecurity.id} - $user has platform admin role in token: $isAdmin")
+    logger.debug("RBAC ${rbacSecurity.id} - user has platform admin role in token: $isAdmin")
     return isAdmin
   }
 
