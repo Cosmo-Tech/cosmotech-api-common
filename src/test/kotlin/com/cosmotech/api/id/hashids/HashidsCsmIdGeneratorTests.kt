@@ -17,9 +17,9 @@ class HashidsCsmIdGeneratorTests {
 
   private fun performTestWithDifferentHashidGenerators(tester: Tester) =
       mapOf(
-          "default with current time in nanos" to HashidsCsmIdGenerator(),
-          "PROD-8703: number higher than the max allowed" to
-              HashidsCsmIdGenerator { (Hashids.MAX_NUMBER + 100).toULong() })
+              "default with current time in nanos" to HashidsCsmIdGenerator(),
+              "PROD-8703: number higher than the max allowed" to
+                  HashidsCsmIdGenerator { (Hashids.MAX_NUMBER + 100).toULong() })
           .map { (purpose, idGenerator) -> dynamicTest(purpose) { tester(idGenerator) } }
 
   @TestFactory
@@ -47,24 +47,24 @@ class HashidsCsmIdGeneratorTests {
   @TestFactory
   fun `2 generations within a same scope do not return the same ID`() =
       performTestWithDifferentHashidGenerators {
-    val hashid1 = it.generate("test_scope")
-    val hashid2 = it.generate("test_scope")
-    assertFalse { hashid1.isBlank() }
-    assertTrue { hashid1.startsWith("t-", ignoreCase = false) }
-    assertFalse { hashid2.isBlank() }
-    assertTrue { hashid2.startsWith("t-", ignoreCase = false) }
-    assertNotEquals(hashid1, hashid2)
-  }
+        val hashid1 = it.generate("test_scope")
+        val hashid2 = it.generate("test_scope")
+        assertFalse { hashid1.isBlank() }
+        assertTrue { hashid1.startsWith("t-", ignoreCase = false) }
+        assertFalse { hashid2.isBlank() }
+        assertTrue { hashid2.startsWith("t-", ignoreCase = false) }
+        assertNotEquals(hashid1, hashid2)
+      }
 
   @TestFactory
   fun `2 generations within different scopes do not return the same ID`() =
       performTestWithDifferentHashidGenerators {
-    val hashid1 = it.generate("test scope")
-    val hashid2 = it.generate("another scope")
-    assertFalse { hashid1.isBlank() }
-    assertTrue { hashid1.startsWith("t-", ignoreCase = false) }
-    assertFalse { hashid2.isBlank() }
-    assertTrue { hashid2.startsWith("a-", ignoreCase = false) }
-    assertNotEquals(hashid1, hashid2)
-  }
+        val hashid1 = it.generate("test scope")
+        val hashid2 = it.generate("another scope")
+        assertFalse { hashid1.isBlank() }
+        assertTrue { hashid1.startsWith("t-", ignoreCase = false) }
+        assertFalse { hashid2.isBlank() }
+        assertTrue { hashid2.startsWith("a-", ignoreCase = false) }
+        assertNotEquals(hashid1, hashid2)
+      }
 }

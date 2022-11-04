@@ -216,8 +216,7 @@ open class CsmRbac(
   }
 
   internal fun getAdminCount(rbacSecurity: RbacSecurity, rolesDefinition: RolesDefinition): Int {
-    return rbacSecurity
-        .accessControlList
+    return rbacSecurity.accessControlList
         .map { it.role }
         .filter { it == this.getAdminRole(rolesDefinition) }
         .count()

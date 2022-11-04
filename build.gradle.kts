@@ -67,7 +67,8 @@ configure<SpotlessExtension> {
       """
         // Copyright (c) Cosmo Tech.
         // Licensed under the MIT license.
-      """.trimIndent()
+      """
+          .trimIndent()
 
   java {
     googleJavaFormat()
@@ -75,12 +76,12 @@ configure<SpotlessExtension> {
     licenseHeader(licenseHeaderComment)
   }
   kotlin {
-    ktfmt("0.30")
+    ktfmt("0.41")
     target("**/*.kt")
     licenseHeader(licenseHeaderComment)
   }
   kotlinGradle {
-    ktfmt("0.30")
+    ktfmt("0.41")
     target("**/*.kts")
     //      licenseHeader(licenseHeaderComment, "import")
   }
@@ -151,10 +152,8 @@ val awaitilityKVersion = "4.2.0"
 dependencies {
   implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
 
-  // Workaround until Detekt adds support for JVM Target 17
-  // See https://github.com/detekt/detekt/issues/4287
-  detekt("io.gitlab.arturbosch.detekt:detekt-cli:1.19.0")
-  detekt("org.jetbrains.kotlin:kotlin-compiler-embeddable:1.6.21")
+  detekt("io.gitlab.arturbosch.detekt:detekt-cli:1.21.0")
+  detekt("io.gitlab.arturbosch.detekt:detekt-formatting:1.21.0")
 
   // Align versions of all Kotlin components
   implementation(platform("org.jetbrains.kotlin:kotlin-bom"))

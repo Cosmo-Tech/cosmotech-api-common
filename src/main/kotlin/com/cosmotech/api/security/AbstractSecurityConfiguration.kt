@@ -345,7 +345,8 @@ abstract class AbstractSecurityConfiguration : WebSecurityConfigurerAdapter() {
     val corsHttpMethodsAllowed =
         HttpMethod.values().filterNot { it == HttpMethod.TRACE }.map(HttpMethod::name)
 
-    return http.cors()
+    return http
+        .cors()
         .configurationSource {
           CorsConfiguration().applyPermitDefaultValues().apply {
             allowedMethods = corsHttpMethodsAllowed
@@ -362,7 +363,7 @@ abstract class AbstractSecurityConfiguration : WebSecurityConfigurerAdapter() {
 
           // Endpoint security for reader roles
           endpointSecurityReaders(
-              organizationAdminGroup, organizationUserGroup, organizationViewerGroup)
+                  organizationAdminGroup, organizationUserGroup, organizationViewerGroup)
               .forEach { endpointsRoles -> endpointsRoles.applyRoles(requests) }
 
           // Endpoint security for writer roles
