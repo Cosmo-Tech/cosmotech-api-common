@@ -46,6 +46,9 @@ data class CsmPlatformProperties(
     /** Cosmo Tech core images */
     val images: CsmImages,
 
+    /** Cosmo Tech available containers */
+    val containers : List<CsmContainers>,
+
     /** Authorization Configuration */
     val authorization: Authorization = Authorization(),
 
@@ -94,6 +97,20 @@ data class CsmPlatformProperties(
       /** Container image to send data to DataWarehouse */
       val sendDataWarehouse: String,
       val scenarioDataUpload: String = "cosmo-tech/azure-storage-publish:latest",
+  )
+
+  data class CsmContainers(
+    /** Container name **/
+    val name: String,
+
+    /** Image registry (default: "") **/
+    val imageRegistry: String = "",
+
+    /** Image name **/
+    val imageName: String,
+
+    /** Image version (default: latest) **/
+    val imageVersion: String = "latest",
   )
 
   data class Argo(
