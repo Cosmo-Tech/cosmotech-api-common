@@ -149,6 +149,7 @@ val tikaVersion = "2.6.0"
 val jUnitBomVersion = "5.9.1"
 val mockkVersion = "1.13.2"
 val awaitilityKVersion = "4.2.0"
+val kubernetesClientVersion = "16.0.2"
 
 dependencies {
   implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
@@ -187,6 +188,8 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-actuator")
   implementation("io.micrometer:micrometer-registry-prometheus")
   implementation("org.springframework.boot:spring-boot-starter-aop")
+
+  implementation("io.kubernetes:client-java:${kubernetesClientVersion}")
 
   implementation("org.apache.tika:tika-core:${tikaVersion}")
 
