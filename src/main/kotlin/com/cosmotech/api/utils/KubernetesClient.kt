@@ -6,22 +6,28 @@ import io.kubernetes.client.openapi.ApiException
 import io.kubernetes.client.openapi.apis.CoreV1Api
 import io.kubernetes.client.openapi.models.V1ObjectMeta
 import io.kubernetes.client.openapi.models.V1Secret
-import io.kubernetes.client.util.Config
+import io.kubernetes.client.util.ClientBuilder
 import java.util.Base64
-import javax.annotation.PostConstruct
 import org.slf4j.LoggerFactory
+import org.springframework.context.annotation.Bean
 import org.springframework.stereotype.Service
 
+@org.springframework.context.annotation.Configuration
+open class KubernetesApi {
+
+  private val logger = LoggerFactory.getLogger(KubernetesApi::class.java)
+
+  @Bean
+  open fun coreV1Api(): CoreV1Api {
+    val client = ClientBuilder.defaultClient()
+    return CoreV1Api(client)
+  }
+}
+
 @Service
-class KubernetesClient : SecretManager {
+class KubernetesClient(private val kubernetesApi: CoreV1Api) : SecretManager {
 
   private val logger = LoggerFactory.getLogger(KubernetesClient::class.java)
-  private lateinit var kubernetesApi: CoreV1Api
-
-  @PostConstruct
-  internal fun init() {
-    kubernetesApi = CoreV1Api(Config.defaultClient())
-  }
 
   override fun createSecret(
       tenantName: String,
@@ -48,20 +54,38 @@ class KubernetesClient : SecretManager {
       secretName: String,
       secretData: Map<String, String>
   ) {
+    logger.debug("Creating secret $secretName in namespace $namespace")
+
+    val secretNameLower = secretName.lowercase()
     val metadata = V1ObjectMeta()
-    metadata.name = secretName.lowercase()
+    metadata.name = secretNameLower
     metadata.namespace = namespace
     val body = V1Secret()
     body.metadata = metadata
 
     body.data = secretData.mapValues { Base64.getEncoder().encode(it.value.toByteArray()) }
     body.type = "Opaque"
+
+    var replace = false
+    @Suppress("SwallowedException")
     try {
-      val result: V1Secret =
-          kubernetesApi.createNamespacedSecret(namespace, body, null, null, null, null)
-      logger.info("Secret created {}", result)
+      kubernetesApi.readNamespacedSecret(secretNameLower, namespace, null)
+      logger.debug("Secret $secretNameLower already exists in namespace $namespace: replacing it")
+      replace = true
     } catch (e: ApiException) {
-      logger.info("Exception when creating secret {}", e.message)
+      logger.debug("Secret $secretNameLower does not exists in namespace $namespace: creating it")
+    }
+    try {
+      if (replace) {
+        kubernetesApi.replaceNamespacedSecret(
+            secretNameLower, namespace, body, null, null, null, null)
+      } else {
+        kubernetesApi.createNamespacedSecret(namespace, body, null, null, null, null)
+      }
+      logger.info("Secret $secretNameLower created/replaced")
+    } catch (e: ApiException) {
+      logger.error("Kubernetes API Exception when creating/replacing secret ${e.message}")
+      throw e
     }
   }
 }
