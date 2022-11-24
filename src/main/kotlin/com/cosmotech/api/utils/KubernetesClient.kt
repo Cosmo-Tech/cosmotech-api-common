@@ -14,9 +14,6 @@ import org.springframework.stereotype.Service
 
 @org.springframework.context.annotation.Configuration
 open class KubernetesApi {
-
-  private val logger = LoggerFactory.getLogger(KubernetesApi::class.java)
-
   @Bean
   open fun coreV1Api(): CoreV1Api {
     val client = ClientBuilder.defaultClient()
