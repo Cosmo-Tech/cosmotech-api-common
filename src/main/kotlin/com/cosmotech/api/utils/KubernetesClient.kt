@@ -26,27 +26,43 @@ class KubernetesClient(private val kubernetesApi: CoreV1Api) : SecretManager {
 
   private val logger = LoggerFactory.getLogger(KubernetesClient::class.java)
 
-  override fun createSecret(
+  override fun createOrReplaceSecret(
       tenantName: String,
       secretName: String,
       secretData: Map<String, String>
-  ) = this.createSecretIntoKubernetes(tenantName, secretName, secretData)
+  ) = this.createOrReplaceSecretIntoKubernetes(tenantName, secretName, secretData)
 
   override fun readSecret(tenantName: String, secretName: String): Map<String, String> =
       this.getSecretFromKubernetes(tenantName, secretName)
 
-  private fun getSecretFromKubernetes(
-      namespace: String = "phoenix",
-      secretName: String
-  ): Map<String, String> {
-    val result = kubernetesApi.readNamespacedSecret(secretName, namespace, "")
+  override fun deleteSecret(tenantName: String, secretName: String) {
+    this.deleteSecretFromKubernetes(tenantName, secretName)
+  }
+
+  private fun deleteSecretFromKubernetes(namespace: String, secretName: String) {
+    val secretNameLower = secretName.lowercase()
+    @Suppress("SwallowedException")
+    try {
+      kubernetesApi.readNamespacedSecret(secretNameLower, namespace, null)
+      logger.info("Secret $secretNameLower exists in namespace $namespace: deleting it")
+      kubernetesApi.deleteNamespacedSecret(
+          secretNameLower, namespace, null, null, null, null, null, null)
+    } catch (e: ApiException) {
+      logger.debug(
+          "Secret $secretNameLower does not exists in namespace $namespace: cannot delete it")
+    }
+  }
+
+  private fun getSecretFromKubernetes(namespace: String, secretName: String): Map<String, String> {
+    val secretNameLower = secretName.lowercase()
+    val result = kubernetesApi.readNamespacedSecret(secretNameLower, namespace, "")
 
     logger.debug("Secret retrieved")
     return result.data?.mapValues { Base64.getDecoder().decode(it.value).toString(Charsets.UTF_8) }
         ?: mapOf()
   }
 
-  private fun createSecretIntoKubernetes(
+  private fun createOrReplaceSecretIntoKubernetes(
       namespace: String,
       secretName: String,
       secretData: Map<String, String>
