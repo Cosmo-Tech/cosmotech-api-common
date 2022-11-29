@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.stereotype.Service
 
+private const val SECRET_LABEL = "cosmotech.com/context"
+
 @org.springframework.context.annotation.Configuration
 open class KubernetesApi {
   @Bean
@@ -47,14 +49,22 @@ class KubernetesClient(private val kubernetesApi: CoreV1Api?) : SecretManager {
   private fun deleteSecretFromKubernetes(namespace: String, secretName: String) {
     val api = checkKubernetesContext()
     val secretNameLower = secretName.lowercase()
-    @Suppress("SwallowedException")
+    val labelSelector = buildLabelSector(secretNameLower)
+
     try {
-      api.readNamespacedSecret(secretNameLower, namespace, null)
-      logger.info("Secret $secretNameLower exists in namespace $namespace: deleting it")
-      api.deleteNamespacedSecret(secretNameLower, namespace, null, null, null, null, null, null)
+      val secrets =
+          api.listNamespacedSecret(
+              namespace, null, null, null, null, labelSelector, null, null, null, null, null)
+      if (secrets.items.isEmpty()) {
+        logger.debug(
+            "Secret $secretNameLower does not exists in namespace $namespace: cannot delete it")
+      } else {
+        logger.info("Secret $secretNameLower exists in namespace $namespace: deleting it")
+        api.deleteNamespacedSecret(secretNameLower, namespace, null, null, null, null, null, null)
+      }
     } catch (e: ApiException) {
-      logger.debug(
-          "Secret $secretNameLower does not exists in namespace $namespace: cannot delete it")
+      logger.error("Kubernetes API Exception when listing or deleting secret ${e.message}")
+      throw e
     }
   }
 
@@ -77,24 +87,34 @@ class KubernetesClient(private val kubernetesApi: CoreV1Api?) : SecretManager {
     logger.debug("Creating secret $secretName in namespace $namespace")
 
     val secretNameLower = secretName.lowercase()
+    val labelSelector = buildLabelSector(secretNameLower)
+    var replace = false
+
+    try {
+      val secrets =
+          api.listNamespacedSecret(
+              namespace, null, null, null, null, labelSelector, null, null, null, null, null)
+      if (secrets.items.isEmpty()) {
+        logger.debug("Secret $secretNameLower does not exists in namespace $namespace: creating it")
+      } else {
+        logger.debug("Secret $secretNameLower already exists in namespace $namespace: replacing it")
+        replace = true
+      }
+    } catch (e: ApiException) {
+      logger.error("Kubernetes API Exception when listing secret ${e.message}")
+      throw e
+    }
+
     val metadata = V1ObjectMeta()
     metadata.name = secretNameLower
     metadata.namespace = namespace
+    metadata.labels = mapOf(SECRET_LABEL to secretNameLower)
     val body = V1Secret()
     body.metadata = metadata
 
     body.data = secretData.mapValues { Base64.getEncoder().encode(it.value.toByteArray()) }
     body.type = "Opaque"
 
-    var replace = false
-    @Suppress("SwallowedException")
-    try {
-      api.readNamespacedSecret(secretNameLower, namespace, null)
-      logger.debug("Secret $secretNameLower already exists in namespace $namespace: replacing it")
-      replace = true
-    } catch (e: ApiException) {
-      logger.debug("Secret $secretNameLower does not exists in namespace $namespace: creating it")
-    }
     try {
       if (replace) {
         api.replaceNamespacedSecret(secretNameLower, namespace, body, null, null, null, null)
@@ -111,4 +131,6 @@ class KubernetesClient(private val kubernetesApi: CoreV1Api?) : SecretManager {
   private fun checkKubernetesContext(): CoreV1Api {
     return this.kubernetesApi ?: throw IllegalStateException("Kubernetes API is not available")
   }
+
+  private fun buildLabelSector(secretName: String) = "$SECRET_LABEL=$secretName"
 }
