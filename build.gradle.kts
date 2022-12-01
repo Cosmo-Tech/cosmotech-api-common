@@ -143,6 +143,7 @@ val zalandoSpringProblemVersion = "0.27.0"
 val servletApiVersion = "4.0.1"
 val oktaSpringBootVersion = "2.1.6"
 val azureSpringBootBomVersion = "3.14.0"
+val tikaVersion = "2.6.0"
 
 // Tests
 val jUnitBomVersion = "5.9.1"
@@ -186,6 +187,8 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-actuator")
   implementation("io.micrometer:micrometer-registry-prometheus")
   implementation("org.springframework.boot:spring-boot-starter-aop")
+
+  implementation("org.apache.tika:tika-core:${tikaVersion}")
 
   testImplementation(kotlin("test"))
   testImplementation(platform("org.junit:junit-bom:${jUnitBomVersion}"))
