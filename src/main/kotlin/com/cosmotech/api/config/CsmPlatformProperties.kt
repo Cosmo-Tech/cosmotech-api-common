@@ -67,6 +67,9 @@ data class CsmPlatformProperties(
 
     /** RBAC / ACL configuration */
     val rbac: CsmRbac = CsmRbac(),
+
+    /** Upload files properties */
+    val upload: Upload = Upload(),
 ) {
 
   data class Authorization(
@@ -455,4 +458,16 @@ data class CsmPlatformProperties(
       /** Enable Rbac */
       val enabled: Boolean = false
   )
+
+  data class Upload(
+      /** The list of files MIME types when uploading a file to the Platform */
+      val authorizedMimeTypes: AuthorizedMimeTypes = AuthorizedMimeTypes(),
+  ) {
+    data class AuthorizedMimeTypes(
+        /** List of authorized mime types for workspace file upload */
+        val workspaces: List<String> = emptyList(),
+        /** List of authorized mime types for step handler file upload */
+        val handlers: List<String> = emptyList(),
+    )
+  }
 }
