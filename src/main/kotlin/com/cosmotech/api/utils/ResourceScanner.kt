@@ -12,10 +12,12 @@ import org.apache.tika.metadata.TikaCoreProperties
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.Resource
+import org.springframework.stereotype.Component
 
 private const val ZIP_MIME_TYPE = "zip"
 private const val ENTRY_NAME_UNKNOWN = "Unknown"
 
+@Component
 class ResourceScanner {
   private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
