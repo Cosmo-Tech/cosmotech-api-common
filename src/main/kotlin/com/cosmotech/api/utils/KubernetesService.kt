@@ -2,36 +2,20 @@
 // Licensed under the MIT license.
 package com.cosmotech.api.utils
 
-import com.cosmotech.api.config.CsmPlatformProperties
 import io.kubernetes.client.openapi.ApiException
 import io.kubernetes.client.openapi.apis.CoreV1Api
 import io.kubernetes.client.openapi.models.V1ObjectMeta
 import io.kubernetes.client.openapi.models.V1Secret
-import io.kubernetes.client.util.ClientBuilder
 import java.util.Base64
 import org.slf4j.LoggerFactory
-import org.springframework.context.annotation.Bean
 import org.springframework.stereotype.Service
 
 private const val SECRET_LABEL = "cosmotech.com/context"
 
-@org.springframework.context.annotation.Configuration
-open class KubernetesApi {
-  @Bean
-  open fun coreV1Api(csmPlatformProperties: CsmPlatformProperties): CoreV1Api? {
-    return if (csmPlatformProperties.springBootOnly) {
-      null
-    } else {
-      val client = ClientBuilder.defaultClient()
-      return CoreV1Api(client)
-    }
-  }
-}
-
 @Service
-class KubernetesClient(private val kubernetesApi: CoreV1Api?) : SecretManager {
+class KubernetesService(private val kubernetesApi: CoreV1Api?) : SecretManager {
 
-  private val logger = LoggerFactory.getLogger(KubernetesClient::class.java)
+  private val logger = LoggerFactory.getLogger(KubernetesService::class.java)
 
   override fun createOrReplaceSecret(
       tenantName: String,
@@ -57,9 +41,9 @@ class KubernetesClient(private val kubernetesApi: CoreV1Api?) : SecretManager {
               namespace, null, null, null, null, labelSelector, null, null, null, null, null)
       if (secrets.items.isEmpty()) {
         logger.debug(
-            "Secret $secretNameLower does not exists in namespace $namespace: cannot delete it")
+            "Secret does not exists in namespace $namespace: cannot delete it")
       } else {
-        logger.info("Secret $secretNameLower exists in namespace $namespace: deleting it")
+        logger.info("Secret exists in namespace $namespace: deleting it")
         api.deleteNamespacedSecret(secretNameLower, namespace, null, null, null, null, null, null)
       }
     } catch (e: ApiException) {
@@ -73,7 +57,7 @@ class KubernetesClient(private val kubernetesApi: CoreV1Api?) : SecretManager {
     val secretNameLower = secretName.lowercase()
     val result = api.readNamespacedSecret(secretNameLower, namespace, "")
 
-    logger.debug("Secret retrieved")
+    logger.debug("Secret retrieved for namespace $namespace")
     return result.data?.mapValues { Base64.getDecoder().decode(it.value).toString(Charsets.UTF_8) }
         ?: mapOf()
   }
@@ -95,9 +79,9 @@ class KubernetesClient(private val kubernetesApi: CoreV1Api?) : SecretManager {
           api.listNamespacedSecret(
               namespace, null, null, null, null, labelSelector, null, null, null, null, null)
       if (secrets.items.isEmpty()) {
-        logger.debug("Secret $secretNameLower does not exists in namespace $namespace: creating it")
+        logger.debug("Secret does not exists in namespace $namespace: creating it")
       } else {
-        logger.debug("Secret $secretNameLower already exists in namespace $namespace: replacing it")
+        logger.debug("Secret already exists in namespace $namespace: replacing it")
         replace = true
       }
     } catch (e: ApiException) {
@@ -121,7 +105,7 @@ class KubernetesClient(private val kubernetesApi: CoreV1Api?) : SecretManager {
       } else {
         api.createNamespacedSecret(namespace, body, null, null, null, null)
       }
-      logger.info("Secret $secretNameLower created/replaced")
+      logger.info("Secret created/replaced")
     } catch (e: ApiException) {
       logger.error("Kubernetes API Exception when creating/replacing secret ${e.message}")
       throw e
