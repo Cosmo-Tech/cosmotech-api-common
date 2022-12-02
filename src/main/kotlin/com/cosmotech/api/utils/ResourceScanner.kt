@@ -4,6 +4,7 @@ package com.cosmotech.api.utils
 
 import com.cosmotech.api.exceptions.CsmAccessForbiddenException
 import java.io.BufferedInputStream
+import java.io.InputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import org.apache.tika.config.TikaConfig
@@ -23,13 +24,22 @@ class ResourceScanner {
 
   fun scanMimeTypes(file: Resource, authorizedMimeTypes: List<String>) {
     val tika = TikaConfig()
-    val metadata = Metadata()
-    metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, file.filename)
     val inputStream = file.inputStream
-    var mimetype = tika.detector.detect(inputStream, metadata)
     val name = file.filename ?: ENTRY_NAME_UNKNOWN
+    this.scanStream(tika, inputStream, name, authorizedMimeTypes)
+  }
+
+  private fun scanStream(
+      tika: TikaConfig,
+      inputStream: InputStream,
+      name: String,
+      authorizedMimeTypes: List<String>
+  ) {
+    val metadata = Metadata()
+    metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, name)
+    var mimetype = tika.detector.detect(inputStream, metadata)
     this.validateMimeType(mimetype.toString(), name, authorizedMimeTypes)
-    this.logger.info("Detected type for file ${file.filename}: $mimetype")
+    this.logger.info("Detected type for file ${name}: $mimetype")
     if (mimetype.subtype.equals(ZIP_MIME_TYPE)) {
       val zipIn = ZipInputStream(inputStream)
       this.recurseScanZipFile(tika, zipIn, name, authorizedMimeTypes)
@@ -54,16 +64,8 @@ class ResourceScanner {
       } else {
         this.logger.debug("File detected")
         val bufferedStream = BufferedInputStream(zipInputStream)
-        val metadata = Metadata()
         val name = entry?.name ?: ENTRY_NAME_UNKNOWN
-        metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, name)
-        var mimetype = tika.detector.detect(bufferedStream, metadata)
-        this.validateMimeType(mimetype.toString(), name, authorizedMimeTypes)
-        this.logger.info("Detected type for file $name: $mimetype")
-        if (mimetype.subtype.equals(ZIP_MIME_TYPE)) {
-          val zipIn = ZipInputStream(bufferedStream)
-          this.recurseScanZipFile(tika, zipIn, name, authorizedMimeTypes)
-        }
+        this.scanStream(tika, bufferedStream, name, authorizedMimeTypes)
       }
     }
 
@@ -78,7 +80,7 @@ class ResourceScanner {
     if (!authorizedMimeTypes.contains(mimetype)) {
       throw CsmAccessForbiddenException("MIME type $mimetype for file $fileName is not authorized.")
     } else {
-      this.logger.debug("Valid MIME type")
+      this.logger.debug("Valid MIME type $mimetype for file $fileName")
     }
   }
 }
