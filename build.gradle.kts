@@ -2,21 +2,20 @@
 // Licensed under the MIT license.
 import com.diffplug.gradle.spotless.SpotlessExtension
 import io.gitlab.arturbosch.detekt.Detekt
-import pl.allegro.tech.build.axion.release.domain.TagNameSerializationConfig
 
 plugins {
-  val kotlinVersion = "1.6.0"
+  val kotlinVersion = "1.7.20"
   kotlin("jvm") version kotlinVersion
-  id("com.diffplug.spotless") version "6.4.2"
-  id("org.springframework.boot") version "2.7.0" apply false
-  id("io.gitlab.arturbosch.detekt") version "1.19.0"
-  id("pl.allegro.tech.build.axion-release") version "1.13.6"
+  id("com.diffplug.spotless") version "6.11.0"
+  id("org.springframework.boot") version "2.7.2" apply false
+  id("io.gitlab.arturbosch.detekt") version "1.21.0"
+  id("pl.allegro.tech.build.axion-release") version "1.14.2"
   `maven-publish`
   // Apply the java-library plugin for API and implementation separation.
   `java-library`
 }
 
-scmVersion { tag(closureOf<TagNameSerializationConfig> { prefix = "" }) }
+scmVersion { tag { prefix.set("") } }
 
 val kotlinJvmTarget = 17
 
@@ -68,7 +67,8 @@ configure<SpotlessExtension> {
       """
         // Copyright (c) Cosmo Tech.
         // Licensed under the MIT license.
-      """.trimIndent()
+      """
+          .trimIndent()
 
   java {
     googleJavaFormat()
@@ -76,12 +76,12 @@ configure<SpotlessExtension> {
     licenseHeader(licenseHeaderComment)
   }
   kotlin {
-    ktfmt("0.30")
+    ktfmt("0.41")
     target("**/*.kt")
     licenseHeader(licenseHeaderComment)
   }
   kotlinGradle {
-    ktfmt("0.30")
+    ktfmt("0.41")
     target("**/*.kts")
     //      licenseHeader(licenseHeaderComment, "import")
   }
@@ -132,31 +132,30 @@ tasks.jar {
 
 // Dependencies version
 // Implementation
-val swaggerParserVersion = "2.0.31"
+val swaggerParserVersion = "2.1.8"
 val hashidsVersion = "1.0.3"
-val springOauthAutoConfigureVersion = "2.6.6"
+val springOauthAutoConfigureVersion = "2.6.8"
 val springSecurityJwtVersion = "1.1.1.RELEASE"
 val springBootStarterWebVersion = "2.7.0"
-val springDocVersion = "1.6.6"
-val springOauthVersion = "5.7.1"
+val springDocVersion = "1.6.12"
+val springOauthVersion = "5.7.5"
 val zalandoSpringProblemVersion = "0.27.0"
 val servletApiVersion = "4.0.1"
-val oktaSpringBootVersion = "2.1.5"
+val oktaSpringBootVersion = "2.1.6"
 val azureSpringBootBomVersion = "3.14.0"
+val tikaVersion = "2.6.0"
 
 // Tests
-val jUnitBomVersion = "5.8.2"
-val mockkVersion = "1.12.4"
+val jUnitBomVersion = "5.9.1"
+val mockkVersion = "1.13.2"
 val awaitilityKVersion = "4.2.0"
-val kubernetesClient = "16.0.0"
+val kubernetesClientVersion = "16.0.2"
 
 dependencies {
   implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
 
-  // Workaround until Detekt adds support for JVM Target 17
-  // See https://github.com/detekt/detekt/issues/4287
-  detekt("io.gitlab.arturbosch.detekt:detekt-cli:1.19.0")
-  detekt("org.jetbrains.kotlin:kotlin-compiler-embeddable:1.6.21")
+  detekt("io.gitlab.arturbosch.detekt:detekt-cli:1.21.0")
+  detekt("io.gitlab.arturbosch.detekt:detekt-formatting:1.21.0")
 
   // Align versions of all Kotlin components
   implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
@@ -190,7 +189,9 @@ dependencies {
   implementation("io.micrometer:micrometer-registry-prometheus")
   implementation("org.springframework.boot:spring-boot-starter-aop")
 
-  implementation("io.kubernetes:client-java:$kubernetesClient")
+  implementation("io.kubernetes:client-java:${kubernetesClientVersion}")
+
+  implementation("org.apache.tika:tika-core:${tikaVersion}")
 
   testImplementation(kotlin("test"))
   testImplementation(platform("org.junit:junit-bom:${jUnitBomVersion}"))

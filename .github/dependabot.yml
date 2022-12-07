@@ -16,8 +16,6 @@ updates:
   - dependencies
 - package-ecosystem: gradle
   directory: "/"
-  registries:
-  - argo-maven-github
   schedule:
     interval: daily
   open-pull-requests-limit: 10

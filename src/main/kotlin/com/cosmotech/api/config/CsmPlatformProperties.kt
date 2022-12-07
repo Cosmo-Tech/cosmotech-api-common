@@ -46,6 +46,9 @@ data class CsmPlatformProperties(
     /** Cosmo Tech core images */
     val images: CsmImages,
 
+    /** Cosmo Tech available containers */
+    val containers: List<CsmContainers>,
+
     /** Authorization Configuration */
     val authorization: Authorization = Authorization(),
 
@@ -65,8 +68,14 @@ data class CsmPlatformProperties(
     /** RBAC / ACL configuration */
     val rbac: CsmRbac = CsmRbac(),
 
-    /** Kubernetes secrets namespace */
+    /** Kubernetes namespace */
     val namespace: String = "phoenix",
+
+    /** Run outside kubernetes only context */
+    val runOutsideKubernetes: Boolean = false,
+
+    /** Upload files properties */
+    val upload: Upload = Upload(),
 ) {
 
   data class Authorization(
@@ -97,6 +106,20 @@ data class CsmPlatformProperties(
       /** Container image to send data to DataWarehouse */
       val sendDataWarehouse: String,
       val scenarioDataUpload: String = "cosmo-tech/azure-storage-publish:latest",
+  )
+
+  data class CsmContainers(
+      /** Container name */
+      val name: String,
+
+      /** Image registry (default: "") */
+      val imageRegistry: String = "",
+
+      /** Image name */
+      val imageName: String,
+
+      /** Image version (default: latest) */
+      val imageVersion: String = "latest",
   )
 
   data class Argo(
@@ -441,4 +464,16 @@ data class CsmPlatformProperties(
       /** Enable Rbac */
       val enabled: Boolean = false
   )
+
+  data class Upload(
+      /** The list of files MIME types when uploading a file to the Platform */
+      val authorizedMimeTypes: AuthorizedMimeTypes = AuthorizedMimeTypes(),
+  ) {
+    data class AuthorizedMimeTypes(
+        /** List of authorized mime types for workspace file upload */
+        val workspaces: List<String> = emptyList(),
+        /** List of authorized mime types for step handler file upload */
+        val handlers: List<String> = emptyList(),
+    )
+  }
 }
