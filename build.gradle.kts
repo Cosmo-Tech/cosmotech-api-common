@@ -8,7 +8,7 @@ plugins {
   kotlin("jvm") version kotlinVersion
   id("com.diffplug.spotless") version "6.12.0"
   id("org.springframework.boot") version "2.7.2" apply false
-  id("io.gitlab.arturbosch.detekt") version "1.21.0"
+  id("io.gitlab.arturbosch.detekt") version "1.22.0"
   id("pl.allegro.tech.build.axion-release") version "1.14.3"
   `maven-publish`
   // Apply the java-library plugin for API and implementation separation.
@@ -154,8 +154,8 @@ val kubernetesClientVersion = "16.0.2"
 dependencies {
   implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
 
-  detekt("io.gitlab.arturbosch.detekt:detekt-cli:1.21.0")
-  detekt("io.gitlab.arturbosch.detekt:detekt-formatting:1.21.0")
+  detekt("io.gitlab.arturbosch.detekt:detekt-cli:1.22.0")
+  detekt("io.gitlab.arturbosch.detekt:detekt-formatting:1.22.0")
 
   // Align versions of all Kotlin components
   implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
