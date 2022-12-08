@@ -9,8 +9,10 @@ class TwingraphImportEvent(
     publisher: Any,
     val jobId: String,
     val organizationId: String,
-    val graphName: String,
-    val sourceDataPath: String,
+    val graphId: String,
+    val sourceName: String,
+    val sourcePath: String,
+    val sourceType: String,
     val version: String?,
 ) : CsmRequestResponseEvent<Map<String, Any>>(publisher)
 
