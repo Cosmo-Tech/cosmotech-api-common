@@ -71,11 +71,11 @@ data class CsmPlatformProperties(
     /** Kubernetes namespace */
     val namespace: String = "phoenix",
 
-    /** Run outside kubernetes only context */
-    val runOutsideKubernetes: Boolean = false,
-
     /** Upload files properties */
     val upload: Upload = Upload(),
+
+    /** SpringBoot only context */
+    val springBootOnly: Boolean = false,
 ) {
 
   data class Authorization(
