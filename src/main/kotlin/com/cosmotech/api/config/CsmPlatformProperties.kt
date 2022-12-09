@@ -68,9 +68,6 @@ data class CsmPlatformProperties(
     /** RBAC / ACL configuration */
     val rbac: CsmRbac = CsmRbac(),
 
-    /** Kubernetes namespace */
-    val namespace: String = "phoenix",
-
     /** Upload files properties */
     val upload: Upload = Upload(),
 ) {

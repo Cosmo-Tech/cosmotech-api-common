@@ -27,23 +27,28 @@ class KubernetesClient : SecretManager {
       tenantName: String,
       secretName: String,
       secretData: Map<String, String>
-  ) = this.createSecretIntoKubernetes(tenantName, secretName, secretData)
+    ) = this.createSecretIntoKubernetes(tenantName, secretName, secretData)
 
-  override fun readSecret(tenantName: String, secretName: String): Map<String, String> =
-      this.getSecretFromKubernetes(tenantName, secretName)
+  override fun readSecret(
+      tenantName: String,
+      secretName: String
+    ): Map<String, String> = this.getSecretFromKubernetes(tenantName, secretName)
+
 
   private fun getSecretFromKubernetes(
       namespace: String = "phoenix",
       secretName: String
   ): Map<String, String> {
+    var name = String()
+    var key = String()
     val result = kubernetesApi.readNamespacedSecret(secretName, namespace, "")
 
     logger.debug("Secret retrieved {}", result)
-    return result.data?.mapValues { Base64.getDecoder().decode(it.value).toString(Charsets.UTF_8) }
-        ?: mapOf()
+    return
+      result.data?.associate(it.key,String(Base64.getDecoder().decode(it.value))) ?: mapOf()
   }
 
-  private fun createSecretIntoKubernetes(
+  fun createSecretIntoKubernetes(
       namespace: String,
       secretName: String,
       secretData: Map<String, String>
@@ -54,7 +59,8 @@ class KubernetesClient : SecretManager {
     val body = V1Secret()
     body.metadata = metadata
 
-    body.data = secretData.mapValues { Base64.getEncoder().encode(it.value.toByteArray()) }
+    val keyEncoded = Base64.getEncoder().encode(secret.second.toByteArray())
+    body.data = mutableMapOf(secret.first to keyEncoded)
     body.type = "Opaque"
     try {
       val result: V1Secret =
