@@ -147,7 +147,7 @@ val tikaVersion = "2.6.0"
 
 // Tests
 val jUnitBomVersion = "5.9.1"
-val mockkVersion = "1.13.2"
+val mockkVersion = "1.13.3"
 val awaitilityKVersion = "4.2.0"
 val kubernetesClientVersion = "16.0.2"
 
