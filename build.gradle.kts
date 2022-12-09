@@ -149,7 +149,7 @@ val tikaVersion = "2.6.0"
 val jUnitBomVersion = "5.9.1"
 val mockkVersion = "1.13.2"
 val awaitilityKVersion = "4.2.0"
-val kubernetesClientVersion = "16.0.2"
+val kubernetesClientVersion = "17.0.0"
 
 dependencies {
   implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
