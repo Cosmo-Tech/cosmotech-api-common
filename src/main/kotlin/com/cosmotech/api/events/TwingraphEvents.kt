@@ -11,6 +11,7 @@ class TwingraphImportEvent(
     val organizationId: String,
     val graphId: String,
     val sourceName: String,
+    val sourceLocation: String,
     val sourcePath: String,
     val sourceType: String,
     val version: String?,
