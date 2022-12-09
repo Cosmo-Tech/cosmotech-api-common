@@ -40,7 +40,8 @@ class KubernetesService(private val kubernetesApi: CoreV1Api?) : SecretManager {
           api.listNamespacedSecret(
               namespace, null, null, null, null, labelSelector, null, null, null, null, null)
       if (secrets.items.isEmpty()) {
-        logger.debug("Secret does not exists in namespace $namespace: cannot delete it")
+        logger.debug(
+            "Secret does not exists in namespace $namespace: cannot delete it")
       } else {
         logger.info("Secret exists in namespace $namespace: deleting it")
         api.deleteNamespacedSecret(secretNameLower, namespace, null, null, null, null, null, null)

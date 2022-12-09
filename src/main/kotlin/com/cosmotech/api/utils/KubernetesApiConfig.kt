@@ -12,10 +12,9 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 open class KubernetesApiConfig {
   @Bean
-  @ConditionalOnProperty(
-      name = ["csm.platform.runOutsideKubernetes"], havingValue = "false", matchIfMissing = true)
+  @ConditionalOnProperty(name = ["csm.platform.runOutsideKubernetes"], havingValue = "false", matchIfMissing = true)
   open fun coreV1Api(csmPlatformProperties: CsmPlatformProperties): CoreV1Api? {
-    val client = ClientBuilder.defaultClient()
-    return CoreV1Api(client)
+      val client = ClientBuilder.defaultClient()
+      return CoreV1Api(client)
   }
 }
