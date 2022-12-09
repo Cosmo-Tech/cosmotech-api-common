@@ -41,7 +41,7 @@ class KubernetesClient(private val kubernetesApi: CoreV1Api) : SecretManager {
   ): Map<String, String> {
     val result = kubernetesApi.readNamespacedSecret(secretName, namespace, "")
 
-    logger.debug("Secret retrieved")
+    logger.debug("Secret retrieved {}", result)
     return result.data?.mapValues { Base64.getDecoder().decode(it.value).toString(Charsets.UTF_8) }
         ?: mapOf()
   }
