@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 package com.cosmotech.api.utils
 
-import com.cosmotech.api.config.CsmPlatformProperties
 import io.kubernetes.client.openapi.ApiException
 import io.kubernetes.client.openapi.apis.CoreV1Api
 import io.kubernetes.client.openapi.models.V1ObjectMeta
@@ -16,18 +15,14 @@ import org.springframework.stereotype.Service
 @org.springframework.context.annotation.Configuration
 open class KubernetesApi {
   @Bean
-  open fun coreV1Api(csmPlatformProperties: CsmPlatformProperties): CoreV1Api? {
-    return if (csmPlatformProperties.springBootOnly) {
-      null
-    } else {
-      val client = ClientBuilder.defaultClient()
-      return CoreV1Api(client)
-    }
+  open fun coreV1Api(): CoreV1Api {
+    val client = ClientBuilder.defaultClient()
+    return CoreV1Api(client)
   }
 }
 
 @Service
-class KubernetesClient(private val kubernetesApi: CoreV1Api?) : SecretManager {
+class KubernetesClient(private val kubernetesApi: CoreV1Api) : SecretManager {
 
   private val logger = LoggerFactory.getLogger(KubernetesClient::class.java)
 
@@ -45,13 +40,13 @@ class KubernetesClient(private val kubernetesApi: CoreV1Api?) : SecretManager {
   }
 
   private fun deleteSecretFromKubernetes(namespace: String, secretName: String) {
-    val api = checkKubernetesContext()
     val secretNameLower = secretName.lowercase()
     @Suppress("SwallowedException")
     try {
-      api.readNamespacedSecret(secretNameLower, namespace, null)
+      kubernetesApi.readNamespacedSecret(secretNameLower, namespace, null)
       logger.info("Secret $secretNameLower exists in namespace $namespace: deleting it")
-      api.deleteNamespacedSecret(secretNameLower, namespace, null, null, null, null, null, null)
+      kubernetesApi.deleteNamespacedSecret(
+          secretNameLower, namespace, null, null, null, null, null, null)
     } catch (e: ApiException) {
       logger.debug(
           "Secret $secretNameLower does not exists in namespace $namespace: cannot delete it")
@@ -59,9 +54,8 @@ class KubernetesClient(private val kubernetesApi: CoreV1Api?) : SecretManager {
   }
 
   private fun getSecretFromKubernetes(namespace: String, secretName: String): Map<String, String> {
-    val api = checkKubernetesContext()
     val secretNameLower = secretName.lowercase()
-    val result = api.readNamespacedSecret(secretNameLower, namespace, "")
+    val result = kubernetesApi.readNamespacedSecret(secretNameLower, namespace, "")
 
     logger.debug("Secret retrieved")
     return result.data?.mapValues { Base64.getDecoder().decode(it.value).toString(Charsets.UTF_8) }
@@ -73,7 +67,6 @@ class KubernetesClient(private val kubernetesApi: CoreV1Api?) : SecretManager {
       secretName: String,
       secretData: Map<String, String>
   ) {
-    val api = checkKubernetesContext()
     logger.debug("Creating secret $secretName in namespace $namespace")
 
     val secretNameLower = secretName.lowercase()
@@ -89,7 +82,7 @@ class KubernetesClient(private val kubernetesApi: CoreV1Api?) : SecretManager {
     var replace = false
     @Suppress("SwallowedException")
     try {
-      api.readNamespacedSecret(secretNameLower, namespace, null)
+      kubernetesApi.readNamespacedSecret(secretNameLower, namespace, null)
       logger.debug("Secret $secretNameLower already exists in namespace $namespace: replacing it")
       replace = true
     } catch (e: ApiException) {
@@ -97,18 +90,15 @@ class KubernetesClient(private val kubernetesApi: CoreV1Api?) : SecretManager {
     }
     try {
       if (replace) {
-        api.replaceNamespacedSecret(secretNameLower, namespace, body, null, null, null, null)
+        kubernetesApi.replaceNamespacedSecret(
+            secretNameLower, namespace, body, null, null, null, null)
       } else {
-        api.createNamespacedSecret(namespace, body, null, null, null, null)
+        kubernetesApi.createNamespacedSecret(namespace, body, null, null, null, null)
       }
       logger.info("Secret $secretNameLower created/replaced")
     } catch (e: ApiException) {
       logger.error("Kubernetes API Exception when creating/replacing secret ${e.message}")
       throw e
     }
-  }
-
-  private fun checkKubernetesContext(): CoreV1Api {
-    return this.kubernetesApi ?: throw IllegalStateException("Kubernetes API is not available")
   }
 }

@@ -73,9 +73,6 @@ data class CsmPlatformProperties(
 
     /** Upload files properties */
     val upload: Upload = Upload(),
-
-    /** SpringBoot only context */
-    val springBootOnly: Boolean = false,
 ) {
 
   data class Authorization(
