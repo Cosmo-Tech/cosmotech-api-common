@@ -144,6 +144,7 @@ val servletApiVersion = "4.0.1"
 val oktaSpringBootVersion = "2.1.6"
 val azureSpringBootBomVersion = "3.14.0"
 val tikaVersion = "2.6.0"
+val kubernetesClientVersion = "16.0.2"
 
 // Tests
 val jUnitBomVersion = "5.9.1"
@@ -173,6 +174,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-web") {
     exclude(group = "org.springframework.boot", module = "spring-boot-starter-tomcat")
   }
+  implementation("io.kubernetes:client-java:${kubernetesClientVersion}")
 
   implementation("org.springdoc:springdoc-openapi-ui:${springDocVersion}")
   implementation("org.springdoc:springdoc-openapi-kotlin:${springDocVersion}")
