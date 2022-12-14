@@ -70,6 +70,8 @@ data class CsmPlatformProperties(
 
     /** Upload files properties */
     val upload: Upload = Upload(),
+
+    val namespace: String = "phoenix",
 ) {
 
   data class Authorization(
