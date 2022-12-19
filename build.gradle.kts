@@ -191,6 +191,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-aop")
 
   implementation("org.apache.tika:tika-core:${tikaVersion}")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3-native-mt")
 
   testImplementation(kotlin("test"))
   testImplementation(platform("org.junit:junit-bom:${jUnitBomVersion}"))
