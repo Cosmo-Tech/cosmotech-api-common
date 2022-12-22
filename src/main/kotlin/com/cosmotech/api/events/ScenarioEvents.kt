@@ -31,3 +31,10 @@ class ScenarioDeleted(
     val workspaceId: String,
     val scenarioId: String
 ) : CsmEvent(publisher)
+
+class ScenarioLastRunChanged(
+    publisher: Any,
+    val organizationId: String,
+    val workspaceId: String,
+    val scenario: Any
+) : CsmEvent(publisher)
