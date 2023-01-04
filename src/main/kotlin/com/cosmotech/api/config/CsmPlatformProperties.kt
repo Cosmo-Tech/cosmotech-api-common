@@ -82,7 +82,7 @@ data class CsmPlatformProperties(
       val tenantIdJwtClaim: String = "iss",
 
       /** The JWT Claim where the mail information is stored */
-      val mailJwtClaim: String = "upn",
+      val mailJwtClaim: String = "preferred_username",
 
       /** The JWT Claim where the roles information is stored */
       val rolesJwtClaim: String = "roles",
