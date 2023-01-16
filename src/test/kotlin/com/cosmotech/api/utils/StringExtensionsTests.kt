@@ -19,8 +19,8 @@ class StringExtensionsTests {
 
   @Test
   fun `sanitizeForRedis should escape special characters`() {
-    val input = "test@cosmotech.com"
-    val expected = "test\\@cosmotech\\.com"
+    val input = "te.st@cosmotech.com"
+    val expected = "te\\.st\\@cosmotech\\.com"
     val actual = input.sanitizeForRedis()
     assertEquals(expected, actual)
   }
