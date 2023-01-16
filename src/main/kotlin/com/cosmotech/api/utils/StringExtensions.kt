@@ -22,3 +22,5 @@ fun String.sanitizeForKubernetes(maxLength: Int = KUBERNETES_RESOURCE_NAME_MAX_L
         .replace(".", "-")
         .lowercase()
         .takeLast(maxLength)
+
+fun String.getRedisNormalized() = this.replace("@", "\\@").replace(".", "\\.")
