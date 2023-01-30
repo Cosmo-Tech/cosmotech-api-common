@@ -63,7 +63,7 @@ data class CsmPlatformProperties(
 
     /** Data Ingestion reporting behavior */
     val dataIngestion: DataIngestion = DataIngestion(),
-    val twincache: CsmTwinCacheProperties?,
+    val twincache: CsmTwinCacheProperties,
 
     /** RBAC / ACL configuration */
     val rbac: CsmRbac = CsmRbac(),
@@ -452,7 +452,12 @@ data class CsmPlatformProperties(
       val username: String = "default",
 
       /** Twin cache password */
-      val password: String
+      val password: String,
+
+      /**
+       * Twin cache query timeout. Kill a query after specified timeout (in millis) default 5000
+       */
+      val queryTimeout: Long = 5000
   )
 
   data class CsmRbac(
