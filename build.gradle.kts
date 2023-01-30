@@ -148,7 +148,7 @@ val kubernetesClientVersion = "16.0.2"
 
 // Tests
 val jUnitBomVersion = "5.9.1"
-val mockkVersion = "1.13.2"
+val mockkVersion = "1.13.4"
 val awaitilityKVersion = "4.2.0"
 
 dependencies {
