@@ -10,10 +10,13 @@ import io.swagger.v3.parser.OpenAPIV3Parser
 import java.io.BufferedReader
 import org.springdoc.core.customizers.OperationCustomizer
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
+@ConditionalOnProperty(
+    name = ["csm.platform.commandLineOnly"], havingValue = "false", matchIfMissing = true)
 open class CsmOpenAPIConfiguration(val csmPlatformProperties: CsmPlatformProperties) {
 
   @Value("\${api.version:?}") private lateinit var apiVersion: String
@@ -31,8 +34,7 @@ open class CsmOpenAPIConfiguration(val csmPlatformProperties: CsmPlatformPropert
   }
 
   @Bean
-  open fun csmOpenAPI(): OpenAPI {
-
+  open fun csmOpenAPI(): OpenAPI? {
     val openApiYamlInputStream =
         CsmOpenAPIConfiguration::class.java.getResourceAsStream("/static/openapi.yaml")
             ?: throw IllegalStateException(
