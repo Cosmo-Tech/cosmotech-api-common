@@ -71,6 +71,9 @@ data class CsmPlatformProperties(
     /** Upload files properties */
     val upload: Upload = Upload(),
     val namespace: String = "phoenix",
+
+    /** Use common lib for command line application Disable OpenAPI automatic configuration */
+    val commandLineOnly: Boolean = false,
 ) {
 
   data class Authorization(
