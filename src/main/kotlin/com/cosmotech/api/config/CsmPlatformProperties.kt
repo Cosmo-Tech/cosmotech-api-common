@@ -454,9 +454,7 @@ data class CsmPlatformProperties(
       /** Twin cache password */
       val password: String,
 
-      /**
-       * Twin cache query timeout. Kill a query after specified timeout (in millis) default 5000
-       */
+      /** Twin cache query timeout. Kill a query after specified timeout (in millis) default 5000 */
       val queryTimeout: Long = 5000
   )
 
