@@ -74,7 +74,14 @@ data class CsmPlatformProperties(
 
     /** Use common lib for command line application Disable OpenAPI automatic configuration */
     val commandLineOnly: Boolean = false,
+
+    /** Persistent metrics configuration */
+    val metrics: Metrics = Metrics(),
 ) {
+
+  data class Metrics(
+      val retentionDays: Int = 400,
+  )
 
   data class Authorization(
 
