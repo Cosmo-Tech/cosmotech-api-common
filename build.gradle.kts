@@ -15,7 +15,11 @@ plugins {
   `java-library`
 }
 
-scmVersion { tag { prefix.set("") } }
+scmVersion {
+  ignoreUncommittedChanges.set(false)
+  useHighestVersion.set(true)
+  tag { prefix.set("") }
+}
 
 val kotlinJvmTarget = 17
 
