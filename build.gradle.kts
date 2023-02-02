@@ -146,6 +146,7 @@ val azureSpringBootBomVersion = "3.14.0"
 val tikaVersion = "2.6.0"
 val kubernetesClientVersion = "16.0.2"
 val jedisVersion = "3.9.0"
+val jredistimeseriesVersion = "1.6.0"
 
 // Tests
 val jUnitBomVersion = "5.9.1"
@@ -195,6 +196,7 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 
   implementation("redis.clients:jedis:${jedisVersion}")
+  implementation("com.redislabs:jredistimeseries:${jredistimeseriesVersion}")
 
   testImplementation(kotlin("test"))
   testImplementation(platform("org.junit:junit-bom:${jUnitBomVersion}"))
