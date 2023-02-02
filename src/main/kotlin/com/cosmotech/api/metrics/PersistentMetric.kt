@@ -11,7 +11,7 @@ data class PersistentMetric(
     val incrementBy: Int = 0,
     val tags: Map<String, String> = emptyMap(),
     val qualifier: String = "",
-    val retention: Long = 0,
     val timestamp: Long = System.currentTimeMillis(),
     val vendor: String = DEFAULT_PROVIDER,
+    val retention: Long = 0,
 )
