@@ -16,7 +16,7 @@ private const val DEFAULT_POOL_SIZE: Int = 100
 private const val DEFAULT_TIMEOUT = 10000
 
 @Configuration
-internal open class JedisConfig {
+open class JedisConfig {
 
   val logger: Logger = LoggerFactory.getLogger(JedisConfig::class.java)
 
@@ -42,7 +42,6 @@ internal open class JedisConfig {
   @Bean
   open fun csmRedisTimeSeries(csmPlatformProperties: CsmPlatformProperties): RedisTimeSeries {
     val twincacheProperties = csmPlatformProperties.twincache!!
-    val username = twincacheProperties.username
     val password = twincacheProperties.password
     val host = twincacheProperties.host
     val port = twincacheProperties.port.toInt()
