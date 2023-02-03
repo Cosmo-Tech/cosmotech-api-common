@@ -11,9 +11,10 @@ data class PersistentMetric(
     val name: String,
     val value: Double,
     val incrementBy: Int = 0,
-    val tags: Map<String, String> = emptyMap(),
+    val labels: Map<String, String> = emptyMap(),
     val qualifier: String = DEFAULT_QUALIFIER,
     val timestamp: Long = System.currentTimeMillis(),
     val vendor: String = DEFAULT_PROVIDER,
     val retention: Long = 0,
+    val type: PersitentMetricType = PersitentMetricType.COUNTER,
 )
