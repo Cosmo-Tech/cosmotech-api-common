@@ -80,6 +80,7 @@ data class CsmPlatformProperties(
 ) {
 
   data class Metrics(
+      val enabled: Boolean = true,
       val retentionDays: Int = 400,
   )
 
