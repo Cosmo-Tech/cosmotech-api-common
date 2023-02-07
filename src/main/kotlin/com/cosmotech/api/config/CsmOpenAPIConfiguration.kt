@@ -15,8 +15,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-@ConditionalOnProperty(
-    name = ["csm.platform.commandLineOnly"], havingValue = "false", matchIfMissing = true)
+@ConditionalOnProperty(name = ["csm.cliapplication"], havingValue = "false", matchIfMissing = true)
 open class CsmOpenAPIConfiguration(val csmPlatformProperties: CsmPlatformProperties) {
 
   @Value("\${api.version:?}") private lateinit var apiVersion: String

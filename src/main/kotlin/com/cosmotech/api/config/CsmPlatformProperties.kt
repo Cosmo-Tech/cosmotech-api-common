@@ -72,9 +72,6 @@ data class CsmPlatformProperties(
     val upload: Upload = Upload(),
     val namespace: String = "phoenix",
 
-    /** Use common lib for command line application Disable OpenAPI automatic configuration */
-    val commandLineOnly: Boolean = false,
-
     /** Persistent metrics configuration */
     val metrics: Metrics = Metrics(),
 ) {

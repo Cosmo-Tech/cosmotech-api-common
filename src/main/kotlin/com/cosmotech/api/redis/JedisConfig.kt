@@ -21,7 +21,6 @@ open class JedisConfig {
   val logger: Logger = LoggerFactory.getLogger(JedisConfig::class.java)
 
   @Bean
-  @Suppress("MagicNumber")
   // JedisPool must be use with .use autocloseable method
   open fun csmJedisPool(csmPlatformProperties: CsmPlatformProperties): JedisPool {
     val twincacheProperties = csmPlatformProperties.twincache!!
