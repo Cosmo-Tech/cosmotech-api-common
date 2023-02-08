@@ -72,12 +72,7 @@ class MonitorServiceAspect(
             name = user,
             value = 1.0,
             qualifier = "call",
-            labels =
-                mapOf(
-                    "usage" to "licensing",
-                    "user" to user,
-                    "group" to "user"
-                ),
+            labels = mapOf("usage" to "licensing", "user" to user, "group" to "user"),
             type = PersitentMetricType.COUNTER,
         )
     eventPublisher.publishEvent(PersistentMetricEvent(this, metric))
