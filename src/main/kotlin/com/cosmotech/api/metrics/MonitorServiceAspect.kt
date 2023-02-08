@@ -2,6 +2,8 @@
 // Licensed under the MIT license.
 package com.cosmotech.api.metrics
 
+import com.cosmotech.api.events.CsmEventPublisher
+import com.cosmotech.api.events.PersistentMetricEvent
 import com.cosmotech.api.utils.getCurrentAuthenticatedIssuer
 import com.cosmotech.api.utils.getCurrentAuthenticatedUserName
 import io.micrometer.core.instrument.Counter
@@ -16,9 +18,14 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
+private const val SERVICE_NAME = "API"
+
 @Aspect
 @Component
-class MonitorServiceAspect(private var meterRegistry: MeterRegistry) {
+class MonitorServiceAspect(
+    private var meterRegistry: MeterRegistry,
+    private val eventPublisher: CsmEventPublisher,
+) {
   private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
   private val listOfArgs =
@@ -47,13 +54,32 @@ class MonitorServiceAspect(private var meterRegistry: MeterRegistry) {
         List(parameterNames.filter { listOfArgs.contains(it.toString()) }.size) { idx ->
           Tag.of(parameterNames[idx], args[idx] as String)
         }
-    Counter.builder("cosmotech.${signature.name}")
-        .description("${signature.name}")
-        .tag("method", signature.name)
-        .tag("user", getCurrentAuthenticatedUserName())
-        .tag("issuer", getCurrentAuthenticatedIssuer())
+    val name = signature.name
+    val user = getCurrentAuthenticatedUserName()
+    var issuer = getCurrentAuthenticatedIssuer()
+    Counter.builder("cosmotech.${name}")
+        .description("${name}")
+        .tag("method", name)
+        .tag("user", user)
+        .tag("issuer", issuer)
         .tags(argsTags)
         .register(meterRegistry)
         .increment()
+
+    val metric =
+        PersistentMetric(
+            service = SERVICE_NAME,
+            name = user,
+            value = 1.0,
+            qualifier = "call",
+            labels =
+                mapOf(
+                    "usage" to "licensing",
+                    "user" to user,
+                    "group" to "user"
+                ),
+            type = PersitentMetricType.COUNTER,
+        )
+    eventPublisher.publishEvent(PersistentMetricEvent(this, metric))
   }
 }
