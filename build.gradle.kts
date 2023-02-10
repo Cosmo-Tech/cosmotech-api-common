@@ -158,6 +158,7 @@ val jredistimeseriesVersion = "1.6.0"
 val jUnitBomVersion = "5.9.1"
 val mockkVersion = "1.13.2"
 val awaitilityKVersion = "4.2.0"
+val testcontainersRedis = "1.6.2"
 
 dependencies {
   implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
@@ -203,6 +204,9 @@ dependencies {
 
   implementation("redis.clients:jedis:${jedisVersion}")
   implementation("com.redislabs:jredistimeseries:${jredistimeseriesVersion}")
+  implementation("com.redis.om:redis-om-spring:0.6.3")
+  implementation("com.redis.testcontainers:testcontainers-redis-junit:$testcontainersRedis")
+  implementation("org.springframework.boot:spring-boot-starter-test")
 
   testImplementation(kotlin("test"))
   testImplementation(platform("org.junit:junit-bom:${jUnitBomVersion}"))
