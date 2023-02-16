@@ -44,6 +44,7 @@ const val ROLE_NOTIN = "notintestrole"
 const val USER_WRITER = "usertestwriter@cosmotech.com"
 const val USER_READER = "usertestreader@cosmotech.com"
 const val USER_NONE = "usertestnone@cosmotech.com"
+const val USER_IN_PARENT = "usertestinparent@cosmotech.com"
 const val USER_ADMIN = "usertestadmin@cosmotech.com"
 const val USER_ADMIN_2 = "usertestadmin2@cosmotech.com"
 const val USER_NOTIN = "usertestnotin@cosmotech.com"
@@ -77,6 +78,8 @@ class CsmRbacTests {
   private lateinit var ownerAuthentication: BearerTokenAuthentication
 
   private lateinit var rolesDefinition: RolesDefinition
+
+  lateinit var parentRbacSecurity: RbacSecurity
   lateinit var rbacSecurity: RbacSecurity
 
   @BeforeTest
@@ -95,6 +98,19 @@ class CsmRbacTests {
                     ROLE_WRITER to ROLE_WRITER_PERMS,
                     ROLE_ADMIN to ROLE_ADMIN_PERMS,
                 ))
+
+    parentRbacSecurity =
+        RbacSecurity(
+            COMPONENT_ID,
+            ROLE_READER,
+            mutableListOf(
+                RbacAccessControl(USER_WRITER, USER_WRITER_ROLE),
+                RbacAccessControl(USER_READER, USER_READER_ROLE),
+                RbacAccessControl(USER_IN_PARENT, USER_READER_ROLE),
+                RbacAccessControl(USER_NONE, USER_NONE_ROLE),
+                RbacAccessControl(USER_ADMIN, USER_ADMIN_ROLE),
+                RbacAccessControl(USER_MAIL_TOKEN, USER_READER_ROLE),
+            ))
 
     rbacSecurity =
         RbacSecurity(
@@ -272,10 +288,31 @@ class CsmRbacTests {
   }
 
   @Test
-  fun `should throw NotFoundException if user not in parent user list`() {
+  fun `should throw NotFoundException if user not in parent user list and not admin`() {
+    every { getCurrentAuthenticatedMail(csmPlatformProperties) } returns USER_NONE
+    every { securityContext.authentication } returns (userAuthentication as Authentication)
     assertThrows<CsmResourceNotFoundException> {
-      rbac.addUserRole(rbacSecurity, rbacSecurity, USER_NOTIN, USER_READER_ROLE, rolesDefinition)
+      rbac.addUserRole(
+          parentRbacSecurity, rbacSecurity, USER_NOTIN, USER_READER_ROLE, rolesDefinition)
     }
+  }
+
+  @Test
+  fun `should add User if user in parent user list and not admin`() {
+    every { getCurrentAuthenticatedMail(csmPlatformProperties) } returns USER_NONE
+    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    val rbacSecurity =
+        rbac.addUserRole(
+            parentRbacSecurity, rbacSecurity, USER_IN_PARENT, USER_READER_ROLE, rolesDefinition)
+    assertTrue(rbac.verifyUser(rbacSecurity, PERM_READ, rolesDefinition, USER_IN_PARENT))
+  }
+
+  @Test
+  fun `should add User role if admin without checking parent RBAC`() {
+    val rbacSecurity =
+        rbac.addUserRole(
+            parentRbacSecurity, rbacSecurity, USER_NOTIN, USER_READER_ROLE, rolesDefinition)
+    assertTrue(rbac.verifyUser(rbacSecurity, PERM_READ, rolesDefinition, USER_NOTIN))
   }
 
   @Test
