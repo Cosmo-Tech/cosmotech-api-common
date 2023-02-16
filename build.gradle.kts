@@ -138,7 +138,7 @@ tasks.jar {
 
 // Dependencies version
 // Implementation
-val swaggerParserVersion = "2.1.9"
+val swaggerParserVersion = "2.1.12"
 val hashidsVersion = "1.0.3"
 val springOauthAutoConfigureVersion = "2.6.8"
 val springSecurityJwtVersion = "1.1.1.RELEASE"
