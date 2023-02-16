@@ -70,10 +70,13 @@ open class CsmRbac(
       role: String,
       rolesDefinition: RolesDefinition = getCommonRolesDefinition()
   ): RbacSecurity {
-    this.checkUserExists(
-        parentRbacSecurity,
-        userId,
-        "User $userId not found in parent ${parentRbacSecurity.id} component")
+
+    if (!isAdmin(rbacSecurity, rolesDefinition)) {
+      this.checkUserExists(
+          parentRbacSecurity,
+          userId,
+          "User $userId not found in parent ${parentRbacSecurity.id} component")
+    }
     return setUserRole(rbacSecurity, userId, role, rolesDefinition)
   }
 
