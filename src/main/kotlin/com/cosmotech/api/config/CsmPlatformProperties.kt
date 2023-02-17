@@ -463,8 +463,35 @@ data class CsmPlatformProperties(
       val password: String,
 
       /** Twin cache query timeout. Kill a query after specified timeout (in millis) default 5000 */
-      val queryTimeout: Long = 5000
-  )
+      val queryTimeout: Long = 5000,
+
+      /** Twin cache query page information for organization */
+      val organization: PageSizing = PageSizing(),
+
+      /** Twin cache query page information for workspace */
+      val workspace: PageSizing = PageSizing(),
+
+      /** Twin cache query page information for scenario */
+      val scenario: PageSizing = PageSizing(),
+
+      /** Twin cache query page information for connector */
+      val connector: PageSizing = PageSizing(),
+
+      /** Twin cache query page information for dataset */
+      val dataset: PageSizing = PageSizing(),
+
+      /** Twin cache query page information for scenariorun */
+      val scenariorun: PageSizing = PageSizing(),
+
+      /** Twin cache query page information for solution */
+      val solution: PageSizing = PageSizing(),
+  ) {
+
+    data class PageSizing(
+        /** Max result for a single page */
+        val maxResult: Int = 50
+    )
+  }
 
   data class CsmRbac(
       /** Enable Rbac */
