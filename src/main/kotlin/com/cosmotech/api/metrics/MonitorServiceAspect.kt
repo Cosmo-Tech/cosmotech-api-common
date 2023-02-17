@@ -71,9 +71,11 @@ class MonitorServiceAspect(
             service = SERVICE_NAME,
             name = user,
             value = 1.0,
-            qualifier = "call",
             labels = mapOf("usage" to "licensing", "user" to user, "group" to "user"),
+            qualifier = "call",
             type = PersitentMetricType.COUNTER,
+            downSampling = true,
+            downSamplingAggregation = DownSamplingAggregationType.MAX,
         )
     eventPublisher.publishEvent(PersistentMetricEvent(this, metric))
   }
