@@ -81,7 +81,7 @@ data class CsmPlatformProperties(
       val retentionDays: Int = 7,
       val downSamplingDefaultEnabled: Boolean = false,
       val downSamplingRetentionDays: Int = 400,
-      val downSamplingBucketDurationMs: Int = 3600,
+      val downSamplingBucketDurationMs: Int = 3600000,
   )
 
   data class Authorization(
