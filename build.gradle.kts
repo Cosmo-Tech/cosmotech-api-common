@@ -219,4 +219,6 @@ dependencies {
 
   // Use the Kotlin JUnit integration.
   testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
+
+  annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 }
