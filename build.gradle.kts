@@ -10,6 +10,7 @@ plugins {
   id("org.springframework.boot") version "2.7.2" apply false
   id("io.gitlab.arturbosch.detekt") version "1.22.0"
   id("pl.allegro.tech.build.axion-release") version "1.14.3"
+  id("org.jetbrains.kotlinx.kover") version "0.6.1"
   `maven-publish`
   // Apply the java-library plugin for API and implementation separation.
   `java-library`
@@ -221,4 +222,13 @@ dependencies {
   testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
 
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+}
+
+kover {
+  filters {
+    classes {
+      includes +=
+          listOf("com.cosmotech.api.id.*", "com.cosmotech.api.rbac.*", "com.cosmotech.utils.*")
+    }
+  }
 }
