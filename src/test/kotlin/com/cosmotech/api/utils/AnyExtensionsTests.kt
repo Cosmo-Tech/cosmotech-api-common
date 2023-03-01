@@ -10,7 +10,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import org.junit.jupiter.api.assertThrows
 
-class AnyExtTests {
+class AnyExtensionsTests {
 
   @Test
   fun `changed - change when comparing null to non-null`() {
