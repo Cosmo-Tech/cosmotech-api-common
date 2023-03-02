@@ -4,10 +4,10 @@ package com.cosmotech.api.utils
 
 import org.springframework.data.domain.PageRequest
 
-fun constructPageRequest(page: Int?, size: Int?, maxSize: Int): PageRequest? {
+fun constructPageRequest(page: Int?, size: Int?, defaultPageSize: Int): PageRequest? {
   return when {
     page != null && size != null -> PageRequest.of(page, size)
-    page != null && size == null -> PageRequest.of(page, maxSize)
+    page != null && size == null -> PageRequest.of(page, defaultPageSize)
     page == null && size != null -> PageRequest.of(0, size)
     else -> null
   }
