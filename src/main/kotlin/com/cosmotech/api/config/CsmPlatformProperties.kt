@@ -492,7 +492,7 @@ data class CsmPlatformProperties(
 
     data class PageSizing(
         /** Max result for a single page */
-        val maxResult: Int = 50
+        val defaultPageSize: Int = 50
     )
   }
 
