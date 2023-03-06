@@ -151,7 +151,7 @@ val servletApiVersion = "4.0.1"
 val oktaSpringBootVersion = "2.1.6"
 val azureSpringBootBomVersion = "3.14.0"
 val tikaVersion = "2.6.0"
-val kubernetesClientVersion = "16.0.2"
+val kubernetesClientVersion = "18.0.0"
 val jedisVersion = "3.9.0"
 val jredistimeseriesVersion = "1.6.0"
 
