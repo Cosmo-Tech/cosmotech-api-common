@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 package com.cosmotech.api.config
 
-import com.cosmotech.api.config.CsmPlatformProperties.Vendor.AZURE
+import com.cosmotech.api.config.CsmPlatformProperties.Vendor.KUBERNETES
 import com.cosmotech.api.utils.yamlObjectMapper
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
@@ -47,7 +47,7 @@ open class CsmPlatformEnvironmentPostProcessor(private val log: Log) : Environme
       environment: ConfigurableEnvironment,
       application: SpringApplication
   ) {
-    val platform = (System.getenv("CSM_PLATFORM_VENDOR") ?: AZURE.toString()).lowercase()
+    val platform = (System.getenv("CSM_PLATFORM_VENDOR") ?: KUBERNETES.toString()).lowercase()
     addSpringProfile(platform, environment)
     val identityProvider = (System.getenv("IDENTITY_PROVIDER") ?: "")
     addSpringProfile(identityProvider, environment)

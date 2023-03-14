@@ -4,13 +4,12 @@ package com.cosmotech.api.security
 
 import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer
-import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer
 import org.springframework.security.oauth2.core.OAuth2TokenValidator
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.jwt.JwtClaimValidator
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.web.cors.CorsConfiguration
 
 // Business roles
@@ -333,23 +332,23 @@ internal fun endpointSecurityWriters(
             customAdmin = customOrganizationAdmin),
     )
 
-abstract class AbstractSecurityConfiguration : WebSecurityConfigurerAdapter() {
+open class AbstractSecurityConfiguration {
 
-  fun getOAuth2JwtConfigurer(
+  fun filterChain(
       http: HttpSecurity,
       organizationAdminGroup: String,
       organizationUserGroup: String,
       organizationViewerGroup: String
-  ): OAuth2ResourceServerConfigurer<HttpSecurity>.JwtConfigurer? {
+  ): SecurityFilterChain {
 
     val corsHttpMethodsAllowed =
         HttpMethod.values().filterNot { it == HttpMethod.TRACE }.map(HttpMethod::name)
 
-    return http
+    http
         .cors()
         .configurationSource {
-          CorsConfiguration().applyPermitDefaultValues().apply {
-            allowedMethods = corsHttpMethodsAllowed
+          CorsConfiguration().applyPermitDefaultValues().also { conf ->
+            conf?.allowedMethods = corsHttpMethodsAllowed
           }
         }
         .and()
@@ -376,6 +375,8 @@ abstract class AbstractSecurityConfiguration : WebSecurityConfigurerAdapter() {
         }
         .oauth2ResourceServer()
         .jwt()
+
+    return http.build()
   }
 }
 
