@@ -2,6 +2,10 @@
 // Licensed under the MIT license.
 package com.cosmotech.api.utils
 
+import java.nio.charset.StandardCharsets
+import java.security.MessageDigest
+import javax.xml.bind.annotation.adapters.HexBinaryAdapter
+
 private const val KUBERNETES_RESOURCE_NAME_MAX_LENGTH = 63
 
 /**
@@ -28,3 +32,9 @@ fun String.sanitizeForRedis() = this.replace("@", "\\@").replace(".", "\\.").rep
 fun String.toSecurityConstraintQuery() =
     "((-@security_default:{none})|(@security_accessControlList_id:{${this.sanitizeForRedis()}}" +
         " -@security_accessControlList_role:{none}))"
+
+fun String.shaHash(): String {
+  val messageDigest = MessageDigest.getInstance("SHA-256")
+  messageDigest.update(this.toByteArray(StandardCharsets.UTF_8))
+  return (HexBinaryAdapter()).marshal(messageDigest.digest())
+}

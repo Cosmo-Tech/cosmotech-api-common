@@ -468,6 +468,11 @@ data class CsmPlatformProperties(
       /** Twin cache query timeout. Kill a query after specified timeout (in millis) default 5000 */
       val queryTimeout: Long = 5000,
 
+      /**
+       * Twin cache query bulk expiration. Bulk expiration for a query (in seconds) default 86400
+       */
+      val queryBulkExpiration: Long = 86400,
+
       /** Twin cache query page information for organization */
       val organization: PageSizing = PageSizing(),
 
