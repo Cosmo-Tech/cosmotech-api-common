@@ -95,3 +95,5 @@ inline fun <reified T> T.compareToAndMutateIfNeeded(
 
   return membersChanged.toSet()
 }
+
+fun String.sanitizeForCloudStorage() = this.lowercase()

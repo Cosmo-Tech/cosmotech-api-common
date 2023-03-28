@@ -334,7 +334,7 @@ internal fun endpointSecurityWriters(
 
 open class AbstractSecurityConfiguration {
 
-  fun filterChain(
+  open fun filterChain(
       http: HttpSecurity,
       organizationAdminGroup: String,
       organizationUserGroup: String,

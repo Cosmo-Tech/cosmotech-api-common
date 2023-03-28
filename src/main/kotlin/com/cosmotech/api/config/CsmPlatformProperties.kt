@@ -29,7 +29,7 @@ data class CsmPlatformProperties(
     val api: Api,
 
     /** Platform vendor */
-    val vendor: Vendor,
+    val vendor: Vendor = Vendor.COSMOTECH,
 
     /** Id Generator */
     val idGenerator: IdGenerator,
@@ -53,7 +53,6 @@ data class CsmPlatformProperties(
     val identityProvider: CsmIdentityProvider,
 
     /** Data Ingestion reporting behavior */
-    val dataIngestion: DataIngestion = DataIngestion(),
     val twincache: CsmTwinCacheProperties,
 
     /** RBAC / ACL configuration */
@@ -65,7 +64,13 @@ data class CsmPlatformProperties(
 
     /** Persistent metrics configuration */
     val metrics: Metrics = Metrics(),
+    val registries: CsmRegistries = CsmRegistries(),
 ) {
+
+  data class CsmRegistries(
+      val core: String = "coreregistry.svc.cluster.local:5000",
+      val solutions: String = "solutionregistry.svc.cluster.local:5000",
+  )
 
   data class Metrics(
       val enabled: Boolean = true,
@@ -188,32 +193,7 @@ data class CsmPlatformProperties(
   }
 
   enum class Vendor {
-    KUBERNETES
-  }
-
-  data class DataIngestion(
-      /**
-       * Number of seconds to wait after a scenario run workflow end time, before starting to check
-       * ADX for data ingestion state. See https://bit.ly/3FXshzE for the rationale
-       */
-      val waitingTimeBeforeIngestionSeconds: Long = 15,
-
-      /**
-       * number of minutes after a scenario run workflow end time during which an ingestion failure
-       * detected is considered linked to the current scenario run
-       */
-      val ingestionObservationWindowToBeConsideredAFailureMinutes: Long = 5,
-
-      /** Data ingestion state handling default behavior */
-      val state: State = State()
-  ) {
-    data class State(
-        /**
-         * The timeout in second before considering no data in probes measures and control plane is
-         * an issue
-         */
-        val noDataTimeOutSeconds: Long = 180,
-    )
+    COSMOTECH
   }
 
   data class CsmIdentityProvider(
