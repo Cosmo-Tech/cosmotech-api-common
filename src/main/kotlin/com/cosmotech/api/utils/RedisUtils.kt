@@ -31,18 +31,17 @@ fun <T> findAllPaginated(
 }
 
 /**
- * Zip a list of ByteArray with their file names.
- * @param nameFilePair a list of Pair<String, ByteArray> where the first element is the file name
- * and the second element is the byte array to zip
+ * Zip a map of file names and byte arrays into a single byte array
+ * @param fileNameByteArray The map of file names and byte arrays to zip
  */
-fun zipBytesWithFileNames(nameFilePair: List<Pair<String, ByteArray>>): ByteArray? {
-  if (nameFilePair.isEmpty()) return null
+fun zipBytesWithFileNames(fileNameByteArray: Map<String, ByteArray>): ByteArray? {
+  if (fileNameByteArray.isEmpty()) return null
   val byteArrayOutputStream = ByteArrayOutputStream()
   val zipOutputStream = ZipOutputStream(byteArrayOutputStream)
-  for (file in nameFilePair) {
-    val entry = ZipEntry(file.first).apply { size = file.second.size.toLong() }
+  for (file in fileNameByteArray) {
+    val entry = ZipEntry(file.key).apply { size = file.value.size.toLong() }
     zipOutputStream.putNextEntry(entry)
-    zipOutputStream.write(file.second)
+    zipOutputStream.write(file.value)
   }
   zipOutputStream.closeEntry()
   zipOutputStream.close()
