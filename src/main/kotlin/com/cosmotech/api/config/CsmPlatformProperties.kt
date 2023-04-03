@@ -469,9 +469,10 @@ data class CsmPlatformProperties(
       val queryTimeout: Long = 5000,
 
       /**
-       * Twin cache query bulk expiration. Bulk expiration for a query (in seconds) default 86400
+       * After specified timeout the query bulk will be deleted from Redis (in seconds) default
+       * 86400 = 24h
        */
-      val queryBulkExpiration: Long = 86400,
+      val queryBulkTTL: Long = 86400,
 
       /** Twin cache query page information for organization */
       val organization: PageSizing = PageSizing(),
