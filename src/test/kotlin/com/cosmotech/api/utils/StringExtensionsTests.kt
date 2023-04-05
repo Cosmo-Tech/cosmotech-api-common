@@ -37,7 +37,7 @@ class StringExtensionsTests {
   fun `redisMetadataKey should return the metadata key for the given key`() {
     val input = "test"
     val expected = "testMetaData"
-    val actual = input.redisMetaDataKey()
+    val actual = input.toRedisMetaDataKey()
     assertEquals(expected, actual)
   }
 }

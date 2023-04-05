@@ -39,4 +39,4 @@ fun String.shaHash(): String {
   return (HexBinaryAdapter()).marshal(messageDigest.digest())
 }
 
-fun String.redisMetaDataKey() = "${this}MetaData"
+fun String.toRedisMetaDataKey() = "${this}MetaData"
