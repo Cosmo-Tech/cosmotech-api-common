@@ -38,3 +38,5 @@ fun String.shaHash(): String {
   messageDigest.update(this.toByteArray(StandardCharsets.UTF_8))
   return (HexBinaryAdapter()).marshal(messageDigest.digest())
 }
+
+fun String.redisMetaDataKey() = "${this}MetaData"

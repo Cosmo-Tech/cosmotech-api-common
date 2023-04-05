@@ -32,4 +32,12 @@ class StringExtensionsTests {
     val actual = input.shaHash()
     assertEquals(expected, actual)
   }
+
+  @Test
+  fun `redisMetadataKey should return the metadata key for the given key`() {
+    val input = "test"
+    val expected = "testMetaData"
+    val actual = input.redisMetaDataKey()
+    assertEquals(expected, actual)
+  }
 }
