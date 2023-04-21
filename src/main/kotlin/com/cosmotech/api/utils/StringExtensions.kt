@@ -40,3 +40,9 @@ fun String.shaHash(): String {
 }
 
 fun String.toRedisMetaDataKey() = "${this}MetaData"
+
+fun String.formatQuery(map: Map<String, String>): String {
+  var newValue = this
+  map.forEach { (key, value) -> newValue = newValue.replace("$$key", value) }
+  return newValue
+}

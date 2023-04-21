@@ -40,4 +40,12 @@ class StringExtensionsTests {
     val actual = input.toRedisMetaDataKey()
     assertEquals(expected, actual)
   }
+
+  @Test
+  fun `should format Cypher Query with variables`() {
+    val map = mapOf("name" to "Joe Doe", "id" to "100")
+    val expected = "CREATE (:Person {name: Joe Doe, id: 100})"
+    val actual = "CREATE (:Person {name: \$name, id: \$id})"
+    assertEquals(expected, actual.formatQuery(map))
+  }
 }
