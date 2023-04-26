@@ -43,9 +43,16 @@ class StringExtensionsTests {
 
   @Test
   fun `should format Cypher Query with variables`() {
-    val map = mapOf("name" to "Joe Doe", "id" to "100", "object" to "{id:\"id\"}")
-    val actual = "CREATE (:Person {name: \$name, id: \$id, object: \$object})"
-    val expected = "CREATE (:Person {name: \"Joe Doe\", id: \"100\", object: \"{id:\\\"id\\\"}\"})"
+    val map =
+        mapOf(
+            "name" to "Joe Doe",
+            "id" to "100",
+            "object" to "{id:\"id\"}",
+            "array" to "{id:['one', 'two']}")
+    val actual = "CREATE (:Person {name: \$name, id: \$id, object: \$object, array: \$array)"
+    val expected =
+        "CREATE (:Person {name: \"Joe Doe\", id: \"100\", object: \"{id:\\\"id\\\"}\", " +
+            "array: \"{id:['one', 'two']}\")"
     assertEquals(expected, actual.formatQuery(map))
   }
 
