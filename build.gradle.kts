@@ -145,13 +145,13 @@ val springOauthAutoConfigureVersion = "2.6.8"
 val springSecurityJwtVersion = "1.1.1.RELEASE"
 val springBootStarterWebVersion = "2.7.0"
 val springDocVersion = "1.6.13"
-val springOauthVersion = "5.7.5"
+val springOauthVersion = "5.8.3"
 val zalandoSpringProblemVersion = "0.27.0"
 val servletApiVersion = "4.0.1"
 val oktaSpringBootVersion = "2.1.6"
 val azureSpringBootBomVersion = "3.14.0"
 val tikaVersion = "2.6.0"
-val kubernetesClientVersion = "16.0.2"
+val kubernetesClientVersion = "18.0.0"
 val jedisVersion = "3.9.0"
 val jredistimeseriesVersion = "1.6.0"
 
@@ -205,7 +205,7 @@ dependencies {
 
   implementation("redis.clients:jedis:${jedisVersion}")
   implementation("com.redislabs:jredistimeseries:${jredistimeseriesVersion}")
-  implementation("com.redis.om:redis-om-spring:0.6.3")
+  implementation("com.redis.om:redis-om-spring:0.6.4")
   implementation("com.redis.testcontainers:testcontainers-redis-junit:$testcontainersRedis")
   implementation("org.springframework.boot:spring-boot-starter-test")
 
