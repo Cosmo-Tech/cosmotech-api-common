@@ -68,7 +68,7 @@ class StringExtensionsTests {
   fun `should cut file name from path`() {
     val input = "/path/to/file.txt"
     val expected = "file"
-    val actual = input.cutFileNameFromPath()
+    val actual = input.extractFileNameFromPath()
     assertEquals(expected, actual)
   }
 
@@ -76,7 +76,7 @@ class StringExtensionsTests {
   fun `should cut file name from file without extension`() {
     val input = "file"
     val expected = "file"
-    val actual = input.cutFileNameFromPath()
+    val actual = input.extractFileNameFromPath()
     assertEquals(expected, actual)
   }
 }

@@ -55,7 +55,11 @@ fun String.formatQuery(map: Map<String, String>): String {
   return newValue
 }
 
-fun String.cutFileNameFromPath(): String {
+/**
+ * Extract the file name from a path for example: /path/to/file.txt -> file
+ * @return the file name without the extension
+ */
+fun String.extractFileNameFromPath(): String {
   val prefixLess = this.split("/").last()
   return prefixLess.split(".")[0]
 }
