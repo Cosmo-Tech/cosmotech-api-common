@@ -63,4 +63,20 @@ class StringExtensionsTests {
     val expected = "CREATE (:Person {name: \"Joe Doe\", id: null})"
     assertEquals(expected, actual.formatQuery(map))
   }
+
+  @Test
+  fun `should cut file name from path`() {
+    val input = "/path/to/file.txt"
+    val expected = "file"
+    val actual = input.cutFileNameFromPath()
+    assertEquals(expected, actual)
+  }
+
+  @Test
+  fun `should cut file name from file without extension`() {
+    val input = "file"
+    val expected = "file"
+    val actual = input.cutFileNameFromPath()
+    assertEquals(expected, actual)
+  }
 }

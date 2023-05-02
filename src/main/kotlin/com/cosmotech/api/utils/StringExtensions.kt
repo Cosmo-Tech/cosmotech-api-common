@@ -54,3 +54,8 @@ fun String.formatQuery(map: Map<String, String>): String {
   }
   return newValue
 }
+
+fun String.cutFileNameFromPath(): String {
+  val prefixLess = this.split("/").last()
+  return prefixLess.split(".")[0]
+}
