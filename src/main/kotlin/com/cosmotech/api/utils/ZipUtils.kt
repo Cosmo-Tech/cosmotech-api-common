@@ -12,8 +12,15 @@ import java.util.zip.ZipOutputStream
 
 const val BUFFER_SIZE = 2048
 
+/** Data class representing a file name and its content as an InputStream for a zip file */
 data class UnzippedFile(val filename: String, val content: InputStream)
 
+/**
+ * Unzip a zip file and return a list of files with their content
+ * @param file The zip file to unzip
+ * @param prefixName The prefix name of the files to unzip
+ * @param fileExtension The file extension of the files to unzip
+ */
 fun unzip(file: InputStream, prefixName: String, fileExtension: String): List<UnzippedFile> =
     ZipInputStream(file).use { zipInputStream ->
       generateSequence { zipInputStream.nextEntry }
@@ -22,11 +29,13 @@ fun unzip(file: InputStream, prefixName: String, fileExtension: String): List<Un
           .filter { it.name.endsWith(fileExtension, true) }
           .map {
             UnzippedFile(
-                filename = it.name.cutFileNameFromPath(), content = zipInputStream.toInputStream())
+                filename = it.name.extractFileNameFromPath(),
+                content = zipInputStream.toInputStream())
           }
           .toList()
     }
 
+/** Get InputStream from ZipInputStream */
 @Throws(IOException::class)
 fun ZipInputStream.toInputStream(): InputStream {
   val data = ByteArray(BUFFER_SIZE)
