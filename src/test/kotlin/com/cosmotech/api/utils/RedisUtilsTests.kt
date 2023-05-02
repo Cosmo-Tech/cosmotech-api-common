@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 package com.cosmotech.api.utils
 
-import java.io.ByteArrayInputStream
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import org.springframework.data.domain.PageRequest
@@ -42,23 +41,6 @@ class RedisUtilsTests {
       counter = 3
       val actual = findAllPaginated(maxResult, findAllLambda)
       assertEquals(15, actual.size)
-    }
-  }
-
-  @Test
-  fun `zipBytesWithFileNames - should check empty List`() {
-    val actual = zipBytesWithFileNames(emptyMap())
-    assertEquals(null, actual)
-  }
-
-  @Test
-  fun `zipBytesWithFileNames - should check non-empty List`() {
-    val actual = zipBytesWithFileNames(mapOf("test.json" to ByteArray(10)))
-    ByteArrayInputStream(actual).use {
-      val zipInputStream = java.util.zip.ZipInputStream(it)
-      val entry = zipInputStream.nextEntry
-      assertEquals("test.json", entry.name)
-      assertEquals(ByteArray(10).size, zipInputStream.readAllBytes().size)
     }
   }
 }
