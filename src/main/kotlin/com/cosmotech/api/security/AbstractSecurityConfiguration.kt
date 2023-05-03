@@ -391,11 +391,11 @@ internal class CsmSecurityEndpointsRolesWriter(
   ) {
     this.paths.forEach { path ->
       requests
-          .antMatchers(HttpMethod.POST, path, "${path}/*")
+          .antMatchers(HttpMethod.POST, path, "$path/*")
           .hasAnyAuthority(ROLE_PLATFORM_ADMIN, customAdmin, *this.roles)
-          .antMatchers(HttpMethod.PATCH, path, "${path}/*")
+          .antMatchers(HttpMethod.PATCH, path, "$path/*")
           .hasAnyAuthority(ROLE_PLATFORM_ADMIN, customAdmin, *this.roles)
-          .antMatchers(HttpMethod.DELETE, path, "${path}/*")
+          .antMatchers(HttpMethod.DELETE, path, "$path/*")
           .hasAnyAuthority(ROLE_PLATFORM_ADMIN, customAdmin, *this.roles)
     }
   }
@@ -413,7 +413,7 @@ internal class CsmSecurityEndpointsRolesReader(
   ) {
     this.paths.forEach { path ->
       requests
-          .antMatchers(HttpMethod.GET, path, "${path}/*")
+          .antMatchers(HttpMethod.GET, path, "$path/*")
           .hasAnyAuthority(ROLE_PLATFORM_ADMIN, customAdmin, *this.roles)
     }
   }

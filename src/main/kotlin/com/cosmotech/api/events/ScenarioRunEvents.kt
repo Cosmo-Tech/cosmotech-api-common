@@ -1,6 +1,6 @@
 // Copyright (c) Cosmo Tech.
 // Licensed under the MIT license.
-@file:Suppress("MatchingDeclarationName")
+@file:Suppress("MatchingDeclarationName", "Filename")
 
 package com.cosmotech.api.events
 

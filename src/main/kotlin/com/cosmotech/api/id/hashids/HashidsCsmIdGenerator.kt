@@ -41,7 +41,7 @@ internal class HashidsCsmIdGenerator() : AbstractCsmIdGenerator() {
             }
     // We do not intend to decode generated IDs afterwards => we can safely generate a unique salt.
     // This will give us different ids even with equal numbers to encode
-    return Hashids("${scope}-${UUID.randomUUID()}", MIN_HASH_LENGTH, ALPHABET)
+    return Hashids("$scope-${UUID.randomUUID()}", MIN_HASH_LENGTH, ALPHABET)
         .encode(
             // PROD-8703: encodedElement might be higher than the maximum number supported
             min(encodedElement, MAX_NUMBER))

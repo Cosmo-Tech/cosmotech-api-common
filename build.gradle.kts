@@ -4,10 +4,10 @@ import com.diffplug.gradle.spotless.SpotlessExtension
 import io.gitlab.arturbosch.detekt.Detekt
 
 plugins {
-  val kotlinVersion = "1.7.22"
+  val kotlinVersion = "1.8.0"
   kotlin("jvm") version kotlinVersion
   id("com.diffplug.spotless") version "6.12.0"
-  id("org.springframework.boot") version "2.7.2" apply false
+  id("org.springframework.boot") version "2.7.11" apply false
   id("io.gitlab.arturbosch.detekt") version "1.22.0"
   id("pl.allegro.tech.build.axion-release") version "1.14.3"
   id("org.jetbrains.kotlinx.kover") version "0.6.1"
@@ -154,6 +154,7 @@ val tikaVersion = "2.6.0"
 val kubernetesClientVersion = "18.0.0"
 val jedisVersion = "3.9.0"
 val jredistimeseriesVersion = "1.6.0"
+val redisOMVersion = "0.6.4"
 
 // Tests
 val jUnitBomVersion = "5.9.1"
@@ -205,7 +206,7 @@ dependencies {
 
   implementation("redis.clients:jedis:${jedisVersion}")
   implementation("com.redislabs:jredistimeseries:${jredistimeseriesVersion}")
-  implementation("com.redis.om:redis-om-spring:0.6.4")
+  implementation("com.redis.om:redis-om-spring:${redisOMVersion}")
   implementation("com.redis.testcontainers:testcontainers-redis-junit:$testcontainersRedis")
   implementation("org.springframework.boot:spring-boot-starter-test")
 
