@@ -57,8 +57,8 @@ class MonitorServiceAspect(
     val name = signature.name
     val user = getCurrentAuthenticatedUserName()
     var issuer = getCurrentAuthenticatedIssuer()
-    Counter.builder("cosmotech.${name}")
-        .description("${name}")
+    Counter.builder("cosmotech.$name")
+        .description("$name")
         .tag("method", name)
         .tag("user", user)
         .tag("issuer", issuer)

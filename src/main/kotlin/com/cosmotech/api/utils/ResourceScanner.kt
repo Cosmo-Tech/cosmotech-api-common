@@ -39,7 +39,7 @@ class ResourceScanner {
     metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, name)
     var mimetype = tika.detector.detect(inputStream, metadata)
     this.validateMimeType(mimetype.toString(), name, authorizedMimeTypes)
-    this.logger.info("Detected type for file ${name}: $mimetype")
+    this.logger.info("Detected type for file $name: $mimetype")
     if (mimetype.subtype.equals(ZIP_MIME_TYPE)) {
       val zipIn = ZipInputStream(inputStream)
       this.recurseScanZipFile(tika, zipIn, name, authorizedMimeTypes)

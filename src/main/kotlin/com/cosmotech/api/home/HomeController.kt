@@ -17,7 +17,7 @@ internal class HomeController(
 
   @GetMapping(value = ["/", "/index.html"], produces = [MediaType.TEXT_HTML_VALUE])
   fun redirectHomeToSwaggerUi(httpServletResponse: HttpServletResponse) {
-    httpServletResponse.sendRedirect("${baseEndpoint}/swagger-ui.html")
+    httpServletResponse.sendRedirect("$baseEndpoint/swagger-ui.html")
   }
 
   @GetMapping(
@@ -32,6 +32,6 @@ internal class HomeController(
 
   @GetMapping(value = ["/openapi.json"])
   fun redirectOpenApiJsonToOpenApi(httpServletResponse: HttpServletResponse) {
-    httpServletResponse.sendRedirect("${baseEndpoint}/openapi")
+    httpServletResponse.sendRedirect("$baseEndpoint/openapi")
   }
 }
