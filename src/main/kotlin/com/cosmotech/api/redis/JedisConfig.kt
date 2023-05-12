@@ -23,7 +23,7 @@ open class JedisConfig {
   @Bean
   // JedisPool must be use with .use autocloseable method
   open fun csmJedisPool(csmPlatformProperties: CsmPlatformProperties): JedisPool {
-    val twincacheProperties = csmPlatformProperties.twincache!!
+    val twincacheProperties = csmPlatformProperties.twincache
     val password = twincacheProperties.password
     val host = twincacheProperties.host
     val port = twincacheProperties.port.toInt()
@@ -40,7 +40,7 @@ open class JedisConfig {
 
   @Bean
   open fun csmRedisTimeSeries(csmPlatformProperties: CsmPlatformProperties): RedisTimeSeries {
-    val twincacheProperties = csmPlatformProperties.twincache!!
+    val twincacheProperties = csmPlatformProperties.twincache
     val password = twincacheProperties.password
     val host = twincacheProperties.host
     val port = twincacheProperties.port.toInt()
