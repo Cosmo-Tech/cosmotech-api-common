@@ -29,7 +29,7 @@ jobs:
       - name: Build with Gradle
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        uses: gradle/gradle-build-action@2.4.2
+        uses: gradle/gradle-build-action@v2
         with:
           cache-disabled: true
           arguments: |
