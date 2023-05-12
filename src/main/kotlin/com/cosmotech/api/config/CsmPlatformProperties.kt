@@ -208,8 +208,6 @@ data class CsmPlatformProperties(
       val dataWarehouseCluster: CsmPlatformAzureDataWarehouseCluster,
       val keyVault: String,
       val analytics: CsmPlatformAzureAnalytics,
-      /** Azure Cosmos DB */
-      val cosmos: CsmPlatformAzureCosmos,
       val appIdUri: String,
       val claimToAuthorityPrefix: Map<String, String> = mutableMapOf("roles" to "")
   ) {
@@ -318,62 +316,6 @@ data class CsmPlatformProperties(
         val instrumentationKey: String,
         val connectionString: String
     )
-
-    data class CsmPlatformAzureCosmos(
-
-        /** DNS URI of the Azure Cosmos DB account */
-        val uri: String,
-
-        /** Azure Cosmos DB Database used for Phoenix */
-        val coreDatabase: CoreDatabase,
-
-        /** Access Key of the Azure Cosmos DB database */
-        val key: String,
-
-        /** Consistency level. See com.azure.cosmos.ConsistencyLevel for the possible values. */
-        val consistencyLevel: String?,
-
-        /** Whether to populate Diagnostics Strings and Query metrics */
-        val populateQueryMetrics: Boolean,
-
-        /**
-         * The connection mode to be used by the clients to Azure Cosmos DB. See
-         * com.azure.cosmos.ConnectionMode for the possible values.
-         */
-        val connectionMode: String?
-    ) {
-      data class CoreDatabase(
-          /** The core database name in Azure Cosmos DB. Must already exist there. */
-          val name: String,
-
-          /** The Connectors configuration */
-          val connectors: Connectors,
-
-          /** The Organizations configuration */
-          val organizations: Organizations,
-
-          /** The Users configuration */
-          val users: Users
-      ) {
-        data class Connectors(
-
-            /** Container name for storing all Connectors */
-            val container: String
-        )
-
-        data class Organizations(
-
-            /** Container name for storing all Organizations */
-            val container: String
-        )
-
-        data class Users(
-
-            /** Container name for storing all Users */
-            val container: String
-        )
-      }
-    }
   }
 
   enum class Vendor {
