@@ -56,11 +56,15 @@ const val OWNER_ID = "3a869905-e9f5-4851-a7a9-3079aad49dfa"
 const val USER_ID = "2a869905-e9f5-4851-a7a9-3079aad49dfb"
 const val COMPONENT_ID = "component_id"
 
+@Suppress("LargeClass")
 class CsmRbacTests {
   private val ROLE_NONE_PERMS: List<String> = listOf()
   private val ROLE_READER_PERMS = listOf(PERM_READ)
   private val ROLE_WRITER_PERMS = listOf(PERM_READ, PERM_WRITE)
   private val ROLE_ADMIN_PERMS = listOf(PERM_ADMIN)
+  val CUSTOM_ADMIN_GROUP = "MyCustomAdminGroup"
+  val CUSTOM_USER_GROUP = "MyCustomUserGroup"
+  val CUSTOM_VIEWER_GROUP = "MyCustomViewerGroup"
 
   private val USER_READER_ROLE = ROLE_READER
   private val USER_WRITER_ROLE = ROLE_WRITER
@@ -82,6 +86,15 @@ class CsmRbacTests {
   lateinit var parentRbacSecurity: RbacSecurity
   lateinit var rbacSecurity: RbacSecurity
 
+  private val DEFAULT_IDENTITY_PROVIDER =
+      CsmPlatformProperties.CsmIdentityProvider(
+          "identityProviderCode",
+          authorizationUrl = "http://my-fake-authorization.url/autorize",
+          tokenUrl = "http://my-fake-token.url/token",
+          adminGroup = CUSTOM_ADMIN_GROUP,
+          userGroup = CUSTOM_USER_GROUP,
+          viewerGroup = CUSTOM_VIEWER_GROUP)
+
   @BeforeTest
   fun beforeEachTest() {
     logger.trace("Begin test")
@@ -89,6 +102,7 @@ class CsmRbacTests {
     every { csmPlatformProperties.rbac.enabled } answers { true }
     every { csmPlatformProperties.authorization.rolesJwtClaim } answers { "roles" }
     every { csmPlatformProperties.authorization.mailJwtClaim } answers { "upn" }
+    every { csmPlatformProperties.identityProvider } answers { DEFAULT_IDENTITY_PROVIDER }
     rolesDefinition =
         RolesDefinition(
             adminRole = ROLE_ADMIN,
@@ -159,6 +173,24 @@ class CsmRbacTests {
   fun `role Platform Admin OK`() {
     val userRoles = listOf(ROLE_PLATFORM_ADMIN)
     assertTrue(admin.verifyRolesAdmin(userRoles))
+  }
+
+  @Test
+  fun `Custom role Platform Admin OK`() {
+    val userRoles = listOf(CUSTOM_ADMIN_GROUP)
+    assertTrue(admin.verifyRolesAdmin(userRoles))
+  }
+
+  @Test
+  fun `Custom role and regular Platform Admin OK`() {
+    val userRoles = listOf(CUSTOM_ADMIN_GROUP, ROLE_PLATFORM_ADMIN)
+    assertTrue(admin.verifyRolesAdmin(userRoles))
+  }
+
+  @Test
+  fun `Custom role Platform Admin NOK`() {
+    val userRoles = listOf(CUSTOM_USER_GROUP, CUSTOM_VIEWER_GROUP)
+    assertFalse(admin.verifyRolesAdmin(userRoles))
   }
 
   @Test
