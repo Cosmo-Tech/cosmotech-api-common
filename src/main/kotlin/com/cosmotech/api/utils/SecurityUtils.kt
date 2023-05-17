@@ -20,53 +20,28 @@ fun getCurrentAuthenticatedUserName() =
         ?: throw IllegalStateException("User Authentication not found in Security Context")
 
 fun getCurrentAuthenticatedIssuer(): String {
-  if (getCurrentAuthentication() == null) {
-    throw IllegalStateException("User Authentication not found in Security Context")
-  }
-
-  val authentication = getCurrentAuthentication()
-
-  if (authentication is JwtAuthenticationToken) {
-    return authentication.token.tokenValue.let { JWTParser.parse(it).jwtClaimsSet.issuer }
-  }
-
-  return (authentication as BearerTokenAuthentication).token.tokenValue.let {
-    JWTParser.parse(it).jwtClaimsSet.issuer
-  }
+  return getValueFromAuthenticatedToken() { JWTParser.parse(it).jwtClaimsSet.issuer }
 }
 
 fun getCurrentAuthenticatedMail(configuration: CsmPlatformProperties): String {
-  if (getCurrentAuthentication() == null) {
-    throw IllegalStateException("User Authentication not found in Security Context")
-  }
-
-  val authentication = getCurrentAuthentication()
-
-  if (authentication is JwtAuthenticationToken) {
-    return authentication.token.tokenValue.let {
-      JWTParser.parse(it).jwtClaimsSet.getStringClaim(configuration.authorization.mailJwtClaim)
-    }
-  }
-
-  return (authentication as BearerTokenAuthentication).token.tokenValue.let {
+  return getValueFromAuthenticatedToken() {
     JWTParser.parse(it).jwtClaimsSet.getStringClaim(configuration.authorization.mailJwtClaim)
   }
 }
 
 fun getCurrentAuthenticatedRoles(configuration: CsmPlatformProperties): List<String> {
+  return getValueFromAuthenticatedToken() {
+    JWTParser.parse(it).jwtClaimsSet.getStringListClaim(configuration.authorization.rolesJwtClaim)
+  }
+}
+
+fun <T> getValueFromAuthenticatedToken(actionLambda: (String) -> T): T {
   if (getCurrentAuthentication() == null) {
     throw IllegalStateException("User Authentication not found in Security Context")
   }
-
   val authentication = getCurrentAuthentication()
-
   if (authentication is JwtAuthenticationToken) {
-    return authentication.token.tokenValue.let {
-      JWTParser.parse(it).jwtClaimsSet.getStringListClaim(configuration.authorization.rolesJwtClaim)
-    }
+    return authentication.token.tokenValue.let { actionLambda(it) }
   }
-
-  return (authentication as BearerTokenAuthentication).token.tokenValue.let {
-    JWTParser.parse(it).jwtClaimsSet.getStringListClaim(configuration.authorization.rolesJwtClaim)
-  }
+  return (authentication as BearerTokenAuthentication).token.tokenValue.let { actionLambda(it) }
 }
