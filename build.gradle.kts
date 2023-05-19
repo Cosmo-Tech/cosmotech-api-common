@@ -7,7 +7,7 @@ plugins {
   val kotlinVersion = "1.8.0"
   kotlin("jvm") version kotlinVersion
   id("com.diffplug.spotless") version "6.12.0"
-  id("org.springframework.boot") version "2.7.11" apply false
+  id("org.springframework.boot") version "3.1.0" apply false
   id("io.gitlab.arturbosch.detekt") version "1.22.0"
   id("pl.allegro.tech.build.axion-release") version "1.14.3"
   id("org.jetbrains.kotlinx.kover") version "0.6.1"
