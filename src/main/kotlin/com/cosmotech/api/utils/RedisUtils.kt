@@ -3,6 +3,8 @@
 package com.cosmotech.api.utils
 
 import java.nio.charset.StandardCharsets
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import org.springframework.data.domain.PageRequest
 
 const val BULK_QUERY_KEY = "bulkQuery"
@@ -42,4 +44,10 @@ fun bulkQueryKey(graphId: String, query: String, version: String): Pair<ByteArra
 
 fun bulkQueryKey(bulkQueryHash: String): ByteArray {
   return "$BULK_QUERY_KEY:$bulkQueryHash".toByteArray(StandardCharsets.UTF_8)
+}
+
+fun getDateNow(pattern: String = "yyyy/MM/dd - HH:mm:ss"): String {
+  val current = LocalDateTime.now()
+  val formatter = DateTimeFormatter.ofPattern(pattern)
+  return current.format(formatter)
 }

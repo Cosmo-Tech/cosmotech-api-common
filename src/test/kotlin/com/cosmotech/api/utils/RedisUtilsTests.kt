@@ -2,6 +2,8 @@
 // Licensed under the MIT license.
 package com.cosmotech.api.utils
 
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import org.springframework.data.domain.PageRequest
@@ -42,5 +44,11 @@ class RedisUtilsTests {
       val actual = findAllPaginated(maxResult, findAllLambda)
       assertEquals(15, actual.size)
     }
+  }
+
+  @Test
+  fun `getDateNow - should check time pattern`() {
+    val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
+    assertEquals(LocalDate.now().format(formatter), getDateNow("yyyy/MM/dd"))
   }
 }
