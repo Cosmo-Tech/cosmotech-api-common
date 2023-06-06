@@ -17,6 +17,7 @@ import org.springframework.boot.env.EnvironmentPostProcessor
 import org.springframework.context.annotation.AdviceMode
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.EnableAspectJAutoProxy
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.core.env.ConfigurableEnvironment
@@ -29,6 +30,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 @Configuration
 @ConfigurationPropertiesScan(basePackages = ["com.cosmotech"])
 @EnableAsync(mode = AdviceMode.PROXY, proxyTargetClass = true)
+@EnableAspectJAutoProxy
 open class CsmApiConfiguration {
 
   @Bean(name = ["csm-in-process-event-executor"])
