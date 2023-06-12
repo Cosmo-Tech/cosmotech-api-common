@@ -46,7 +46,7 @@ fun bulkQueryKey(bulkQueryHash: String): ByteArray {
   return "$BULK_QUERY_KEY:$bulkQueryHash".toByteArray(StandardCharsets.UTF_8)
 }
 
-fun getDateNow(pattern: String = "yyyy/MM/dd - HH:mm:ss"): String {
+fun getLocalDateNow(pattern: String = "yyyy/MM/dd - HH:mm:ss"): String {
   val current = LocalDateTime.now()
   val formatter = DateTimeFormatter.ofPattern(pattern)
   return current.format(formatter)
