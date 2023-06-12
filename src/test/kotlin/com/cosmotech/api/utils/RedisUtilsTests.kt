@@ -49,6 +49,6 @@ class RedisUtilsTests {
   @Test
   fun `getDateNow - should check time pattern`() {
     val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
-    assertEquals(LocalDate.now().format(formatter), getDateNow("yyyy/MM/dd"))
+    assertEquals(LocalDate.now().format(formatter), getLocalDateNow(("yyyy/MM/dd")))
   }
 }
