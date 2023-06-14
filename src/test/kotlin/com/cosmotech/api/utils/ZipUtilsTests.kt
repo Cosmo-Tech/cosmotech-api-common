@@ -29,24 +29,16 @@ class ZipUtilsTests {
   }
 
   @Test
-  fun `ZipInputStream toInputStream - should check non-empty List`() {
-    val fileName = this::class.java.getResource("/test.zip")?.file
-    val file = File(fileName)
-    val actual = ZipInputStream(file.inputStream()).toInputStream()
-    Arrays.equals(file.readBytes(), actual.readAllBytes())
-  }
-
-  @Test
   fun `unzip - should check empty List`() {
-    val actual = unzip(ByteArrayInputStream(ByteArray(10)), "test", ".json")
+    val actual = unzip(ByteArrayInputStream(ByteArray(10)), listOf("test"), ".json")
     assertEquals(emptyList(), actual)
   }
 
   @Test
   fun `unzip - should check non-empty List`() {
-    val fileName = this::class.java.getResource("/test.zip")?.file
+    val fileName = this::class.java.getResource("/test.zip")?.file!!
     val file = File(fileName)
-    val actual = unzip(file.inputStream(), "file", ".csv")
-    assertEquals(2, actual.size)
+    val actual = unzip(file.inputStream(), listOf("nodes", "edges"), ".csv")
+    assertEquals(3, actual.size)
   }
 }

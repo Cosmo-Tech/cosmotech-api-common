@@ -44,13 +44,13 @@ fun String.toRedisMetaDataKey() = "${this}MetaData"
 fun String.formatQuery(map: Map<String, String>): String {
   var newValue = this
   map.forEach { (key, value) ->
-    var sanitizedValue =
+    val sanitizedValue =
         if (value.isNullOrBlank()) {
           "null"
         } else {
           "\"${value.replace("\"","\\\"")}\""
         }
-    newValue = newValue.replace("$$key", sanitizedValue)
+    newValue = newValue.replace("$${key.trim()}", sanitizedValue)
   }
   return newValue
 }
