@@ -37,6 +37,8 @@ const val ROLE_SOLUTION_READER = "Solution.Reader"
 const val ROLE_SOLUTION_WRITER = "Solution.Writer"
 const val ROLE_WORKSPACE_READER = "Workspace.Reader"
 const val ROLE_WORKSPACE_WRITER = "Workspace.Writer"
+const val ROLE_TWIN_GRAPH_READER = "Twingraph.Reader"
+const val ROLE_TWIN_GRAPH_WRITER = "Twingraph.Writer"
 
 // Allowed read scopes
 const val SCOPE_CONNECTOR_READ = "SCOPE_csm.connector.read"
@@ -46,6 +48,7 @@ const val SCOPE_SOLUTION_READ = "SCOPE_csm.solution.read"
 const val SCOPE_WORKSPACE_READ = "SCOPE_csm.workspace.read"
 const val SCOPE_SCENARIO_READ = "SCOPE_csm.scenario.read"
 const val SCOPE_SCENARIORUN_READ = "SCOPE_csm.scenariorun.read"
+const val SCOPE_TWIN_GRAPH_READ = "SCOPE_csm.twingraph.read"
 
 // Allowed write scopes
 const val SCOPE_CONNECTOR_WRITE = "SCOPE_csm.connector.write"
@@ -55,6 +58,7 @@ const val SCOPE_SOLUTION_WRITE = "SCOPE_csm.solution.write"
 const val SCOPE_WORKSPACE_WRITE = "SCOPE_csm.workspace.write"
 const val SCOPE_SCENARIO_WRITE = "SCOPE_csm.scenario.write"
 const val SCOPE_SCENARIORUN_WRITE = "SCOPE_csm.scenariorun.write"
+const val SCOPE_TWIN_GRAPH_WRITE = "SCOPE_csm.twingraph.write"
 
 // Endpoints paths
 const val PATH_CONNECTORS = "/connectors"
@@ -107,6 +111,30 @@ const val PATH_WORKSPACES = "/organizations/*/workspaces"
 const val PATH_WORKSPACES_USERS = "/organizations/*/workspaces/*/users"
 val PATHS_WORKSPACES = listOf(PATH_WORKSPACES, PATH_WORKSPACES_USERS)
 const val PATH_WORKSPACES_FILES = "/organizations/*/workspaces/*/files"
+// Job
+const val PATH_JOB_STATUS = "/organizations/*/job/*/status"
+val PATHS_JOB = listOf(PATH_JOB_STATUS)
+// Twingraph
+const val PATH_TWIN_GRAPH_IMPORT = "/organizations/*/twingraph/import"
+const val PATH_TWIN_GRAPH = "/organizations/*/twingraph"
+const val PATH_TWIN_GRAPHS = "/organizations/*/twingraphs"
+const val PATH_TWIN_GRAPH_QUERY = "/organizations/*/twingraph/*/query"
+const val PATH_TWIN_GRAPH_BATCH_QUERY = "/organizations/*/twingraph/*/batch-query"
+const val PATH_TWIN_GRAPH_BULK_DOWNLOAD = "/organizations/*/twingraph/download"
+const val PATH_TWIN_GRAPH_ENTITY = "/organizations/*/twingraph/*/entity"
+const val PATH_TWIN_GRAPH_METADATA = "/organizations/*/twingraph/*/metadata"
+const val PATH_TWIN_GRAPH_BATCH_ACTIONS = "/organizations/*/twingraph/*/batch"
+val PATHS_TWIN_GRAPH =
+    listOf(
+        PATH_TWIN_GRAPH_IMPORT,
+        PATH_TWIN_GRAPH,
+        PATH_TWIN_GRAPHS,
+        PATH_TWIN_GRAPH_QUERY,
+        PATH_TWIN_GRAPH_BATCH_QUERY,
+        PATH_TWIN_GRAPH_BULK_DOWNLOAD,
+        PATH_TWIN_GRAPH_ENTITY,
+        PATH_TWIN_GRAPH_METADATA,
+        PATH_TWIN_GRAPH_BATCH_ACTIONS)
 
 // Endpoints roles
 val endpointSecurityPublic =
@@ -245,7 +273,38 @@ internal fun endpointSecurityReaders(
                     customOrganizationUser,
                     customOrganizationViewer),
             customAdmin = customOrganizationAdmin),
-    )
+        CsmSecurityEndpointsRolesReader(
+            paths = PATHS_TWIN_GRAPH,
+            roles =
+                arrayOf(
+                    ROLE_TWIN_GRAPH_READER,
+                    ROLE_TWIN_GRAPH_WRITER,
+                    ROLE_ORGANIZATION_ADMIN,
+                    ROLE_ORGANIZATION_COLLABORATOR,
+                    ROLE_ORGANIZATION_MODELER,
+                    ROLE_ORGANIZATION_USER,
+                    ROLE_ORGANIZATION_VIEWER,
+                    SCOPE_TWIN_GRAPH_READ,
+                    SCOPE_TWIN_GRAPH_WRITE,
+                    customOrganizationUser,
+                    customOrganizationViewer),
+            customAdmin = customOrganizationAdmin),
+        CsmSecurityEndpointsRolesReader(
+            paths = PATHS_JOB,
+            roles =
+                arrayOf(
+                    ROLE_TWIN_GRAPH_READER,
+                    ROLE_TWIN_GRAPH_WRITER,
+                    ROLE_ORGANIZATION_ADMIN,
+                    ROLE_ORGANIZATION_COLLABORATOR,
+                    ROLE_ORGANIZATION_MODELER,
+                    ROLE_ORGANIZATION_USER,
+                    ROLE_ORGANIZATION_VIEWER,
+                    SCOPE_TWIN_GRAPH_READ,
+                    SCOPE_TWIN_GRAPH_WRITE,
+                    customOrganizationUser,
+                    customOrganizationViewer),
+            customAdmin = customOrganizationAdmin))
 
 @Suppress("LongMethod")
 internal fun endpointSecurityWriters(
@@ -330,6 +389,16 @@ internal fun endpointSecurityWriters(
                     ROLE_ORGANIZATION_USER,
                     SCOPE_WORKSPACE_WRITE,
                     customOrganizationUser),
+            customAdmin = customOrganizationAdmin),
+        CsmSecurityEndpointsRolesWriter(
+            paths = PATHS_TWIN_GRAPH,
+            roles =
+                arrayOf(
+                    ROLE_TWIN_GRAPH_WRITER,
+                    ROLE_ORGANIZATION_ADMIN,
+                    ROLE_ORGANIZATION_COLLABORATOR,
+                    ROLE_ORGANIZATION_MODELER,
+                    SCOPE_TWIN_GRAPH_WRITE),
             customAdmin = customOrganizationAdmin),
     )
 
