@@ -209,6 +209,7 @@ dependencies {
   implementation("com.redis.om:redis-om-spring:${redisOMVersion}")
   implementation("com.redis.testcontainers:testcontainers-redis-junit:$testcontainersRedis")
   implementation("org.springframework.boot:spring-boot-starter-test")
+  implementation("org.springframework.boot:spring-boot-starter-webflux")
 
   testImplementation(kotlin("test"))
   testImplementation(platform("org.junit:junit-bom:${jUnitBomVersion}"))

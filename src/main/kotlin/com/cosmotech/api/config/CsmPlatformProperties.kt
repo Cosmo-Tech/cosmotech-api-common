@@ -74,6 +74,9 @@ data class CsmPlatformProperties(
 
     /** Persistent metrics configuration */
     val metrics: Metrics = Metrics(),
+
+    /** Loki Service */
+    val loki: Loki?,
 ) {
 
   data class Metrics(
@@ -131,6 +134,7 @@ data class CsmPlatformProperties(
       val imageVersion: String = "latest",
   )
 
+  data class Loki(val baseUrl: String, val queryDaysAgo: Long)
   data class Argo(
       /** Argo service base Uri */
       val baseUri: String,
