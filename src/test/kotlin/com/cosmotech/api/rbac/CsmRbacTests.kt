@@ -184,8 +184,7 @@ class CsmRbacTests {
                 RbacAccessControl(USER_NONE, USER_NONE_ROLE),
                 RbacAccessControl(USER_ADMIN, USER_ADMIN_ROLE),
                 RbacAccessControl(USER_MAIL_TOKEN, USER_READER_ROLE),
-                RbacAccessControl(APP_REG_ID, ROLE_USER)
-            ))
+                RbacAccessControl(APP_REG_ID, ROLE_USER)))
 
     initAuthenticationContextForTest()
 
@@ -406,11 +405,7 @@ class CsmRbacTests {
 
   @Test
   fun `remove new reader user and verify read permission KO with default none`() {
-    rbacSecurity =
-      RbacSecurity(
-        COMPONENT_ID,
-        ROLE_NONE,
-        mutableListOf())
+    rbacSecurity = RbacSecurity(COMPONENT_ID, ROLE_NONE, mutableListOf())
 
     rbac.setUserRole(rbacSecurity, USER_NEW_READER, USER_READER_ROLE, rolesDefinition)
     rbac.removeUser(rbacSecurity, USER_NEW_READER, rolesDefinition)
@@ -419,11 +414,7 @@ class CsmRbacTests {
 
   @Test
   fun `remove new reader user and verify read permission OK with default reader`() {
-    rbacSecurity =
-      RbacSecurity(
-        COMPONENT_ID,
-        ROLE_READER,
-        mutableListOf())
+    rbacSecurity = RbacSecurity(COMPONENT_ID, ROLE_READER, mutableListOf())
 
     rbac.setUserRole(rbacSecurity, USER_NEW_READER, USER_READER_ROLE, rolesDefinition)
     rbac.removeUser(rbacSecurity, USER_NEW_READER, rolesDefinition)
@@ -432,11 +423,7 @@ class CsmRbacTests {
 
   @Test
   fun `remove new reader user and verify read permission OK with default admin`() {
-    rbacSecurity =
-      RbacSecurity(
-        COMPONENT_ID,
-        ROLE_ADMIN,
-        mutableListOf())
+    rbacSecurity = RbacSecurity(COMPONENT_ID, ROLE_ADMIN, mutableListOf())
 
     rbac.setUserRole(rbacSecurity, USER_NEW_READER, USER_READER_ROLE, rolesDefinition)
     rbac.removeUser(rbacSecurity, USER_NEW_READER, rolesDefinition)
@@ -570,7 +557,8 @@ class CsmRbacTests {
   @Test
   fun `owner with PLATFORM USER token not admin with rbac`() {
     every { securityContext.authentication } returns (ownerAuthentication as Authentication)
-    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns listOf("Organization.User")
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf("Organization.User")
     every { getCurrentAccountIdentifier(csmPlatformProperties) } returns USER_NONE
     assertFalse(rbac.isAdmin(rbacSecurity, rolesDefinition))
   }
@@ -876,7 +864,8 @@ class CsmRbacTests {
   @Test
   fun `app reg can be reader`() {
     every { securityContext.authentication } returns (applicationAuthentication as Authentication)
-    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns listOf("Organization.User")
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf("Organization.User")
     every { getCurrentAccountIdentifier(csmPlatformProperties) } returns APP_REG_ID
     assertTrue(rbac.check(rbacSecurity, PERMISSION_READ))
   }
@@ -892,34 +881,32 @@ class CsmRbacTests {
   @Test
   fun `app reg can be admin with default admin`() {
     every { securityContext.authentication } returns (applicationAuthentication as Authentication)
-    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns listOf("Organization.User")
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf("Organization.User")
     every { getCurrentAccountIdentifier(csmPlatformProperties) } returns APP_REG_ID
-    val emptyRbacSecuWithDefaultAdmin = RbacSecurity(
-        COMPONENT_ID,
-        ROLE_ADMIN,
-        mutableListOf()
-      )
+    val emptyRbacSecuWithDefaultAdmin = RbacSecurity(COMPONENT_ID, ROLE_ADMIN, mutableListOf())
     assertTrue(rbac.isAdmin(emptyRbacSecuWithDefaultAdmin, getCommonRolesDefinition()))
   }
 
   @Test
   fun `app reg can be admin with ACL admin`() {
     every { securityContext.authentication } returns (applicationAuthentication as Authentication)
-    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns listOf("Organization.User")
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf("Organization.User")
     every { getCurrentAccountIdentifier(csmPlatformProperties) } returns APP_REG_ID
-    val emptyRbacSecuWithDefaultNone = RbacSecurity(
-        COMPONENT_ID,
-        ROLE_NONE,
-        mutableListOf(RbacAccessControl(APP_REG_ID, ROLE_ADMIN))
-      )
+    val emptyRbacSecuWithDefaultNone =
+        RbacSecurity(
+            COMPONENT_ID, ROLE_NONE, mutableListOf(RbacAccessControl(APP_REG_ID, ROLE_ADMIN)))
     assertTrue(rbac.isAdmin(emptyRbacSecuWithDefaultNone, getCommonRolesDefinition()))
   }
 
   @Test
   fun `verifyRbac for app_reg`() {
     every { securityContext.authentication } returns (applicationAuthentication as Authentication)
-    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns listOf("Organization.User")
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf("Organization.User")
     every { getCurrentAccountIdentifier(csmPlatformProperties) } returns APP_REG_ID
-    assertTrue(rbac.verifyRbac(rbacSecurity, PERMISSION_READ, getCommonRolesDefinition(), APP_REG_ID))
+    assertTrue(
+        rbac.verifyRbac(rbacSecurity, PERMISSION_READ, getCommonRolesDefinition(), APP_REG_ID))
   }
 }
