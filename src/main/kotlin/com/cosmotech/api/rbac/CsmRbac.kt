@@ -8,7 +8,7 @@ import com.cosmotech.api.exceptions.CsmClientException
 import com.cosmotech.api.exceptions.CsmResourceNotFoundException
 import com.cosmotech.api.rbac.model.RbacAccessControl
 import com.cosmotech.api.rbac.model.RbacSecurity
-import com.cosmotech.api.utils.getCurrentAuthenticatedMail
+import com.cosmotech.api.utils.getCurrentAccountIdentifier
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -44,7 +44,7 @@ open class CsmRbac(
     }
     var userIsAdminOrHasPermission = this.isAdmin(rbacSecurity, rolesDefinition)
     if (!userIsAdminOrHasPermission) {
-      val user = getCurrentAuthenticatedMail(this.csmPlatformProperties)
+      val user = getCurrentAccountIdentifier(this.csmPlatformProperties)
       userIsAdminOrHasPermission = this.verifyRbac(rbacSecurity, permission, rolesDefinition, user)
     }
     return userIsAdminOrHasPermission
@@ -145,7 +145,7 @@ open class CsmRbac(
   fun isAdmin(rbacSecurity: RbacSecurity, rolesDefinition: RolesDefinition): Boolean {
     var isAdmin = this.isAdminToken(rbacSecurity)
     if (!isAdmin) {
-      val user = getCurrentAuthenticatedMail(this.csmPlatformProperties)
+      val user = getCurrentAccountIdentifier(this.csmPlatformProperties)
       isAdmin = this.verifyAdminRole(rbacSecurity, user, rolesDefinition)
     }
     return isAdmin
@@ -214,8 +214,8 @@ open class CsmRbac(
     return rolesDefinition[role] ?: listOf()
   }
 
-  internal fun getUserRole(rbacSecurity: RbacSecurity, user: String): String? {
-    return rbacSecurity.accessControlList.firstOrNull { it.id == user }?.role
+  internal fun getUserRole(rbacSecurity: RbacSecurity, user: String): String {
+    return rbacSecurity.accessControlList.firstOrNull { it.id == user }?.role ?: rbacSecurity.default
   }
 
   internal fun getAdminCount(rbacSecurity: RbacSecurity, rolesDefinition: RolesDefinition): Int {
