@@ -98,6 +98,9 @@ data class CsmPlatformProperties(
       /** The JWT Claim where the roles information is stored */
       val rolesJwtClaim: String = "roles",
 
+      /** The JWT Claim used to define application id in ACL */
+      val applicationIdJwtClaim: String = "oid",
+
       /**
        * List of additional tenants allowed to register, besides the configured
        * `csm.platform.azure.credentials.tenantId`

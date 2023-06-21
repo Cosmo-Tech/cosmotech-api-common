@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 package com.cosmotech.api.metrics
 
+import com.cosmotech.api.config.CsmPlatformProperties
 import com.cosmotech.api.events.CsmEventPublisher
 import com.cosmotech.api.events.PersistentMetricEvent
 import com.cosmotech.api.utils.getCurrentAuthenticatedIssuer
@@ -25,6 +26,7 @@ private const val SERVICE_NAME = "API"
 class MonitorServiceAspect(
     private var meterRegistry: MeterRegistry,
     private val eventPublisher: CsmEventPublisher,
+    private val csmPlatformProperties: CsmPlatformProperties
 ) {
   private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
@@ -55,10 +57,10 @@ class MonitorServiceAspect(
           Tag.of(parameterNames[idx], args[idx] as String)
         }
     val name = signature.name
-    val user = getCurrentAuthenticatedUserName()
+    val user = getCurrentAuthenticatedUserName(csmPlatformProperties)
     var issuer = getCurrentAuthenticatedIssuer()
     Counter.builder("cosmotech.$name")
-        .description("$name")
+        .description(name)
         .tag("method", name)
         .tag("user", user)
         .tag("issuer", issuer)

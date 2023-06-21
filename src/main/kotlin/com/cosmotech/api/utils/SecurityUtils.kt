@@ -13,24 +13,29 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 
 fun getCurrentAuthentication(): Authentication? = SecurityContextHolder.getContext().authentication
 
-fun getCurrentUserName(): String? = getCurrentAuthentication()?.name
-
-fun getCurrentAuthenticatedUserName() =
-    getCurrentUserName()
+fun getCurrentAuthenticatedUserName(configuration: CsmPlatformProperties): String {
+  return getValueFromAuthenticatedToken {
+    val jwtClaimsSet = JWTParser.parse(it).jwtClaimsSet
+    jwtClaimsSet.getStringClaim("name")
+        ?: jwtClaimsSet.getStringClaim(configuration.authorization.applicationIdJwtClaim)
         ?: throw IllegalStateException("User Authentication not found in Security Context")
-
-fun getCurrentAuthenticatedIssuer(): String {
-  return getValueFromAuthenticatedToken() { JWTParser.parse(it).jwtClaimsSet.issuer }
+  }
 }
 
-fun getCurrentAuthenticatedMail(configuration: CsmPlatformProperties): String {
-  return getValueFromAuthenticatedToken() {
-    JWTParser.parse(it).jwtClaimsSet.getStringClaim(configuration.authorization.mailJwtClaim)
+fun getCurrentAuthenticatedIssuer(): String {
+  return getValueFromAuthenticatedToken { JWTParser.parse(it).jwtClaimsSet.issuer }
+}
+
+fun getCurrentAccountIdentifier(configuration: CsmPlatformProperties): String {
+  return getValueFromAuthenticatedToken {
+    val jwtClaimsSet = JWTParser.parse(it).jwtClaimsSet
+    jwtClaimsSet.getStringClaim(configuration.authorization.mailJwtClaim)
+        ?: jwtClaimsSet.getStringClaim(configuration.authorization.applicationIdJwtClaim)
   }
 }
 
 fun getCurrentAuthenticatedRoles(configuration: CsmPlatformProperties): List<String> {
-  return getValueFromAuthenticatedToken() {
+  return getValueFromAuthenticatedToken {
     JWTParser.parse(it).jwtClaimsSet.getStringListClaim(configuration.authorization.rolesJwtClaim)
   }
 }
