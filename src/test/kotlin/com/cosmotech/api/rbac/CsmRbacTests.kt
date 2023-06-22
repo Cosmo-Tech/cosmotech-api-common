@@ -10,8 +10,7 @@ import com.cosmotech.api.rbac.model.RbacAccessControl
 import com.cosmotech.api.rbac.model.RbacSecurity
 import com.cosmotech.api.security.ROLE_ORGANIZATION_USER
 import com.cosmotech.api.security.ROLE_PLATFORM_ADMIN
-import com.cosmotech.api.utils.getCurrentAccountIdentifier
-import com.cosmotech.api.utils.getCurrentAuthenticatedRoles
+import com.cosmotech.api.utils.*
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -24,58 +23,8 @@ import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication
-
-const val ADMIN_TOKEN =
-    "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSIsImtpZCI6IjJaUXBKM1" +
-        "VwYmpBWVhZR2FYRUpsOGxWMFRPSSJ9.eyJhdWQiOiJodHRwOi8vZGV2LmFwaS5jb3Ntb3RlY2guY29tIiwiaXNzIjoiaHR0cHM6" +
-        "Ly9zdHMud2luZG93cy5uZXQvZTQxM2I4MzQtOGJlOC00ODIyLWEzNzAtYmU2MTk1NDVjYjQ5LyIsImlhdCI6MTY1OTUyNjEzNCw" +
-        "ibmJmIjoxNjU5NTI2MTM0LCJleHAiOjE2NTk1MzE3OTUsImFjciI6IjEiLCJhaW8iOiJFMlpnWUhEc3k5K2I5bzNWaUR0Qm5wZG5" +
-        "Bc3V2NHllUGRqak4xdForb0d4MDJVVHRyamtBIiwiYW1yIjpbInB3ZCJdLCJhcHBpZCI6IjVlOTk4MzViLTRjY2QtNGMxNi04NGM" +
-        "3LWU5Nzk2YmUxMDc3MiIsImFwcGlkYWNyIjoiMCIsImZhbWlseV9uYW1lIjoiQ2FybHVlciIsImdpdmVuX25hbWUiOiJWaW5jZW5" +
-        "0IiwiaXBhZGRyIjoiODAuMTE5LjExOS4yNDQiLCJuYW1lIjoiVmluY2VudCBDYXJsdWVyIiwib2lkIjoiM2E4Njk5MDUtZTlmNS00" +
-        "ODUxLWE3YTktMzA3OWFhZDQ5ZGZmIiwicmgiOiIwLkFURUFOTGdUNU9pTElraWpjTDVobFVYTFNSblYtX1pUbW10TXFydEpHYnN0R" +
-        "WI0eEFMVS4iLCJyb2xlcyI6WyJQbGF0Zm9ybS5BZG1pbiJdLCJzY3AiOiJwbGF0Zm9ybSIsInN1YiI6IkgyVTllWDBSLUtHS0lqeDd" +
-        "Mb1ZEd3ZUVnF4TU9PekZyYWVlUkpiR0NHVm8iLCJ0aWQiOiJlNDEzYjgzNC04YmU4LTQ4MjItYTM3MC1iZTYxOTU0NWNiNDkiLCJ1b" +
-        "mlxdWVfbmFtZSI6InZpbmNlbnQuY2FybHVlckBjb3Ntb3RlY2guY29tIiwidXBuIjoidmluY2VudC5jYXJsdWVyQGNvc21vdGVjaC5j" +
-        "b20iLCJ1dGkiOiJZXzU5MVV1dG1FYWFRckJPcUpWTUFBIiwidmVyIjoiMS4wIn0.ozHgi5e4wDKliSejryxBhETAGpA-v2M5LUIyu4Kv" +
-        "zWOZ_wJLlNx5vOIdUdhY2TyIFykow6g8UXQ98KfrV-WjKLbFYvRPaIyg-HUgTkOfoOdzvo-q9lcKJRgo00y-hTJBof4CIBCpz9Y1CkQU" +
-        "5YxGiDXF7XRC3XVW1h7msN_5mRyE36orqKaBGCtQTDa9OI23XiF7Q4EhkU_XKXCvdjTAMaiEgI1I3cFda8LSa2BUpZibieO7_0glcRIWi" +
-        "f_gTS1Hp5xVVQ-Ho_ZUV1WtZuE0orwPcQuvZYeEDs_hXuG1pLBPUXKzFzbUJzx-UZ6_0Uc3K5OFIgdS2as1Cg1urCzFXA"
-
-const val USER_TOKEN =
-    "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSIsImtpZCI6IjJaUXBKM1" +
-        "VwYmpBWVhZR2FYRUpsOGxWMFRPSSJ9.eyJhdWQiOiJodHRwOi8vZGV2LmFwaS5jb3Ntb3RlY2guY29tIiwiaXNzIjoiaHR0cHM6" +
-        "Ly9zdHMud2luZG93cy5uZXQvZTQxM2I4MzQtOGJlOC00ODIyLWEzNzAtYmU2MTk1NDVjYjQ5LyIsImlhdCI6MTY1OTUyNjcxMSwi" +
-        "bmJmIjoxNjU5NTI2NzExLCJleHAiOjE2NTk1MzIwNzUsImFjciI6IjEiLCJhaW8iOiJBU1FBMi84VEFBQUFqRzY4cEwrUGI4dER5" +
-        "bnJSejMzOURoRkxqWFcrdnpJZ3V0NlR0UXFrM1I4PSIsImFtciI6WyJwd2QiXSwiYXBwaWQiOiI1ZTk5ODM1Yi00Y2NkLTRjMTYtO" +
-        "DRjNy1lOTc5NmJlMTA3NzIiLCJhcHBpZGFjciI6IjAiLCJmYW1pbHlfbmFtZSI6IkNhcmx1ZXIiLCJnaXZlbl9uYW1lIjoiVmluY2V" +
-        "udCIsImlwYWRkciI6IjgwLjExOS4xMTkuMjQ0IiwibmFtZSI6IlZpbmNlbnQgQ2FybHVlciIsIm9pZCI6IjNhODY5OTA1LWU5ZjUtND" +
-        "g1MS1hN2E5LTMwNzlhYWQ0OWRmZiIsInJoIjoiMC5BVEVBTkxnVDVPaUxJa2lqY0w1aGxVWExTUm5WLV9aVG1tdE1xcnRKR2JzdEViNH" +
-        "hBTFUuIiwicm9sZXMiOlsiT3JnYW5pemF0aW9uLlVzZXIiXSwic2NwIjoicGxhdGZvcm0iLCJzdWIiOiJIMlU5ZVgwUi1LR0tJang3TG9" +
-        "WRHd2VFZxeE1PT3pGcmFlZVJKYkdDR1ZvIiwidGlkIjoiZTQxM2I4MzQtOGJlOC00ODIyLWEzNzAtYmU2MTk1NDVjYjQ5IiwidW5pcXVlX" +
-        "25hbWUiOiJ2aW5jZW50LmNhcmx1ZXJAY29zbW90ZWNoLmNvbSIsInVwbiI6InZpbmNlbnQuY2FybHVlckBjb3Ntb3RlY2guY29tIiwidX" +
-        "RpIjoicERBd2FnZDI4VUdqLVlhSk9FaGVBQSIsInZlciI6IjEuMCJ9.j5g7hHcusxnftE-1GDceKBgDpeeCijsL4KoUAPNOb5dd2H-pN0" +
-        "-p7za5xbvZscH_Tw5YF8rY5b_MeqMa-6qJQZhG4tUpRml92qIIjzuvF-v3JkVhpUVqE34MAfRMfp8NMR-ATY-XMZ_HekpD_aH0SDWQzoe" +
-        "SlvqhrzMnJ6l4G4v5kSwMeP8MgNxu8TGElPS65PP-639IguHvsgtaaiAJOjHbZ4jQtZdDm34IEpSzJj6eBIxkPv3ADn06A4bbQm63owUKZF" +
-        "RmnKuQIESzHCdI-3jAz-YH-gGbquD-dGUxKTsmi80rsYNsZZg1Nb_lHeSLaTdiJ8NNZkl1WAOUVALglQ"
-
-const val APP_REG_TOKEN =
-    "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ii1LSTNROW5OUjdiUm9meG1lWm9YcWJIWkdldyJ9.eyJhdWQiOiJmNmZiZDUxOS05Y" +
-        "TUzLTRjNmItYWFiYi00OTE5YmIyZDExYmUiLCJpc3MiOiJodHRwczovL2xvZ2luLm1pY3Jvc29mdG9ubGluZS5jb20vZTQxM2I4MzQtO" +
-        "GJlOC00ODIyLWEzNzAtYmU2MTk1NDVjYjQ5L3YyLjAiLCJpYXQiOjE2ODY5MjE5MjMsIm5iZiI6MTY4NjkyMTkyMywiZXhwIjoxNjg2OTI1O" +
-        "DIzLCJhaW8iOiJBU1FBMi84VEFBQUE3V2dKMUEzZnFubEVTTzJnZ0luR040S1ArNWlKVmdKajNmbjI1NmZZQW13PSIsImF6cCI6IjllNWQ" +
-        "wOGY0LWQ4ZGQtNDcxZi05Y2I2LWI0MmQwMjI3MTkxOSIsImF6cGFjciI6IjEiLCJvaWQiOiI5MzFiODE4OS0yMTU3LTQxMDItOWZlZ" +
-        "S0zYmMwNmE0NmQzYTgiLCJyaCI6IjAuQVRFQU5MZ1Q1T2lMSWtpamNMNWhsVVhMU1JuVi1fWlRtbXRNcXJ0Skdic3RFYjR4QU" +
-        "FBLiIsInJvbGVzIjpbIlBsYXRmb3JtLkFkbWluIl0sInN1YiI6IjkzMWI4MTg5LTIxNTctNDEwMi05ZmVlLTNiYzA2YTQ2ZDN" +
-        "hOCIsInRpZCI6ImU0MTNiODM0LThiZTgtNDgyMi1hMzcwLWJlNjE5NTQ1Y2I0OSIsInV0aSI6Im04Y3QySHdMOGtPSk9pd2dOa" +
-        "1FTQUEiLCJ2ZXIiOiIyLjAifQ.rtubBKyrFLSPWHA6jaBH1i2H1I3Aa8qnZ2xNWb8vtAcs7x0zycBbkqDKuMDIZx4cBBSoz61O" +
-        "9JNqmGEMq-BmZ9O9-Xj4dY1AQytZeV6aRl2CXpT_sFyb3sRGgrKhurrsUVHgEwjw3vk2lJ2XHinov2EKAVCdg7ulgVX9T" +
-        "_2pQ9GNwGOXzF96HU2J3otIAI85ozcEYHLDXCO8MJDl8jbJmCLqMHBMytuLT3RQqU38rJHg7afb-J0MJNUA2T7IX" +
-        "WTB8AftpAMMTf14QIXj5CK5hEsKh2EN6_3E1M1mhrAZj7xgFUOm1tMR2bVgKJ_Z4PnNa2OUgABotDchm9GbJzQ2Lg"
 
 const val PERM_READ = "readtestperm"
 const val PERM_WRITE = "writetestperm"
@@ -97,9 +46,7 @@ const val USER_MAIL_TOKEN = "vincent.carluer@cosmotech.com"
 
 const val USER_NEW_READER = "usertestnew@cosmotech.com"
 
-const val OWNER_ID = "3a869905-e9f5-4851-a7a9-3079aad49dfa"
 const val APP_REG_ID = "f6fbd519-9a53-4c6b-aabb-dfre52s16742"
-const val USER_ID = "2a869905-e9f5-4851-a7a9-3079aad49dfb"
 const val COMPONENT_ID = "component_id"
 
 @Suppress("LargeClass")
@@ -123,10 +70,6 @@ class CsmRbacTests {
   private lateinit var admin: CsmAdmin
   private lateinit var rbac: CsmRbac
   private lateinit var securityContext: SecurityContext
-  private lateinit var adminAuthentication: BearerTokenAuthentication
-  private lateinit var userAuthentication: BearerTokenAuthentication
-  private lateinit var ownerAuthentication: BearerTokenAuthentication
-  private lateinit var applicationAuthentication: BearerTokenAuthentication
 
   private lateinit var rolesDefinition: RolesDefinition
 
@@ -186,37 +129,16 @@ class CsmRbacTests {
                 RbacAccessControl(USER_MAIL_TOKEN, USER_READER_ROLE),
                 RbacAccessControl(APP_REG_ID, ROLE_USER)))
 
-    initAuthenticationContextForTest()
-
-    mockkStatic(::getCurrentAccountIdentifier)
-    every { getCurrentAccountIdentifier(csmPlatformProperties) } returns USER_NOTIN
-  }
-
-  private fun initAuthenticationContextForTest() {
     admin = CsmAdmin(csmPlatformProperties)
     rbac = CsmRbac(csmPlatformProperties, admin)
 
-    adminAuthentication = mockk<BearerTokenAuthentication>(relaxed = true)
-    every { adminAuthentication.name } answers { USER_ID }
-    every { adminAuthentication.token.tokenValue } answers { ADMIN_TOKEN }
-
-    userAuthentication = mockk<BearerTokenAuthentication>(relaxed = true)
-    every { userAuthentication.name } answers { USER_ID }
-    every { userAuthentication.token.tokenValue } answers { USER_TOKEN }
-
-    ownerAuthentication = mockk<BearerTokenAuthentication>(relaxed = true)
-    every { ownerAuthentication.name } answers { OWNER_ID }
-    every { ownerAuthentication.token.tokenValue } answers { USER_TOKEN }
-
-    applicationAuthentication = mockk<BearerTokenAuthentication>(relaxed = true)
-    every { applicationAuthentication.name } answers { APP_REG_ID }
-    every { applicationAuthentication.token.tokenValue } answers { APP_REG_TOKEN }
-
     securityContext = mockk<SecurityContext>(relaxed = true)
-    every { securityContext.authentication } returns (adminAuthentication as Authentication)
 
     mockkStatic("org.springframework.security.core.context.SecurityContextHolder")
     every { SecurityContextHolder.getContext() } returns securityContext
+
+    mockkStatic(::getCurrentAuthenticatedRoles)
+    every { getCurrentAccountIdentifier(csmPlatformProperties) } returns USER_NOTIN
   }
 
   @Test
@@ -269,12 +191,15 @@ class CsmRbacTests {
 
   @Test
   fun `current user role Admin OK`() {
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_PLATFORM_ADMIN)
     assertTrue(admin.verifyCurrentRolesAdmin())
   }
 
   @Test
   fun `current user role Admin KO`() {
-    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_ORGANIZATION_USER)
     assertFalse(admin.verifyCurrentRolesAdmin())
   }
 
@@ -378,7 +303,8 @@ class CsmRbacTests {
   @Test
   fun `should throw NotFoundException if user not in parent user list and not admin`() {
     every { getCurrentAccountIdentifier(csmPlatformProperties) } returns USER_NONE
-    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_ORGANIZATION_USER)
     assertThrows<CsmResourceNotFoundException> {
       rbac.addUserRole(
           parentRbacSecurity, rbacSecurity, USER_NOTIN, USER_READER_ROLE, rolesDefinition)
@@ -388,7 +314,8 @@ class CsmRbacTests {
   @Test
   fun `should add User if user in parent user list and not admin`() {
     every { getCurrentAccountIdentifier(csmPlatformProperties) } returns USER_NONE
-    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_ORGANIZATION_USER)
     val rbacSecurity =
         rbac.addUserRole(
             parentRbacSecurity, rbacSecurity, USER_IN_PARENT, USER_READER_ROLE, rolesDefinition)
@@ -397,6 +324,8 @@ class CsmRbacTests {
 
   @Test
   fun `should add User role if admin without checking parent RBAC`() {
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_PLATFORM_ADMIN)
     val rbacSecurity =
         rbac.addUserRole(
             parentRbacSecurity, rbacSecurity, USER_NOTIN, USER_READER_ROLE, rolesDefinition)
@@ -466,41 +395,47 @@ class CsmRbacTests {
 
   @Test
   fun `check admin user with PLATFORM USER token role write OK`() {
-    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_ORGANIZATION_USER)
     every { getCurrentAccountIdentifier(csmPlatformProperties) } returns USER_ADMIN
     assertTrue(rbac.check(rbacSecurity, PERM_WRITE, rolesDefinition))
   }
 
   @Test
   fun `check none user with PLATFORM ADMIN token role write OK`() {
-    every { getCurrentAccountIdentifier(csmPlatformProperties) } returns USER_NONE
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_PLATFORM_ADMIN)
     assertTrue(rbac.check(rbacSecurity, PERM_WRITE, rolesDefinition))
   }
 
   @Test
   fun `check writer user with PLATFORM USER token role write OK`() {
-    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_ORGANIZATION_USER)
     every { getCurrentAccountIdentifier(csmPlatformProperties) } returns USER_WRITER
     assertTrue(rbac.check(rbacSecurity, PERM_WRITE, rolesDefinition))
   }
 
   @Test
   fun `check none user with PLATFORM USER token role write KO`() {
-    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_ORGANIZATION_USER)
     every { getCurrentAccountIdentifier(csmPlatformProperties) } returns USER_NONE
     assertFalse(rbac.check(rbacSecurity, PERM_WRITE, rolesDefinition))
   }
 
   @Test
   fun `check reader user with PLATFORM USER token role write KO`() {
-    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_ORGANIZATION_USER)
     every { getCurrentAccountIdentifier(csmPlatformProperties) } returns USER_READER
     assertFalse(rbac.check(rbacSecurity, PERM_WRITE, rolesDefinition))
   }
 
   @Test
   fun `check return OK if rbac flag set to false`() {
-    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_ORGANIZATION_USER)
     every { csmPlatformProperties.rbac.enabled } answers { false }
     every { getCurrentAccountIdentifier(csmPlatformProperties) } returns USER_READER
     assertTrue(rbac.check(rbacSecurity, PERM_WRITE, rolesDefinition))
@@ -508,55 +443,63 @@ class CsmRbacTests {
 
   @Test
   fun `check return OK if rbac flag set to false for current user`() {
-    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_ORGANIZATION_USER)
     every { csmPlatformProperties.rbac.enabled } answers { false }
     assertTrue(rbac.check(rbacSecurity, PERM_WRITE, rolesDefinition))
   }
 
   @Test
   fun `check current user with PLATFORM USER token role read OK`() {
-    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_ORGANIZATION_USER)
     assertTrue(rbac.check(rbacSecurity, PERM_READ, rolesDefinition))
   }
 
   @Test
   fun `verify KO throw exception`() {
-    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_ORGANIZATION_USER)
+    every { getCurrentAccountIdentifier(csmPlatformProperties) } returns USER_READER
     assertThrows<CsmAccessForbiddenException> {
-      every { getCurrentAccountIdentifier(csmPlatformProperties) } returns USER_READER
       rbac.verify(rbacSecurity, PERM_WRITE, rolesDefinition)
     }
   }
 
   @Test
   fun `verify OK does not throw exception`() {
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_ORGANIZATION_USER)
     every { getCurrentAccountIdentifier(csmPlatformProperties) } returns USER_WRITER
     assertDoesNotThrow { rbac.verify(rbacSecurity, PERM_WRITE, rolesDefinition) }
   }
 
   @Test
   fun `verify KO current user throw exception`() {
-    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_ORGANIZATION_USER)
     assertThrows<CsmAccessForbiddenException> {
       rbac.verify(rbacSecurity, PERM_WRITE, rolesDefinition)
     }
   }
 
   @Test
-  fun `verify OK current user does not throw exception`() {
+  fun `verify OK organization user does not throw exception`() {
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_ORGANIZATION_USER)
     assertDoesNotThrow { rbac.verify(rbacSecurity, PERM_READ, rolesDefinition) }
   }
 
   @Test
   fun `verify return OK if rbac flag set to false`() {
     every { csmPlatformProperties.rbac.enabled } answers { false }
-    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_ORGANIZATION_USER)
     assertDoesNotThrow { rbac.verify(rbacSecurity, PERM_WRITE, rolesDefinition) }
   }
 
   @Test
   fun `owner with PLATFORM USER token not admin with rbac`() {
-    every { securityContext.authentication } returns (ownerAuthentication as Authentication)
     every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
         listOf("Organization.User")
     every { getCurrentAccountIdentifier(csmPlatformProperties) } returns USER_NONE
@@ -564,8 +507,9 @@ class CsmRbacTests {
   }
 
   @Test
-  fun `user with PLATFORM ADMIN token admin with rbac`() {
-    every { getCurrentAccountIdentifier(csmPlatformProperties) } returns USER_NONE
+  fun `user with PLATFORM ADMIN roles admin with rbac`() {
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_PLATFORM_ADMIN)
     assertTrue(rbac.isAdmin(rbacSecurity, rolesDefinition))
   }
 
@@ -576,33 +520,38 @@ class CsmRbacTests {
 
   @Test
   fun `user has admin role`() {
-    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_ORGANIZATION_USER)
     assertTrue(rbac.verifyAdminRole(rbacSecurity, USER_ADMIN, rolesDefinition))
   }
 
   @Test
   fun `user has not admin role`() {
-    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_ORGANIZATION_USER)
     assertFalse(rbac.verifyAdminRole(rbacSecurity, USER_READER, rolesDefinition))
   }
 
   @Test
   fun `readerRole is not admin`() {
-    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_ORGANIZATION_USER)
     every { getCurrentAccountIdentifier(csmPlatformProperties) } returns USER_READER
     assertFalse(rbac.isAdmin(rbacSecurity, rolesDefinition))
   }
 
   @Test
   fun `adminRole is admin`() {
-    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_ORGANIZATION_USER)
     every { getCurrentAccountIdentifier(csmPlatformProperties) } returns USER_ADMIN
     assertTrue(rbac.isAdmin(rbacSecurity, rolesDefinition))
   }
 
   @Test
-  fun `user with PLATFORM ADMIN token is admin`() {
-    every { getCurrentAccountIdentifier(csmPlatformProperties) } returns USER_ADMIN
+  fun `user with PLATFORM ADMIN is admin`() {
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_PLATFORM_ADMIN)
     assertTrue(rbac.isAdmin(rbacSecurity, rolesDefinition))
   }
 
@@ -722,7 +671,8 @@ class CsmRbacTests {
     definition.permissions.put(customRole, customRolePermissions)
     val rbacTest = CsmRbac(csmPlatformProperties, admin)
     rbacTest.setUserRole(rbacSecurity, USER_NEW_READER, customRole, definition)
-    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_ORGANIZATION_USER)
     every { getCurrentAccountIdentifier(csmPlatformProperties) } returns USER_NEW_READER
     assertTrue(rbacTest.check(rbacSecurity, customPermission, definition))
   }
@@ -733,7 +683,8 @@ class CsmRbacTests {
     val definition = getCommonRolesDefinition()
     val rbacTest = CsmRbac(csmPlatformProperties, admin)
     rbacTest.setUserRole(rbacSecurity, USER_READER, ROLE_VIEWER, definition)
-    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_ORGANIZATION_USER)
     every { getCurrentAccountIdentifier(csmPlatformProperties) } returns USER_READER
     assertTrue(rbacTest.check(rbacSecurity, PERMISSION_READ, definition))
   }
@@ -749,7 +700,8 @@ class CsmRbacTests {
             mutableListOf(
                 RbacAccessControl(USER_READER, ROLE_VIEWER),
             ))
-    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_ORGANIZATION_USER)
     every { getCurrentAccountIdentifier(csmPlatformProperties) } returns USER_READER
     assertTrue(rbacTest.check(rbacSecurity, PERMISSION_READ, definition))
   }
@@ -765,7 +717,8 @@ class CsmRbacTests {
             mutableListOf(
                 RbacAccessControl(USER_WRITER, ROLE_EDITOR),
             ))
-    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_ORGANIZATION_USER)
     every { getCurrentAccountIdentifier(csmPlatformProperties) } returns USER_READER
     assertTrue(rbacTest.check(rbacSecurity, PERMISSION_READ, definition))
   }
@@ -781,7 +734,8 @@ class CsmRbacTests {
             mutableListOf(
                 RbacAccessControl(USER_WRITER, ROLE_EDITOR),
             ))
-    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_ORGANIZATION_USER)
     every { getCurrentAccountIdentifier(csmPlatformProperties) } returns USER_READER
     assertFalse(rbacTest.check(rbacSecurity, PERMISSION_WRITE_SECURITY, definition))
   }
@@ -798,7 +752,8 @@ class CsmRbacTests {
                 RbacAccessControl(
                     getCurrentAccountIdentifier(csmPlatformProperties), definition.adminRole),
             ))
-    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_ORGANIZATION_USER)
     every { getCurrentAccountIdentifier(csmPlatformProperties) } returns USER_MAIL_TOKEN
     assertTrue(rbacTest.check(rbacSecurity, PERMISSION_READ_SECURITY, definition))
   }
@@ -814,7 +769,8 @@ class CsmRbacTests {
             mutableListOf(
                 RbacAccessControl(USER_WRITER, ROLE_EDITOR),
             ))
-    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_ORGANIZATION_USER)
     every { getCurrentAccountIdentifier(csmPlatformProperties) } returns USER_WRITER
     assertTrue(rbacTest.check(rbacSecurity, PERMISSION_WRITE, definition))
   }
@@ -830,7 +786,8 @@ class CsmRbacTests {
             mutableListOf(
                 RbacAccessControl(USER_MAIL_TOKEN, ROLE_EDITOR),
             ))
-    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_ORGANIZATION_USER)
     every { getCurrentAccountIdentifier(csmPlatformProperties) } returns USER_MAIL_TOKEN
     assertDoesNotThrow { rbacTest.verify(rbacSecurity, PERMISSION_WRITE, definition) }
   }
@@ -846,7 +803,8 @@ class CsmRbacTests {
             mutableListOf(
                 RbacAccessControl(USER_WRITER, ROLE_EDITOR),
             ))
-    every { securityContext.authentication } returns (userAuthentication as Authentication)
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_ORGANIZATION_USER)
     every { getCurrentAccountIdentifier(csmPlatformProperties) } returns USER_WRITER
     assertTrue(rbacTest.check(rbacSecurity, PERMISSION_WRITE, definition))
   }
@@ -863,26 +821,24 @@ class CsmRbacTests {
 
   @Test
   fun `app reg can be reader`() {
-    every { securityContext.authentication } returns (applicationAuthentication as Authentication)
     every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
-        listOf("Organization.User")
+        listOf(ROLE_ORGANIZATION_USER)
     every { getCurrentAccountIdentifier(csmPlatformProperties) } returns APP_REG_ID
     assertTrue(rbac.check(rbacSecurity, PERMISSION_READ))
   }
 
   @Test
   fun `app reg can be admin with Platform Admin`() {
-    every { securityContext.authentication } returns (applicationAuthentication as Authentication)
-    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns listOf("Platform.Admin")
+    every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
+        listOf(ROLE_PLATFORM_ADMIN)
     every { getCurrentAccountIdentifier(csmPlatformProperties) } returns APP_REG_ID
     assertTrue(rbac.isAdmin(rbacSecurity, getCommonRolesDefinition()))
   }
 
   @Test
   fun `app reg can be admin with default admin`() {
-    every { securityContext.authentication } returns (applicationAuthentication as Authentication)
     every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
-        listOf("Organization.User")
+        listOf(ROLE_ORGANIZATION_USER)
     every { getCurrentAccountIdentifier(csmPlatformProperties) } returns APP_REG_ID
     val emptyRbacSecuWithDefaultAdmin = RbacSecurity(COMPONENT_ID, ROLE_ADMIN, mutableListOf())
     assertTrue(rbac.isAdmin(emptyRbacSecuWithDefaultAdmin, getCommonRolesDefinition()))
@@ -890,9 +846,8 @@ class CsmRbacTests {
 
   @Test
   fun `app reg can be admin with ACL admin`() {
-    every { securityContext.authentication } returns (applicationAuthentication as Authentication)
     every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
-        listOf("Organization.User")
+        listOf(ROLE_ORGANIZATION_USER)
     every { getCurrentAccountIdentifier(csmPlatformProperties) } returns APP_REG_ID
     val emptyRbacSecuWithDefaultNone =
         RbacSecurity(
@@ -902,9 +857,8 @@ class CsmRbacTests {
 
   @Test
   fun `verifyRbac for app_reg`() {
-    every { securityContext.authentication } returns (applicationAuthentication as Authentication)
     every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
-        listOf("Organization.User")
+        listOf(ROLE_ORGANIZATION_USER)
     every { getCurrentAccountIdentifier(csmPlatformProperties) } returns APP_REG_ID
     assertTrue(
         rbac.verifyRbac(rbacSecurity, PERMISSION_READ, getCommonRolesDefinition(), APP_REG_ID))
