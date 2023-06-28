@@ -16,7 +16,7 @@ fun getCurrentAuthentication(): Authentication? = SecurityContextHolder.getConte
 fun getCurrentAuthenticatedUserName(configuration: CsmPlatformProperties): String {
   return getValueFromAuthenticatedToken {
     val jwtClaimsSet = JWTParser.parse(it).jwtClaimsSet
-    jwtClaimsSet.getStringClaim("name")
+    jwtClaimsSet.getStringClaim(configuration.authorization.principalJwtClaim)
         ?: jwtClaimsSet.getStringClaim(configuration.authorization.applicationIdJwtClaim)
             ?: throw IllegalStateException("User Authentication not found in Security Context")
   }
