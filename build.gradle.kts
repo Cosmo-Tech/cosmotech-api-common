@@ -1,13 +1,13 @@
 // Copyright (c) Cosmo Tech.
 // Licensed under the MIT license.
 import com.diffplug.gradle.spotless.SpotlessExtension
-import io.gitlab.arturbosch.detekt.Detekt
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import com.github.jk1.license.task.CheckLicenseTask
-import com.github.jk1.license.task.ReportTask
 import com.github.jk1.license.filter.LicenseBundleNormalizer
 import com.github.jk1.license.render.*
+import com.github.jk1.license.task.CheckLicenseTask
+import com.github.jk1.license.task.ReportTask
+import io.gitlab.arturbosch.detekt.Detekt
 import java.io.FileOutputStream
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
   val kotlinVersion = "1.8.0"
@@ -38,6 +38,7 @@ java { toolchain { languageVersion.set(JavaLanguageVersion.of(kotlinJvmTarget)) 
 var licenseReportDir = "$projectDir/doc/licenses"
 
 val configBuildDir = "$buildDir/config"
+
 mkdir(configBuildDir)
 
 fun downloadLicenseConfigFile(name: String): String {
@@ -46,19 +47,20 @@ fun downloadLicenseConfigFile(name: String): String {
   f.delete()
   val url = "https://raw.githubusercontent.com/Cosmo-Tech/cosmotech-license/main/config/$name"
   logger.info("Downloading license config file from $url to $localPath")
-  uri(url).toURL().openStream().use { it.copyTo(
-    FileOutputStream(f)
-  ) }
+  uri(url).toURL().openStream().use { it.copyTo(FileOutputStream(f)) }
   return localPath
 }
 
 val licenseNormalizerPath = downloadLicenseConfigFile("license-normalizer-bundle.json")
-val licenseAllowedPath = if (project.properties["useLocalLicenseAllowedFile"] == "true") {
-  "$projectDir/config/allowed-licenses.json"
-} else {
-  downloadLicenseConfigFile("allowed-licenses.json")
-}
+val licenseAllowedPath =
+    if (project.properties["useLocalLicenseAllowedFile"] == "true") {
+      "$projectDir/config/allowed-licenses.json"
+    } else {
+      downloadLicenseConfigFile("allowed-licenses.json")
+    }
+
 logger.info("Using licenses allowed file: $licenseAllowedPath")
+
 val licenseEmptyPath = downloadLicenseConfigFile("empty-dependencies-resume.json")
 // Plugin uses a generated report to check the licenses in a prepation task
 val hardCodedLicensesReportPath = "project-licenses-for-check-license-task.json"
@@ -66,7 +68,10 @@ val hardCodedLicensesReportPath = "project-licenses-for-check-license-task.json"
 licenseReport {
   outputDir = licenseReportDir
   allowedLicensesFile = file(licenseAllowedPath)
-  renderers = arrayOf<ReportRenderer>(InventoryHtmlReportRenderer("index.html"), JsonReportRenderer("project-licenses-for-check-license-task.json", false))
+  renderers =
+      arrayOf<ReportRenderer>(
+          InventoryHtmlReportRenderer("index.html"),
+          JsonReportRenderer("project-licenses-for-check-license-task.json", false))
   filters = arrayOf<LicenseBundleNormalizer>(LicenseBundleNormalizer(licenseNormalizerPath, true))
 }
 
@@ -277,8 +282,7 @@ kover {
 }
 
 // https://github.com/jk1/Gradle-License-Report/blob/master/README.md
-tasks.register<ReportTask>("generateLicenseDoc") {
-}
+tasks.register<ReportTask>("generateLicenseDoc") {}
 
 tasks.register<CheckLicenseTask>("validateLicense") {
   dependsOn("generateLicenseDoc")
@@ -296,15 +300,19 @@ tasks.withType<KotlinCompile> {
 }
 
 tasks.register("displayLicensesNotAllowed") {
-  val notAllowedFile = file(buildString {
-    append(licenseReportDir)
-    append("/dependencies-without-allowed-license.json")
-  })
+  val notAllowedFile =
+      file(
+          buildString {
+            append(licenseReportDir)
+            append("/dependencies-without-allowed-license.json")
+          })
   val dependenciesEmptyResumeTemplate = file(licenseEmptyPath)
-  if (notAllowedFile.exists() && (notAllowedFile.readText() != dependenciesEmptyResumeTemplate.readText())) {
+  if (notAllowedFile.exists() &&
+      (notAllowedFile.readText() != dependenciesEmptyResumeTemplate.readText())) {
     logger.warn("Licenses not allowed:")
     logger.warn(notAllowedFile.readText())
-    logger.warn("Please review licenses and add new license check rules in https://github.com/Cosmo-Tech/cosmotech-license")
+    logger.warn(
+        "Please review licenses and add new license check rules in https://github.com/Cosmo-Tech/cosmotech-license")
   }
 }
 
