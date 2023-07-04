@@ -7,7 +7,7 @@ plugins {
   val kotlinVersion = "1.8.0"
   kotlin("jvm") version kotlinVersion
   id("com.diffplug.spotless") version "6.12.0"
-  id("org.springframework.boot") version "2.7.11" apply false
+  id("org.springframework.boot") version "3.1.0" apply false
   id("io.gitlab.arturbosch.detekt") version "1.22.0"
   id("pl.allegro.tech.build.axion-release") version "1.14.3"
   id("org.jetbrains.kotlinx.kover") version "0.6.1"
@@ -147,14 +147,12 @@ val springBootStarterWebVersion = "2.7.0"
 val springDocVersion = "1.6.13"
 val springOauthVersion = "5.8.3"
 val zalandoSpringProblemVersion = "0.27.0"
-val servletApiVersion = "4.0.1"
 val oktaSpringBootVersion = "2.1.6"
 val azureSpringBootBomVersion = "3.14.0"
 val tikaVersion = "2.6.0"
 val kubernetesClientVersion = "18.0.0"
-val jedisVersion = "3.9.0"
-val jredistimeseriesVersion = "1.6.0"
-val redisOMVersion = "0.6.4"
+val jedisVersion = "4.3.2"
+val redisOMVersion = "0.8.4"
 
 // Tests
 val jUnitBomVersion = "5.9.1"
@@ -182,15 +180,16 @@ dependencies {
       "org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:${springOauthAutoConfigureVersion}")
   implementation("org.springframework.security:spring-security-jwt:${springSecurityJwtVersion}")
 
-  implementation("org.springframework.boot:spring-boot-starter-web") {
-    exclude(group = "org.springframework.boot", module = "spring-boot-starter-tomcat")
-  }
   implementation("io.kubernetes:client-java:${kubernetesClientVersion}")
 
   implementation("org.springdoc:springdoc-openapi-ui:${springDocVersion}")
   implementation("org.springdoc:springdoc-openapi-kotlin:${springDocVersion}")
   implementation("org.zalando:problem-spring-web-starter:${zalandoSpringProblemVersion}")
-  implementation("javax.servlet:javax.servlet-api:${servletApiVersion}")
+  implementation(
+    "org.springframework.boot:spring-boot-starter-web:${springBootStarterWebVersion}") {
+    exclude(group = "org.springframework.boot", module = "spring-boot-starter-tomcat")
+  }
+  implementation("org.springframework.boot:spring-boot-starter-undertow")
   implementation("org.springframework.boot:spring-boot-starter-security")
   implementation("org.springframework.security:spring-security-oauth2-jose:${springOauthVersion}")
   implementation(
@@ -205,7 +204,6 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 
   implementation("redis.clients:jedis:${jedisVersion}")
-  implementation("com.redislabs:jredistimeseries:${jredistimeseriesVersion}")
   implementation("com.redis.om:redis-om-spring:${redisOMVersion}")
   implementation("com.redis.testcontainers:testcontainers-redis-junit:$testcontainersRedis")
   implementation("org.springframework.boot:spring-boot-starter-test")

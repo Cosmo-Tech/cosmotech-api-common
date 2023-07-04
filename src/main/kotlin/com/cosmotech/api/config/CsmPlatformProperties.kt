@@ -3,10 +3,8 @@
 package com.cosmotech.api.config
 
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.ConstructorBinding
 
 /** Configuration Properties for the Cosmo Tech Platform */
-@ConstructorBinding
 @ConfigurationProperties(prefix = "csm.platform")
 data class CsmPlatformProperties(
 

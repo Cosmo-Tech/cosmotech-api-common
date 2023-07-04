@@ -10,10 +10,10 @@ import java.nio.charset.StandardCharsets
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import org.apache.commons.lang3.concurrent.BasicThreadFactory
-import org.apache.commons.logging.Log
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.boot.env.EnvironmentPostProcessor
+import org.springframework.boot.logging.DeferredLog
 import org.springframework.context.annotation.AdviceMode
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -43,8 +43,9 @@ open class CsmApiConfiguration {
 }
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
-open class CsmPlatformEnvironmentPostProcessor(private val log: Log) : EnvironmentPostProcessor {
+open class CsmPlatformEnvironmentPostProcessor : EnvironmentPostProcessor {
 
+  private val log = DeferredLog()
   override fun postProcessEnvironment(
       environment: ConfigurableEnvironment,
       application: SpringApplication

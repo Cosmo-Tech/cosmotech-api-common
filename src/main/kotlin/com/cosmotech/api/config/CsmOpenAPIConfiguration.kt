@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Primary
 
 @Configuration
 @ConditionalOnProperty(name = ["csm.cliapplication"], havingValue = "false", matchIfMissing = true)
@@ -33,6 +34,7 @@ open class CsmOpenAPIConfiguration(val csmPlatformProperties: CsmPlatformPropert
   }
 
   @Bean
+  @Primary
   open fun csmOpenAPI(): OpenAPI? {
     val openApiYamlInputStream =
         CsmOpenAPIConfiguration::class.java.getResourceAsStream("/static/openapi.yaml")
