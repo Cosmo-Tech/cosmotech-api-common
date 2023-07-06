@@ -38,6 +38,7 @@ fun getCurrentAuthenticatedRoles(configuration: CsmPlatformProperties): List<Str
   return getValueFromAuthenticatedToken {
     JWTParser.parse(it).jwtClaimsSet.getStringListClaim(configuration.authorization.rolesJwtClaim)
   }
+      ?: emptyList()
 }
 
 fun <T> getValueFromAuthenticatedToken(actionLambda: (String) -> T): T {
