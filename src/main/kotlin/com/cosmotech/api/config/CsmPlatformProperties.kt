@@ -76,7 +76,7 @@ data class CsmPlatformProperties(
     val metrics: Metrics = Metrics(),
 
     /** Loki Service */
-    val loki: Loki?,
+    val loki: Loki = Loki(),
 ) {
 
   data class Metrics(
@@ -134,7 +134,11 @@ data class CsmPlatformProperties(
       val imageVersion: String = "latest",
   )
 
-  data class Loki(val baseUrl: String, val queryDaysAgo: Long)
+  data class Loki(
+      val baseUrl: String = "http://localhost:3100",
+      val queryPath: String = "/loki/api/v1/query_range",
+      val queryDaysAgo: Long = 1
+  )
   data class Argo(
       /** Argo service base Uri */
       val baseUri: String,

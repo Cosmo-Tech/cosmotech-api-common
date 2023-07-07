@@ -12,12 +12,10 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.util.UriComponentsBuilder
 
-private const val LOKI_QUERY_PATH = "/loki/api/v1/query_range"
-private const val LOKI_QUERY_DAYS_AGO: Long = 1
 @Service("csmLoki")
 class LokiService(private val csmPlatformProperties: CsmPlatformProperties) {
   private fun getLokiQueryURI(): String {
-    return csmPlatformProperties.loki?.baseUrl + LOKI_QUERY_PATH
+    return csmPlatformProperties.loki.baseUrl + csmPlatformProperties.loki.queryPath
   }
 
   private fun execRequest(namespace: String, podName: String) =
@@ -36,13 +34,13 @@ class LokiService(private val csmPlatformProperties: CsmPlatformProperties) {
     return podsLogs
   }
 
-  private fun getQuery(namespace: String, podName: String) =
+  internal fun getQuery(namespace: String, podName: String) =
       "{namespace=\"$namespace\",pod=\"$podName\"}"
 
-  private fun getUriBuilder(namespace: String, podName: String): UriComponentsBuilder {
+  internal fun getUriBuilder(namespace: String, podName: String): UriComponentsBuilder {
     val startTime =
         OffsetDateTime.now(ZoneOffset.UTC)
-            .minusDays(csmPlatformProperties.loki?.queryDaysAgo ?: LOKI_QUERY_DAYS_AGO)
+            .minusDays(csmPlatformProperties.loki.queryDaysAgo)
             .toString()
     val endTime = OffsetDateTime.now().toString()
     return UriComponentsBuilder.fromUriString(getLokiQueryURI())
