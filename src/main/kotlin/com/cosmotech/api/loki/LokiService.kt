@@ -4,6 +4,7 @@ package com.cosmotech.api.loki
 
 import com.cosmotech.api.config.CsmPlatformProperties
 import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import org.springframework.http.HttpHeaders
@@ -44,9 +45,11 @@ class LokiService(private val csmPlatformProperties: CsmPlatformProperties) {
             .toString()
     val endTime = OffsetDateTime.now().toString()
     return UriComponentsBuilder.fromUriString(getLokiQueryURI())
-        .queryParam("query", URLEncoder.encode(getQuery(namespace, podName)))
-        .queryParam("start", URLEncoder.encode(startTime))
-        .queryParam("end", URLEncoder.encode(endTime))
+        .queryParam(
+            "query",
+            URLEncoder.encode(getQuery(namespace, podName), StandardCharsets.UTF_8.toString()))
+        .queryParam("start", URLEncoder.encode(startTime, StandardCharsets.UTF_8.toString()))
+        .queryParam("end", URLEncoder.encode(endTime, StandardCharsets.UTF_8.toString()))
   }
 
   private fun getWebClient() =
