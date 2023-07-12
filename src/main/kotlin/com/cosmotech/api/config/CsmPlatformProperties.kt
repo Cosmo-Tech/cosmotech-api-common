@@ -135,7 +135,7 @@ data class CsmPlatformProperties(
   )
 
   data class Loki(
-      val baseUrl: String = "http://localhost:3100",
+      val baseUrl: String = "http://loki.default.svc.cluster.local:3100",
       val queryPath: String = "/loki/api/v1/query_range",
       val queryDaysAgo: Long = 1
   )
