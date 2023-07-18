@@ -3,15 +3,13 @@
 package com.cosmotech.api.loki
 
 import com.cosmotech.api.config.CsmPlatformProperties
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 import java.time.OffsetDateTime
-import java.time.ZoneOffset
+import org.apache.http.client.methods.HttpUriRequest
+import org.apache.http.client.methods.RequestBuilder
+import org.apache.http.impl.client.HttpClients
+import org.apache.http.util.EntityUtils
 import org.springframework.http.HttpHeaders
-import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
-import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.util.UriComponentsBuilder
 
 @Service("csmLoki")
 class LokiService(private val csmPlatformProperties: CsmPlatformProperties) {
@@ -19,14 +17,10 @@ class LokiService(private val csmPlatformProperties: CsmPlatformProperties) {
     return csmPlatformProperties.loki.baseUrl + csmPlatformProperties.loki.queryPath
   }
 
-  private fun execRequest(namespace: String, podName: String) =
-      getWebClient()
-          .get()
-          .uri(getUriBuilder(namespace, podName).build(true).toUri())
-          .retrieve()
-          .bodyToMono<String>(String::class.java)
-          .block()
-
+  private fun execRequest(namespace: String, podName: String): String {
+    val httpResponse = getHttpClient().execute(buildHttpRequest(namespace, podName))
+    return EntityUtils.toString(httpResponse.getEntity())
+  }
   fun getPodLogs(namespace: String, podName: String) = execRequest(namespace, podName)
 
   fun getPodsLogs(namespace: String, podNames: List<String>): Map<String, String> {
@@ -38,26 +32,19 @@ class LokiService(private val csmPlatformProperties: CsmPlatformProperties) {
   internal fun getQuery(namespace: String, podName: String) =
       "{namespace=\"$namespace\",pod=\"$podName\"}"
 
-  internal fun getUriBuilder(namespace: String, podName: String): UriComponentsBuilder {
-    val startTime =
-        OffsetDateTime.now(ZoneOffset.UTC)
-            .minusDays(csmPlatformProperties.loki.queryDaysAgo)
-            .toString()
-    val endTime = OffsetDateTime.now().toString()
-    return UriComponentsBuilder.fromUriString(getLokiQueryURI())
-        .queryParam(
-            "query",
-            URLEncoder.encode(getQuery(namespace, podName), StandardCharsets.UTF_8.toString()))
-        .queryParam("start", URLEncoder.encode(startTime, StandardCharsets.UTF_8.toString()))
-        .queryParam("end", URLEncoder.encode(endTime, StandardCharsets.UTF_8.toString()))
-  }
+  private fun getHttpClient() = HttpClients.createDefault()
 
-  private fun getWebClient() =
-      WebClient.builder()
-          .baseUrl(getLokiQueryURI())
-          .defaultHeader(
-              HttpHeaders.CONTENT_TYPE,
-              MediaType.APPLICATION_FORM_URLENCODED_VALUE,
-              MediaType.APPLICATION_NDJSON_VALUE)
-          .build()
+  private fun buildHttpRequest(namespace: String, podName: String): HttpUriRequest {
+    var reqBuilder = RequestBuilder.get()
+    reqBuilder = reqBuilder.setUri(getLokiQueryURI())
+    reqBuilder = reqBuilder.addHeader(HttpHeaders.CONTENT_TYPE, "application/x-ndjson")
+    reqBuilder = reqBuilder.addHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded")
+    reqBuilder = reqBuilder.addParameter("query", getQuery(namespace, podName))
+    val startTime =
+        OffsetDateTime.now().minusDays(csmPlatformProperties.loki.queryDaysAgo).toString()
+    val endTime = OffsetDateTime.now().toString()
+    reqBuilder = reqBuilder.addParameter("start", startTime)
+    reqBuilder = reqBuilder.addParameter("end", endTime)
+    return reqBuilder.build()
+  }
 }
