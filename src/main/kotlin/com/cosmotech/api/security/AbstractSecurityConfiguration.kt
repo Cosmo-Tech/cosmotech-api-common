@@ -404,12 +404,12 @@ internal fun endpointSecurityWriters(
 
 abstract class AbstractSecurityConfiguration : WebSecurityConfigurerAdapter() {
 
-  fun getOAuth2JwtConfigurer(
+  fun getOAuth2ResourceServer(
       http: HttpSecurity,
       organizationAdminGroup: String,
       organizationUserGroup: String,
       organizationViewerGroup: String
-  ): OAuth2ResourceServerConfigurer<HttpSecurity>.JwtConfigurer? {
+  ): OAuth2ResourceServerConfigurer<HttpSecurity> {
 
     val corsHttpMethodsAllowed =
         HttpMethod.values().filterNot { it == HttpMethod.TRACE }.map(HttpMethod::name)
@@ -444,7 +444,6 @@ abstract class AbstractSecurityConfiguration : WebSecurityConfigurerAdapter() {
           requests.anyRequest().authenticated()
         }
         .oauth2ResourceServer()
-        .jwt()
   }
 }
 
