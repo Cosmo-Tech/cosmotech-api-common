@@ -33,7 +33,8 @@ internal open class OktaSecurityConfiguration(
 
   override fun configure(http: HttpSecurity) {
     logger.info("Okta http security configuration")
-    super.getOAuth2JwtConfigurer(
-        http, organizationAdminGroup, organizationUserGroup, organizationViewerGroup)
+    super.getOAuth2ResourceServer(
+            http, organizationAdminGroup, organizationUserGroup, organizationViewerGroup)
+        .jwt()
   }
 }
