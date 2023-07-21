@@ -50,15 +50,17 @@ class MonitorServiceAspect(
     val signature: CodeSignature = joinPoint.signature as CodeSignature
     val args = joinPoint.args
     val parameterNames = signature.parameterNames
-    logger.debug("$signature: $args")
-    logger.debug("$signature: $parameterNames")
+    logger.debug("{}: {}", signature, args)
+    logger.debug("{}: {}", signature, parameterNames)
+
     val argsTags =
         List(parameterNames.filter { listOfArgs.contains(it.toString()) }.size) { idx ->
           Tag.of(parameterNames[idx], args[idx] as String)
         }
+
     val name = signature.name
     val user = getCurrentAuthenticatedUserName(csmPlatformProperties)
-    var issuer = getCurrentAuthenticatedIssuer()
+    val issuer = getCurrentAuthenticatedIssuer()
     Counter.builder("cosmotech.$name")
         .description(name)
         .tag("method", name)
@@ -68,12 +70,17 @@ class MonitorServiceAspect(
         .register(meterRegistry)
         .increment()
 
+    val licensingMetricLabels =
+        mutableMapOf("usage" to "licensing", "user" to user, "group" to "user")
+
+    licensingMetricLabels.putAll(argsTags.map { it.key to it.value })
+
     val metric =
         PersistentMetric(
             service = SERVICE_NAME,
             name = user,
             value = 1.0,
-            labels = mapOf("usage" to "licensing", "user" to user, "group" to "user"),
+            labels = licensingMetricLabels,
             qualifier = "call",
             type = PersitentMetricType.COUNTER,
             downSampling = true,
