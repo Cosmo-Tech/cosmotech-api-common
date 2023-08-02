@@ -57,8 +57,6 @@ internal open class KeycloakSecurityConfiguration(
         .jwt()
         .decoder(keycloakJwtDecoder(oAuth2ResourceServerProperties, csmPlatformProperties))
         .jwtAuthenticationConverter(KeycloakJwtAuthenticationConverter(csmPlatformProperties))
-
-    http.logout().invalidateHttpSession(true).clearAuthentication(true)
   }
 
   @Bean
