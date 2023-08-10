@@ -39,6 +39,7 @@ data class CsmPlatformProperties(
 
     /** Azure Platform */
     val azure: CsmPlatformAzure?,
+    val containerRegistry: CsmPlatformContainerRegistries = CsmPlatformContainerRegistries(),
 
     /** Argo Service */
     val argo: Argo,
@@ -210,6 +211,16 @@ data class CsmPlatformProperties(
     }
   }
 
+  data class CsmPlatformContainerRegistries(
+      /**
+       * csmenginesdev.azurecr.io, for Azure ghcr.io, for github https://index.docker.io/v1/, for
+       * local registry
+       */
+      val provider: String = "local",
+      val registryUrl: String = "csmenginesdev.azurecr.io",
+      val registryUserName: String? = null,
+      val registryPassword: String? = null,
+  )
   data class CsmPlatformAzure(
       /** Azure Credentials */
       val credentials: CsmPlatformAzureCredentials,
@@ -288,7 +299,7 @@ data class CsmPlatformProperties(
         val baseUri: String,
         val resourceUri: String
     )
-
+    @Deprecated(message = "use csm.platform.containerregistrie instead")
     data class CsmPlatformAzureContainerRegistries(val core: String, val solutions: String)
 
     data class CsmPlatformAzureEventBus(

@@ -211,6 +211,9 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-test")
   implementation("org.apache.httpcomponents:httpclient:4.5.14")
 
+  implementation("com.github.docker-java:docker-java-core:3.3.2")
+  implementation("com.github.docker-java:docker-java-transport-httpclient5:3.3.2")
+
   testImplementation(kotlin("test"))
   testImplementation(platform("org.junit:junit-bom:${jUnitBomVersion}"))
   testImplementation("org.junit.jupiter:junit-jupiter")
