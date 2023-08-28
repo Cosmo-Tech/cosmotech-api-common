@@ -207,6 +207,9 @@ dependencies {
   implementation("redis.clients:jedis:${jedisVersion}")
   implementation("com.redislabs:jredistimeseries:${jredistimeseriesVersion}")
   implementation("com.redis.om:redis-om-spring:${redisOMVersion}")
+  implementation("com.redislabs:jredisgraph:2.5.1") {
+    constraints { implementation("org.apache.commons:commons-text:1.10.0") }
+  }
   implementation("com.redis.testcontainers:testcontainers-redis-junit:$testcontainersRedis")
   implementation("org.springframework.boot:spring-boot-starter-test")
   implementation("org.apache.httpcomponents:httpclient:4.5.14")
