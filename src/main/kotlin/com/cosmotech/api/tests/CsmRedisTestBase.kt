@@ -21,10 +21,12 @@ open class CsmRedisTestBase : AbstractTestcontainersRedisTestBase() {
 
     private const val DEFAULT_REDIS_PORT = 6379
 
+    private const val REDIS_STACK_LASTEST_TAG_WITH_GRAPH = "6.2.6-v9"
+
     @JvmStatic
     val redisStackServer =
         RedisStackContainer(
-            RedisStackContainer.DEFAULT_IMAGE_NAME.withTag(RedisStackContainer.DEFAULT_TAG))
+            RedisStackContainer.DEFAULT_IMAGE_NAME.withTag(REDIS_STACK_LASTEST_TAG_WITH_GRAPH))
 
     private val logger = LoggerFactory.getLogger(CsmRedisTestBase::class.java)
 
