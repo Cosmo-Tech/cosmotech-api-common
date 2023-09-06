@@ -68,6 +68,8 @@ const val PATH_ORGANIZATIONS_USERS = "/organizations/*/users"
 const val PATH_ORGANIZATIONS_SERVICES = "/organizations/*/services"
 val PATHS_ORGANIZATIONS =
     listOf(PATH_ORGANIZATIONS, PATH_ORGANIZATIONS_USERS, PATH_ORGANIZATIONS_SERVICES)
+
+// Path Scenarios
 const val PATH_SCENARIOS = "/organizations/*/workspaces/*/scenarios"
 const val PATH_SCENARIOS_COMPARE = "/organizations/*/workspaces/*/scenarios/*/compare"
 const val PATH_SCENARIOS_USERS = "/organizations/*/workspaces/*/scenarios/*/users"
@@ -79,6 +81,8 @@ val PATHS_SCENARIOS =
         PATH_SCENARIOS_COMPARE,
         PATH_SCENARIOS_USERS,
         PATH_SCENARIOS_PARAMETERVALUES)
+
+// Path ScenarioRuns
 const val PATH_SCENARIORUNS = "/organizations/*/scenarioruns"
 const val PATH_SCENARIORUNS_STATUS = "/organizations/*/scenarioruns/*/status"
 const val PATH_SCENARIORUNS_LOGS = "/organizations/*/scenarioruns/*/logs"
@@ -94,6 +98,13 @@ val PATHS_SCENARIORUNS =
         PATH_SCENARIORUNS_CUMULATEDLOGS,
         PATH_SCENARIORUNS_WORKSPACES,
         PATH_SCENARIORUNS_SCENARIOS)
+
+// Path ScenarioRunResults
+const val PATH_SCENARIORUNRESULTS =
+    "/organizations/*/workspaces/*/scenarios/*/scenarioruns/*/probes"
+val PATHS_SCENARIORUNRESULTS = listOf(PATH_SCENARIORUNRESULTS)
+
+// Path Solutions
 const val PATH_SOLUTIONS = "/organizations/*/solutions"
 const val PATH_SOLUTIONS_PARAMETERS = "/organizations/*/solutions/*/parameters"
 const val PATH_SOLUTIONS_PARAMETERGROUPS = "/organizations/*/solutions/*/parameterGroups"
@@ -107,14 +118,18 @@ val PATHS_SOLUTIONS =
         PATH_SOLUTIONS_PARAMETERGROUPS,
         PATH_SOLUTIONS_RUNTEMPLATES,
         PATH_SOLUTIONS_RUNTEMPLATES_HANDLERS_UPLOAD)
+
+// Path Workspaces
 const val PATH_WORKSPACES = "/organizations/*/workspaces"
 const val PATH_WORKSPACES_USERS = "/organizations/*/workspaces/*/users"
 val PATHS_WORKSPACES = listOf(PATH_WORKSPACES, PATH_WORKSPACES_USERS)
 const val PATH_WORKSPACES_FILES = "/organizations/*/workspaces/*/files"
-// Job
+
+// Path Job
 const val PATH_JOB_STATUS = "/organizations/*/job/*/status"
 val PATHS_JOB = listOf(PATH_JOB_STATUS)
-// Twingraph
+
+// Path Twingraph
 const val PATH_TWIN_GRAPH_IMPORT = "/organizations/*/twingraph/import"
 const val PATH_TWIN_GRAPH = "/organizations/*/twingraph"
 const val PATH_TWIN_GRAPHS = "/organizations/*/twingraphs"
@@ -240,6 +255,20 @@ internal fun endpointSecurityReaders(
                     customOrganizationUser),
             customAdmin = customOrganizationAdmin),
         CsmSecurityEndpointsRolesReader(
+            paths = PATHS_SCENARIORUNRESULTS,
+            roles =
+                arrayOf(
+                    ROLE_SCENARIORUN_READER,
+                    ROLE_SCENARIORUN_WRITER,
+                    ROLE_ORGANIZATION_ADMIN,
+                    ROLE_ORGANIZATION_COLLABORATOR,
+                    ROLE_ORGANIZATION_MODELER,
+                    ROLE_ORGANIZATION_USER,
+                    SCOPE_SCENARIORUN_READ,
+                    SCOPE_SCENARIORUN_WRITE,
+                    customOrganizationUser),
+            customAdmin = customOrganizationAdmin),
+        CsmSecurityEndpointsRolesReader(
             paths = PATHS_SOLUTIONS,
             roles =
                 arrayOf(
@@ -349,6 +378,18 @@ internal fun endpointSecurityWriters(
             customAdmin = customOrganizationAdmin),
         CsmSecurityEndpointsRolesWriter(
             paths = PATHS_SCENARIORUNS,
+            roles =
+                arrayOf(
+                    ROLE_SCENARIORUN_WRITER,
+                    ROLE_ORGANIZATION_ADMIN,
+                    ROLE_ORGANIZATION_COLLABORATOR,
+                    ROLE_ORGANIZATION_MODELER,
+                    ROLE_ORGANIZATION_USER,
+                    SCOPE_SCENARIORUN_WRITE,
+                    customOrganizationUser),
+            customAdmin = customOrganizationAdmin),
+        CsmSecurityEndpointsRolesWriter(
+            paths = PATHS_SCENARIORUNRESULTS,
             roles =
                 arrayOf(
                     ROLE_SCENARIORUN_WRITER,
