@@ -36,9 +36,9 @@ fun redisGraphKey(graphId: String, version: String): String {
   return "$graphId:$version"
 }
 
-fun bulkQueryKey(graphId: String, query: String, version: String): Pair<ByteArray, String> {
-  val redisGraphKey = redisGraphKey(graphId, version)
-  var bulkQueryHash = "$redisGraphKey:$query".shaHash()
+fun bulkQueryKey(graphId: String, query: String, version: String?): Pair<ByteArray, String> {
+  val redisGraphKey = if (version != null) redisGraphKey(graphId, version) else graphId
+  val bulkQueryHash = "$redisGraphKey:$query".shaHash()
   return Pair("$BULK_QUERY_KEY:$bulkQueryHash".toByteArray(StandardCharsets.UTF_8), bulkQueryHash)
 }
 
