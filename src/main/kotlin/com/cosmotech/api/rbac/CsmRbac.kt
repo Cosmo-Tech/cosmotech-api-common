@@ -215,7 +215,9 @@ open class CsmRbac(
   }
 
   internal fun getUserRole(rbacSecurity: RbacSecurity, user: String): String {
-    return rbacSecurity.accessControlList.firstOrNull { it.id == user }?.role
+    return rbacSecurity.accessControlList
+        .firstOrNull { it.id.lowercase() == user.lowercase() }
+        ?.role
         ?: rbacSecurity.default
   }
 
