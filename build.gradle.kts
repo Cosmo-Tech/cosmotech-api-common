@@ -158,7 +158,7 @@ val redisOMVersion = "0.6.4"
 
 // Tests
 val jUnitBomVersion = "5.9.1"
-val mockkVersion = "1.13.2"
+val mockkVersion = "1.13.8"
 val awaitilityKVersion = "4.2.0"
 val testcontainersRedis = "1.6.2"
 
