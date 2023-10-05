@@ -15,6 +15,7 @@ class TwingraphImportEvent(
     val sourcePath: String,
     val sourceType: String,
     val version: String?,
+    val queries: List<String>?,
 ) : CsmRequestResponseEvent<Map<String, Any>>(publisher)
 
 class TwingraphImportJobInfoRequest(
