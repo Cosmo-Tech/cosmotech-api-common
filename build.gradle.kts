@@ -109,23 +109,27 @@ tasks.withType<Detekt>().configureEach {
     html {
       // observe findings in your browser with structure and code snippets
       required.set(true)
-      outputLocation.set(file("$buildDir/reports/detekt/${project.name}-detekt.html"))
+      outputLocation.set(
+          file("${layout.buildDirectory.get()}/reports/detekt/${project.name}-detekt.html"))
     }
     xml {
       // checkstyle like format mainly for integrations like Jenkins
       required.set(false)
-      outputLocation.set(file("$buildDir/reports/detekt/${project.name}-detekt.xml"))
+      outputLocation.set(
+          file("${layout.buildDirectory.get()}/reports/detekt/${project.name}-detekt.xml"))
     }
     txt {
       // similar to the console output, contains issue signature to manually edit baseline files
       required.set(true)
-      outputLocation.set(file("$buildDir/reports/detekt/${project.name}-detekt.txt"))
+      outputLocation.set(
+          file("${layout.buildDirectory.get()}/reports/detekt/${project.name}-detekt.txt"))
     }
     sarif {
       // standardized SARIF format (https://sarifweb.azurewebsites.net/) to support integrations
       // with Github Code Scanning
       required.set(true)
-      outputLocation.set(file("$buildDir/reports/detekt/${project.name}-detekt.sarif"))
+      outputLocation.set(
+          file("${layout.buildDirectory.get()}/reports/detekt/${project.name}-detekt.sarif"))
     }
   }
 }
@@ -139,10 +143,10 @@ tasks.jar {
 
 // Dependencies version
 
-//Required versions
-val jacksonVersion="2.15.3"
-val springWebVersion="6.0.13"
-val springBootVersion="3.1.5"
+// Required versions
+val jacksonVersion = "2.15.3"
+val springWebVersion = "6.0.13"
+val springBootVersion = "3.1.5"
 
 // Implementation
 val swaggerParserVersion = "2.1.16"
@@ -151,7 +155,7 @@ val springOauthAutoConfigureVersion = "2.6.8"
 val springSecurityJwtVersion = "1.1.1.RELEASE"
 val springDocVersion = "1.7.0"
 val springOauthVersion = "6.1.5"
-//val zalandoSpringProblemVersion = "0.27.0"
+// val zalandoSpringProblemVersion = "0.27.0"
 val servletApiVersion = "6.0.0"
 val oktaSpringBootVersion = "3.0.5"
 val tikaVersion = "2.9.1"
@@ -161,8 +165,8 @@ val redisOMVersion = "0.8.7"
 val kotlinCoroutinesCoreVersion = "1.7.3"
 val httpclient5Version = "5.2.1"
 
-//Checks
-val detektVersion="1.23.1"
+// Checks
+val detektVersion = "1.23.1"
 
 // Tests
 val jUnitBomVersion = "5.10.0"
@@ -171,11 +175,7 @@ val awaitilityKVersion = "4.2.0"
 val testcontainersRedis = "1.6.4"
 
 dependencies {
-  implementation(
-    platform(
-      org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
-    )
-  )
+  implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
 
   detekt("io.gitlab.arturbosch.detekt:detekt-cli:$detektVersion")
   detekt("io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion")
@@ -192,14 +192,14 @@ dependencies {
   implementation("io.swagger.parser.v3:swagger-parser-v3:${swaggerParserVersion}")
 
   implementation(
-      "org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:${springOauthAutoConfigureVersion}"){
-    constraints {
-      implementation("com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion")
-      implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
-      implementation("org.springframework:spring-web:$springWebVersion")
-      implementation("org.springframework.boot:spring-boot-autoconfigure:$springBootVersion")
-    }
-  }
+      "org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:${springOauthAutoConfigureVersion}") {
+        constraints {
+          implementation("com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion")
+          implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
+          implementation("org.springframework:spring-web:$springWebVersion")
+          implementation("org.springframework.boot:spring-boot-autoconfigure:$springBootVersion")
+        }
+      }
   implementation("org.springframework.security:spring-security-jwt:${springSecurityJwtVersion}")
 
   implementation("org.springframework.boot:spring-boot-starter-web") {
@@ -209,7 +209,6 @@ dependencies {
 
   implementation("org.springdoc:springdoc-openapi-ui:${springDocVersion}")
   implementation("org.springdoc:springdoc-openapi-kotlin:${springDocVersion}")
-  //implementation("org.zalando:problem-spring-web-starter:${zalandoSpringProblemVersion}")
   implementation("jakarta.servlet:jakarta.servlet-api:${servletApiVersion}")
   implementation("org.springframework.boot:spring-boot-starter-security")
   implementation("org.springframework.security:spring-security-oauth2-jose:${springOauthVersion}")
@@ -229,7 +228,7 @@ dependencies {
 
   implementation("com.redis.testcontainers:testcontainers-redis-junit:$testcontainersRedis")
   implementation("org.springframework.boot:spring-boot-starter-test")
-  implementation("org.apache.httpcomponents.client5:httpclient5:$httpclient5Version")
+  implementation("org.apache.httpcomponents.client5:httpclient5-fluent:$httpclient5Version")
 
   testImplementation(kotlin("test"))
   testImplementation(platform("org.junit:junit-bom:${jUnitBomVersion}"))

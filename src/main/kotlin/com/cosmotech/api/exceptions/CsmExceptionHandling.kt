@@ -13,23 +13,20 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 open class CsmExceptionHandling : ResponseEntityExceptionHandler() {
 
   @ExceptionHandler
-  fun handleIllegalArgumentException(
-      exception: IllegalArgumentException
-  ): ProblemDetail {
+  fun handleIllegalArgumentException(exception: IllegalArgumentException): ProblemDetail {
     if (exception.message == null) {
       return ProblemDetail.forStatus(HttpStatus.BAD_REQUEST)
     }
-    return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,exception.message!!)
+    return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.message!!)
   }
 
-    @ExceptionHandler
-    fun handleInsufficientAuthenticationException(
-        exception: InsufficientAuthenticationException
-    ): ProblemDetail{
-      if (exception.message == null) {
-        return ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED)
-      }
-      return ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED,exception.message!!)
+  @ExceptionHandler
+  fun handleInsufficientAuthenticationException(
+      exception: InsufficientAuthenticationException
+  ): ProblemDetail {
+    if (exception.message == null) {
+      return ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED)
     }
-
+    return ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, exception.message!!)
+  }
 }

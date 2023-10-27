@@ -37,10 +37,9 @@ internal open class OktaSecurityConfiguration(
   open fun filterChain(http: HttpSecurity): SecurityFilterChain? {
     logger.info("Okta http security configuration")
     super.getOAuth2ResourceServer(
-      http, organizationAdminGroup, organizationUserGroup, organizationViewerGroup)
-      .oauth2ResourceServer{ oauth2 -> oauth2.jwt {}}
+            http, organizationAdminGroup, organizationUserGroup, organizationViewerGroup)
+        .oauth2ResourceServer { oauth2 -> oauth2.jwt {} }
 
     return http.build()
   }
-
 }

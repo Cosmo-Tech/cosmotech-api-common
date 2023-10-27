@@ -4,7 +4,6 @@ package com.cosmotech.api.metrics
 
 import redis.clients.jedis.timeseries.AggregationType
 
-
 enum class DownSamplingAggregationType(val value: String) {
   AVG("avg"),
   SUM("sum"),

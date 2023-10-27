@@ -15,7 +15,6 @@ import redis.clients.jedis.HostAndPort
 import redis.clients.jedis.JedisClientConfig
 import redis.clients.jedis.UnifiedJedis
 
-
 private const val DEFAULT_TIMEOUT = 10000
 
 @Configuration
@@ -24,8 +23,9 @@ open class JedisConfig {
   val logger: Logger = LoggerFactory.getLogger(JedisConfig::class.java)
 
   @Bean
-  open fun redisStandaloneConfiguration(csmPlatformProperties: CsmPlatformProperties):
-    RedisStandaloneConfiguration {
+  open fun redisStandaloneConfiguration(
+      csmPlatformProperties: CsmPlatformProperties
+  ): RedisStandaloneConfiguration {
     return RedisStandaloneConfiguration().apply {
       hostName = csmPlatformProperties.twincache.host
       port = csmPlatformProperties.twincache.port.toInt()
@@ -34,20 +34,24 @@ open class JedisConfig {
   }
 
   @Bean
-  open fun jedisConnectionFactory(redisStandaloneConfiguration: RedisStandaloneConfiguration): JedisConnectionFactory {
+  open fun jedisConnectionFactory(
+      redisStandaloneConfiguration: RedisStandaloneConfiguration
+  ): JedisConnectionFactory {
     return JedisConnectionFactory(redisStandaloneConfiguration)
   }
 
   @Bean
   open fun csmJedisClientConfig(csmPlatformProperties: CsmPlatformProperties): JedisClientConfig =
-    DefaultJedisClientConfig.builder()
-      .password(csmPlatformProperties.twincache.password)
-      .timeoutMillis(DEFAULT_TIMEOUT)
-      .build()
+      DefaultJedisClientConfig.builder()
+          .password(csmPlatformProperties.twincache.password)
+          .timeoutMillis(DEFAULT_TIMEOUT)
+          .build()
 
   @Bean
-  open fun csmUnifiedJedis(csmPlatformProperties: CsmPlatformProperties,
-                           csmJedisClientConfig: JedisClientConfig): UnifiedJedis {
+  open fun csmUnifiedJedis(
+      csmPlatformProperties: CsmPlatformProperties,
+      csmJedisClientConfig: JedisClientConfig
+  ): UnifiedJedis {
     val twincacheProperties = csmPlatformProperties.twincache
     val host = twincacheProperties.host
     val port = twincacheProperties.port.toInt()
