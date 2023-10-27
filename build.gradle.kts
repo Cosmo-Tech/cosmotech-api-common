@@ -4,13 +4,13 @@ import com.diffplug.gradle.spotless.SpotlessExtension
 import io.gitlab.arturbosch.detekt.Detekt
 
 plugins {
-  val kotlinVersion = "1.8.0"
+  val kotlinVersion = "1.9.10"
   kotlin("jvm") version kotlinVersion
-  id("com.diffplug.spotless") version "6.12.0"
-  id("org.springframework.boot") version "2.7.11" apply false
-  id("io.gitlab.arturbosch.detekt") version "1.22.0"
-  id("pl.allegro.tech.build.axion-release") version "1.14.3"
-  id("org.jetbrains.kotlinx.kover") version "0.6.1"
+  id("com.diffplug.spotless") version "6.22.0"
+  id("org.springframework.boot") version "3.1.5" apply false
+  id("io.gitlab.arturbosch.detekt") version "1.23.1"
+  id("pl.allegro.tech.build.axion-release") version "1.15.5"
+  id("org.jetbrains.kotlinx.kover") version "0.7.4"
   `maven-publish`
   // Apply the java-library plugin for API and implementation separation.
   `java-library`
@@ -156,6 +156,9 @@ val jedisVersion = "3.9.0"
 val jredistimeseriesVersion = "1.6.0"
 val redisOMVersion = "0.6.4"
 
+//Checks
+val detektVersion="1.23.1"
+
 // Tests
 val jUnitBomVersion = "5.9.1"
 val mockkVersion = "1.13.2"
@@ -165,8 +168,9 @@ val testcontainersRedis = "1.6.2"
 dependencies {
   implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
 
-  detekt("io.gitlab.arturbosch.detekt:detekt-cli:1.22.0")
-  detekt("io.gitlab.arturbosch.detekt:detekt-formatting:1.22.0")
+  detekt("io.gitlab.arturbosch.detekt:detekt-cli:$detektVersion")
+  detekt("io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion")
+  detektPlugins("io.gitlab.arturbosch.detekt:detekt-rules-libraries:$detektVersion")
 
   // Align versions of all Kotlin components
   implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
@@ -229,11 +233,16 @@ dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 }
 
-kover {
+extensions.configure<kotlinx.kover.gradle.plugin.dsl.KoverReportExtension> {
+  defaults {
+    // reports configs for XML, HTML, verify reports
+  }
   filters {
-    classes {
-      includes +=
-          listOf("com.cosmotech.api.id.*", "com.cosmotech.api.rbac.*", "com.cosmotech.utils.*")
+    includes {
+      packages("com.cosmotech.api")
+      classes("com.cosmotech.api.id.*")
+      classes("com.cosmotech.api.rbac.*")
+      classes("com.cosmotech.utils.*")
     }
   }
 }
