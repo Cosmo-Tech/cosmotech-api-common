@@ -456,22 +456,22 @@ abstract class AbstractSecurityConfiguration {
 
     return http
         .cors { cors ->
-            cors.configurationSource {
-                CorsConfiguration().applyPermitDefaultValues().apply {
-                    allowedMethods = corsHttpMethodsAllowed
-                }
+          cors.configurationSource {
+            CorsConfiguration().applyPermitDefaultValues().apply {
+              allowedMethods = corsHttpMethodsAllowed
             }
+          }
         }
         .authorizeHttpRequests { requests ->
-            requests.requestMatchers(
-                AntPathRequestMatcher.antMatcher(HttpMethod.OPTIONS, "/**")
-            ).permitAll()
-            // Public paths
-            endpointSecurityPublic.forEach { path ->
-                requests.requestMatchers(
-                    AntPathRequestMatcher.antMatcher(HttpMethod.GET, path)
-                ).permitAll()
-            }
+          requests
+              .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.OPTIONS, "/**"))
+              .permitAll()
+          // Public paths
+          endpointSecurityPublic.forEach { path ->
+            requests
+                .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.GET, path))
+                .permitAll()
+          }
           // Endpoint security for reader roles
           endpointSecurityReaders(
                   organizationAdminGroup, organizationUserGroup, organizationViewerGroup)
@@ -496,21 +496,16 @@ internal class CsmSecurityEndpointsRolesWriter(
 
   @Suppress("SpreadOperator")
   fun applyRoles(
-      requests: AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry
+      requests:
+          AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry
   ) {
     this.paths.forEach { path ->
       requests
-          .requestMatchers(
-              AntPathRequestMatcher.antMatcher(HttpMethod.POST, "$path/*")
-          )
+          .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.POST, "$path/*"))
           .hasAnyAuthority(ROLE_PLATFORM_ADMIN, customAdmin, *this.roles)
-          .requestMatchers(
-              AntPathRequestMatcher.antMatcher(HttpMethod.PATCH, "$path/*")
-          )
+          .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.PATCH, "$path/*"))
           .hasAnyAuthority(ROLE_PLATFORM_ADMIN, customAdmin, *this.roles)
-          .requestMatchers(
-              AntPathRequestMatcher.antMatcher(HttpMethod.DELETE, "$path/*")
-          )
+          .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.DELETE, "$path/*"))
           .hasAnyAuthority(ROLE_PLATFORM_ADMIN, customAdmin, *this.roles)
     }
   }
@@ -524,13 +519,12 @@ internal class CsmSecurityEndpointsRolesReader(
 
   @Suppress("SpreadOperator")
   fun applyRoles(
-      requests: AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry
+      requests:
+          AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry
   ) {
     this.paths.forEach { path ->
       requests
-          .requestMatchers(
-              AntPathRequestMatcher.antMatcher(HttpMethod.GET, "$path/*")
-          )
+          .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.GET, "$path/*"))
           .hasAnyAuthority(ROLE_PLATFORM_ADMIN, customAdmin, *this.roles)
     }
   }

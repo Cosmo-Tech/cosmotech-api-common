@@ -7,6 +7,8 @@ import com.cosmotech.api.security.AbstractSecurityConfiguration
 import com.cosmotech.api.security.ROLE_ORGANIZATION_USER
 import com.cosmotech.api.security.ROLE_ORGANIZATION_VIEWER
 import com.cosmotech.api.security.ROLE_PLATFORM_ADMIN
+import java.util.Collections
+import java.util.stream.Collectors
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties
@@ -21,18 +23,16 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm
+import org.springframework.security.oauth2.jwt.Jwt
+import org.springframework.security.oauth2.jwt.JwtClaimNames
 import org.springframework.security.oauth2.jwt.JwtClaimValidator
 import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.security.oauth2.jwt.JwtValidators
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
-import org.springframework.security.oauth2.jwt.JwtClaimNames
-import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.util.CollectionUtils
 import org.springframework.util.StringUtils
-import java.util.Collections
-import java.util.stream.Collectors
 
 @Configuration
 @EnableWebSecurity(debug = true)
@@ -56,15 +56,16 @@ internal open class KeycloakSecurityConfiguration(
   open fun filterChain(http: HttpSecurity): SecurityFilterChain? {
     logger.info("Okta http security configuration")
     super.getOAuth2ResourceServer(
-      http, organizationAdminGroup, organizationUserGroup, organizationViewerGroup)
-      .oauth2ResourceServer{
-        oauth2 -> oauth2.jwt {
-          jwt -> run {
-            jwt.decoder(keycloakJwtDecoder(oAuth2ResourceServerProperties, csmPlatformProperties))
-            jwt.jwtAuthenticationConverter(KeycloakJwtAuthenticationConverter(csmPlatformProperties))
+            http, organizationAdminGroup, organizationUserGroup, organizationViewerGroup)
+        .oauth2ResourceServer { oauth2 ->
+          oauth2.jwt { jwt ->
+            run {
+              jwt.decoder(keycloakJwtDecoder(oAuth2ResourceServerProperties, csmPlatformProperties))
+              jwt.jwtAuthenticationConverter(
+                  KeycloakJwtAuthenticationConverter(csmPlatformProperties))
+            }
           }
         }
-      }
 
     return http.build()
   }
@@ -123,46 +124,46 @@ internal open class KeycloakSecurityConfiguration(
   }
 }
 
-class KeycloakJwtGrantedAuthoritiesConverter(private val csmPlatformProperties: CsmPlatformProperties):
-  Converter<Jwt, Collection<GrantedAuthority>> {
+class KeycloakJwtGrantedAuthoritiesConverter(
+    private val csmPlatformProperties: CsmPlatformProperties
+) : Converter<Jwt, Collection<GrantedAuthority>> {
 
   private val logger = LoggerFactory.getLogger(KeycloakJwtGrantedAuthoritiesConverter::class.java)
   override fun convert(jwt: Jwt): Collection<GrantedAuthority> {
     val extractAuthorities = mutableListOf<GrantedAuthority>()
     extractAuthorities.addAll(
-      convertRolesToAuthorities(jwt.claims, csmPlatformProperties.authorization.rolesJwtClaim))
+        convertRolesToAuthorities(jwt.claims, csmPlatformProperties.authorization.rolesJwtClaim))
     return extractAuthorities
   }
 
   private fun convertRolesToAuthorities(
-    attributes: Map<String, Any>,
-    claimKey: String
+      attributes: Map<String, Any>,
+      claimKey: String
   ): MutableCollection<GrantedAuthority> {
     if (!CollectionUtils.isEmpty(attributes) && StringUtils.hasText(claimKey)) {
       val rawRoleClaim = attributes[claimKey]
       if (rawRoleClaim is Collection<*>) {
         return (rawRoleClaim as Collection<String>)
-          .stream()
-          .map { role: String -> SimpleGrantedAuthority(role) }
-          .collect(Collectors.toList())
+            .stream()
+            .map { role: String -> SimpleGrantedAuthority(role) }
+            .collect(Collectors.toList())
       } else if (rawRoleClaim != null) {
         logger.debug(
-          "Could not extract authorities from claim '{}', value was not a collection", claimKey)
+            "Could not extract authorities from claim '{}', value was not a collection", claimKey)
       }
     }
     return mutableSetOf()
   }
-
 }
 
 class KeycloakJwtAuthenticationConverter(private val csmPlatformProperties: CsmPlatformProperties) :
-  Converter<Jwt, AbstractAuthenticationToken> {
+    Converter<Jwt, AbstractAuthenticationToken> {
 
   override fun convert(jwt: Jwt): AbstractAuthenticationToken {
     val authorities: Collection<GrantedAuthority> =
-      KeycloakJwtGrantedAuthoritiesConverter(csmPlatformProperties).convert(jwt)
-    val principalClaimValue: String = jwt.getClaimAsString(csmPlatformProperties.authorization.principalJwtClaim)
+        KeycloakJwtGrantedAuthoritiesConverter(csmPlatformProperties).convert(jwt)
+    val principalClaimValue: String =
+        jwt.getClaimAsString(csmPlatformProperties.authorization.principalJwtClaim)
     return JwtAuthenticationToken(jwt, authorities, principalClaimValue)
   }
-
 }
