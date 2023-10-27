@@ -36,7 +36,7 @@ class KubernetesService(private val kubernetesApi: CoreV1Api?) : SecretManager {
 
     val secrets =
         api.listNamespacedSecret(
-            namespace, null, null, null, null, labelSelector, null, null, null, null, null)
+            namespace, null, null, null, null, labelSelector, null, null, null, null, null, true)
     if (secrets.items.isEmpty()) {
       logger.debug("Secret does not exists in namespace $namespace: cannot delete it")
     } else {
@@ -78,7 +78,7 @@ class KubernetesService(private val kubernetesApi: CoreV1Api?) : SecretManager {
 
     val secrets =
         api.listNamespacedSecret(
-            namespace, null, null, null, null, labelSelector, null, null, null, null, null)
+            namespace, null, null, null, null, labelSelector, null, null, null, null, null, true)
     if (secrets.items.isEmpty()) {
       logger.debug("Secret does not exists in namespace $namespace: creating it")
       api.createNamespacedSecret(namespace, body, null, null, null, null)

@@ -2,7 +2,8 @@
 // Licensed under the MIT license.
 package com.cosmotech.api.metrics
 
-import com.redislabs.redistimeseries.Aggregation
+import redis.clients.jedis.timeseries.AggregationType
+
 
 enum class DownSamplingAggregationType(val value: String) {
   AVG("avg"),
@@ -19,19 +20,19 @@ enum class DownSamplingAggregationType(val value: String) {
   VARS("var.s"),
 }
 
-fun DownSamplingAggregationType.toRedisAggregation(): Aggregation {
+fun DownSamplingAggregationType.toRedisAggregation(): AggregationType {
   return when (this) {
-    DownSamplingAggregationType.AVG -> Aggregation.AVG
-    DownSamplingAggregationType.SUM -> Aggregation.SUM
-    DownSamplingAggregationType.MIN -> Aggregation.MIN
-    DownSamplingAggregationType.MAX -> Aggregation.MAX
-    DownSamplingAggregationType.RANGE -> Aggregation.RANGE
-    DownSamplingAggregationType.COUNT -> Aggregation.COUNT
-    DownSamplingAggregationType.FIRST -> Aggregation.FIRST
-    DownSamplingAggregationType.LAST -> Aggregation.LAST
-    DownSamplingAggregationType.STDP -> Aggregation.STD_P
-    DownSamplingAggregationType.STDS -> Aggregation.STD_S
-    DownSamplingAggregationType.VARP -> Aggregation.VAR_P
-    DownSamplingAggregationType.VARS -> Aggregation.VAR_S
+    DownSamplingAggregationType.AVG -> AggregationType.AVG
+    DownSamplingAggregationType.SUM -> AggregationType.SUM
+    DownSamplingAggregationType.MIN -> AggregationType.MIN
+    DownSamplingAggregationType.MAX -> AggregationType.MAX
+    DownSamplingAggregationType.RANGE -> AggregationType.RANGE
+    DownSamplingAggregationType.COUNT -> AggregationType.COUNT
+    DownSamplingAggregationType.FIRST -> AggregationType.FIRST
+    DownSamplingAggregationType.LAST -> AggregationType.LAST
+    DownSamplingAggregationType.STDP -> AggregationType.STD_P
+    DownSamplingAggregationType.STDS -> AggregationType.STD_S
+    DownSamplingAggregationType.VARP -> AggregationType.VAR_P
+    DownSamplingAggregationType.VARS -> AggregationType.VAR_S
   }
 }

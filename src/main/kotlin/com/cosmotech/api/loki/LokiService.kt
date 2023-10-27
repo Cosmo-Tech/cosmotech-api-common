@@ -3,12 +3,6 @@
 package com.cosmotech.api.loki
 
 import com.cosmotech.api.config.CsmPlatformProperties
-import java.time.OffsetDateTime
-import org.apache.http.client.methods.HttpUriRequest
-import org.apache.http.client.methods.RequestBuilder
-import org.apache.http.impl.client.HttpClients
-import org.apache.http.util.EntityUtils
-import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
 
 // Needed for authentication in multitenant mode
@@ -16,8 +10,10 @@ import org.springframework.stereotype.Service
 private const val CUSTOM_HEADER_TENANT_ID = "X-Scope-OrgID"
 
 @Service("csmLoki")
-class LokiService(private val csmPlatformProperties: CsmPlatformProperties) {
-  private fun getLokiQueryURI(): String {
+@Suppress("EmptyDefaultConstructor")
+class LokiService(/*private val csmPlatformProperties: CsmPlatformProperties*/) {
+  //TODO Migrate HTTP Client to HTTP5 client
+/*  private fun getLokiQueryURI(): String {
     return csmPlatformProperties.loki.baseUrl + csmPlatformProperties.loki.queryPath
   }
 
@@ -51,5 +47,5 @@ class LokiService(private val csmPlatformProperties: CsmPlatformProperties) {
     reqBuilder = reqBuilder.addParameter("start", startTime)
     reqBuilder = reqBuilder.addParameter("end", endTime)
     return reqBuilder.build()
-  }
+  }*/
 }
