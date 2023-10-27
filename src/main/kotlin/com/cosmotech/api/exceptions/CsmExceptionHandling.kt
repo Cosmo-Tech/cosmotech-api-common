@@ -2,30 +2,23 @@
 // Licensed under the MIT license.
 package com.cosmotech.api.exceptions
 
-import java.lang.IllegalArgumentException
-import org.springframework.http.ResponseEntity
-import org.springframework.security.authentication.InsufficientAuthenticationException
-import org.springframework.web.bind.annotation.ControllerAdvice
-import org.springframework.web.bind.annotation.ExceptionHandler
-import org.springframework.web.context.request.NativeWebRequest
-import org.zalando.problem.Problem
-import org.zalando.problem.Status
-import org.zalando.problem.spring.web.advice.ProblemHandling
+import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
 
-@ControllerAdvice
-open class CsmExceptionHandling : ProblemHandling {
+@RestControllerAdvice
+open class CsmExceptionHandling : ResponseEntityExceptionHandler() {
 
-  override fun isCausalChainsEnabled() = true
-
+/*
   @ExceptionHandler
   fun handleIllegalArgumentException(
-      exception: IllegalArgumentException,
-      request: NativeWebRequest
-  ): ResponseEntity<Problem> = create(Status.BAD_REQUEST, exception, request)
+      exception: IllegalArgumentException
+  ): ProblemDetail {
+    return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.message)
+  }
 
   @ExceptionHandler
   fun handleInsufficientAuthenticationException(
       exception: InsufficientAuthenticationException,
       request: NativeWebRequest
-  ): ResponseEntity<Problem> = create(Status.UNAUTHORIZED, exception, request)
+  ): ResponseEntity<Problem> = create(Status.UNAUTHORIZED, exception, request)*/
 }

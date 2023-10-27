@@ -3,10 +3,8 @@
 package com.cosmotech.api.config
 
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.ConstructorBinding
 
 /** Configuration Properties for the Cosmo Tech Platform */
-@ConstructorBinding
 @ConfigurationProperties(prefix = "csm.platform")
 data class CsmPlatformProperties(
 
@@ -299,7 +297,7 @@ data class CsmPlatformProperties(
         val baseUri: String,
         val resourceUri: String
     )
-    @Deprecated(message = "use csm.platform.containerregistrie instead")
+    @Deprecated(message = "use csm.platform.containerregistries instead")
     data class CsmPlatformAzureContainerRegistries(val core: String, val solutions: String)
 
     data class CsmPlatformAzureEventBus(
