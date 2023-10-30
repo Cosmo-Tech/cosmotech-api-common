@@ -155,7 +155,6 @@ val springOauthAutoConfigureVersion = "2.6.8"
 val springSecurityJwtVersion = "1.1.1.RELEASE"
 val springDocVersion = "1.7.0"
 val springOauthVersion = "6.1.5"
-// val zalandoSpringProblemVersion = "0.27.0"
 val servletApiVersion = "6.0.0"
 val oktaSpringBootVersion = "3.0.5"
 val tikaVersion = "2.9.1"
@@ -200,6 +199,10 @@ dependencies {
           implementation("org.springframework.boot:spring-boot-autoconfigure:$springBootVersion")
         }
       }
+  implementation("org.springframework.boot:spring-boot-starter-security")
+  implementation("org.springframework.security:spring-security-oauth2-jose:${springOauthVersion}")
+  implementation(
+      "org.springframework.security:spring-security-oauth2-resource-server:${springOauthVersion}")
   implementation("org.springframework.security:spring-security-jwt:${springSecurityJwtVersion}")
 
   implementation("org.springframework.boot:spring-boot-starter-web") {
@@ -210,12 +213,7 @@ dependencies {
   implementation("org.springdoc:springdoc-openapi-ui:${springDocVersion}")
   implementation("org.springdoc:springdoc-openapi-kotlin:${springDocVersion}")
   implementation("jakarta.servlet:jakarta.servlet-api:${servletApiVersion}")
-  implementation("org.springframework.boot:spring-boot-starter-security")
-  implementation("org.springframework.security:spring-security-oauth2-jose:${springOauthVersion}")
-  implementation(
-      "org.springframework.security:spring-security-oauth2-resource-server:${springOauthVersion}")
   implementation("com.okta.spring:okta-spring-boot-starter:${oktaSpringBootVersion}")
-
   implementation("org.springframework.boot:spring-boot-starter-actuator")
   implementation("io.micrometer:micrometer-registry-prometheus")
   implementation("org.springframework.boot:spring-boot-starter-aop")
