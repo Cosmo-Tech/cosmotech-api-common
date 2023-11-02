@@ -216,7 +216,7 @@ data class CsmPlatformProperties(
        * csmenginesdev.azurecr.io, for Azure ghcr.io, for github https://index.docker.io/v1/, for
        * local registry
        */
-      val provider: String = "local",
+      val checkSolutionImage: Boolean = true,
       val registryUrl: String = "csmenginesdev.azurecr.io",
       val registryUserName: String? = null,
       val registryPassword: String? = null,
