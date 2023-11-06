@@ -9,14 +9,11 @@ import org.apache.http.client.methods.HttpUriRequest
 import org.apache.http.client.methods.RequestBuilder
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.util.EntityUtils
-import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
 
 @Service("csmContainerRegistry")
 class ContainerRegistryService(private val csmPlatformProperties: CsmPlatformProperties) {
-  private val logger = LoggerFactory.getLogger(ContainerRegistryService::class.java)
-
   fun getEndpoint() = csmPlatformProperties.containerRegistry.registryUrl
 
   fun getCredentials(user: String, password: String) =
@@ -38,14 +35,9 @@ class ContainerRegistryService(private val csmPlatformProperties: CsmPlatformPro
 
   fun checkSolutionImage(repository: String, tag: String) {
     val tags = getRepositoryTagList(repository)
-    logger.info("TOOOOOOOOOOOOo 24 octobre tags => {}", tags)
-    if (tags.contains("errors")) {
+    if (tags.contains("errors") || !doesTheTagExist(tags, tag)) {
       throw CsmResourceNotFoundException(tags)
     }
-    if (!doesTheTagExist(tags, tag)) {
-      throw CsmResourceNotFoundException(tags)
-    }
-    logger.info("TOOOOOOOOOOOOo 24 octobre image found => {}", true)
   }
 
   fun doesTheTagExist(tags: String, tag: String) = tags.contains(tag)
