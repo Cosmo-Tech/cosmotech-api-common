@@ -10,6 +10,8 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import org.apache.http.client.ClientProtocolException
+import org.json.JSONArray
+import org.json.JSONObject
 import org.junit.jupiter.api.assertThrows
 
 class ContainerRegistryServiceTest {
@@ -27,6 +29,20 @@ class ContainerRegistryServiceTest {
     assertThrows<ClientProtocolException> {
       containerRegistryService.checkSolutionImage("any", "any")
     }
+  }
+
+  @Test
+  fun `check solution image with existing repository and tag`() {
+    val ja = JSONArray()
+    ja.put("latest")
+
+    val jo = JSONObject()
+    jo.put("name", "my-repository")
+    jo.put("tags", ja)
+
+    every { containerRegistryService.getRepositoryTagList("my-repository") } returns jo.toString()
+
+    containerRegistryService.checkSolutionImage("my-repository", "latest")
   }
 
   @Test
