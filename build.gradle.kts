@@ -159,7 +159,6 @@ val servletApiVersion = "6.0.0"
 val oktaSpringBootVersion = "3.0.5"
 val tikaVersion = "2.9.1"
 val kubernetesClientVersion = "19.0.0"
-val jedisVersion = "5.0.2"
 val redisOMVersion = "0.8.7"
 val kotlinCoroutinesCoreVersion = "1.7.3"
 val httpclient5Version = "5.2.1"
@@ -220,8 +219,6 @@ dependencies {
 
   implementation("org.apache.tika:tika-core:${tikaVersion}")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesCoreVersion")
-
-  implementation("redis.clients:jedis:${jedisVersion}")
   implementation("com.redis.om:redis-om-spring:${redisOMVersion}")
 
   implementation("com.redis.testcontainers:testcontainers-redis-junit:$testcontainersRedis")
