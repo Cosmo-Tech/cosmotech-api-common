@@ -5,10 +5,6 @@ package com.cosmotech.api.security
 import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer
-import org.springframework.security.oauth2.core.OAuth2TokenValidator
-import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult
-import org.springframework.security.oauth2.jwt.Jwt
-import org.springframework.security.oauth2.jwt.JwtClaimValidator
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.springframework.web.cors.CorsConfiguration
 
@@ -499,14 +495,18 @@ internal class CsmSecurityEndpointsRolesWriter(
       requests:
           AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry
   ) {
+    // TODO crappy trick find another way
+    val authoritiesList = this.roles.toMutableList()
+    authoritiesList.addAll(listOf(ROLE_PLATFORM_ADMIN, customAdmin))
+    val authoritiesSet = authoritiesList.toSet()
     this.paths.forEach { path ->
       requests
           .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.POST, "$path/*"))
-          .hasAnyAuthority(ROLE_PLATFORM_ADMIN, customAdmin, *this.roles)
+          .hasAnyAuthority(*authoritiesSet.toTypedArray())
           .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.PATCH, "$path/*"))
-          .hasAnyAuthority(ROLE_PLATFORM_ADMIN, customAdmin, *this.roles)
+          .hasAnyAuthority(*authoritiesSet.toTypedArray())
           .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.DELETE, "$path/*"))
-          .hasAnyAuthority(ROLE_PLATFORM_ADMIN, customAdmin, *this.roles)
+          .hasAnyAuthority(*authoritiesSet.toTypedArray())
     }
   }
 }
@@ -522,23 +522,14 @@ internal class CsmSecurityEndpointsRolesReader(
       requests:
           AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry
   ) {
+    // TODO crappy trick find another way
+    val authoritiesList = this.roles.toMutableList()
+    authoritiesList.addAll(listOf(ROLE_PLATFORM_ADMIN, customAdmin))
+    val authoritiesSet = authoritiesList.toSet()
     this.paths.forEach { path ->
       requests
           .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.GET, "$path/*"))
-          .hasAnyAuthority(ROLE_PLATFORM_ADMIN, customAdmin, *this.roles)
+          .hasAnyAuthority(*authoritiesSet.toTypedArray())
     }
   }
-}
-
-class CsmJwtClaimValueInCollectionValidator(
-    claimName: String,
-    private val allowed: Collection<String>
-) : OAuth2TokenValidator<Jwt> {
-
-  private val jwtClaimValidator: JwtClaimValidator<String> =
-      JwtClaimValidator(claimName, allowed::contains)
-
-  override fun validate(token: Jwt?): OAuth2TokenValidatorResult =
-      this.jwtClaimValidator.validate(
-          token ?: throw IllegalArgumentException("JWT must not be null"))
 }
