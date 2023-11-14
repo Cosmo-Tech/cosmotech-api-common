@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 import com.diffplug.gradle.spotless.SpotlessExtension
 import io.gitlab.arturbosch.detekt.Detekt
+import org.gradle.kotlin.dsl.implementation
 
 plugins {
   val kotlinVersion = "1.9.10"
@@ -153,7 +154,7 @@ val swaggerParserVersion = "2.1.16"
 val hashidsVersion = "1.0.3"
 val springOauthAutoConfigureVersion = "2.6.8"
 val springSecurityJwtVersion = "1.1.1.RELEASE"
-val springDocVersion = "1.7.0"
+val springDocVersion = "2.2.0"
 val springOauthVersion = "6.1.5"
 val servletApiVersion = "6.0.0"
 val oktaSpringBootVersion = "3.0.5"
@@ -209,8 +210,10 @@ dependencies {
   }
   implementation("io.kubernetes:client-java:${kubernetesClientVersion}")
 
-  implementation("org.springdoc:springdoc-openapi-ui:${springDocVersion}")
-  implementation("org.springdoc:springdoc-openapi-kotlin:${springDocVersion}")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${springDocVersion}")
+  // https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-kotlin
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.16.0-rc1")
+
   implementation("jakarta.servlet:jakarta.servlet-api:${servletApiVersion}")
   implementation("com.okta.spring:okta-spring-boot-starter:${oktaSpringBootVersion}")
   implementation("org.springframework.boot:spring-boot-starter-actuator")
