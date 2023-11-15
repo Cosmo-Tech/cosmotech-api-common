@@ -42,7 +42,7 @@ open class RedisConfig {
   @Bean
   open fun csmJedisClientConfig(): JedisClientConfig =
       DefaultJedisClientConfig.builder()
-          .password(twincachePort)
+          .password(twincachePassword)
           .timeoutMillis(Protocol.DEFAULT_TIMEOUT)
           .build()
 
