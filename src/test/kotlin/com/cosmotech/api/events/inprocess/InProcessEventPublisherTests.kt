@@ -4,6 +4,7 @@ package com.cosmotech.api.events.inprocess
 
 import com.cosmotech.api.events.OrganizationRegistered
 import io.mockk.confirmVerified
+import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlin.test.BeforeTest
@@ -17,8 +18,9 @@ class InProcessEventPublisherTests {
 
   @BeforeTest
   fun beforeTest() {
-    this.eventPublisher = mockk(relaxUnitFun = true)
+    this.eventPublisher = mockk()
     this.inProcessEventPublisher = InProcessEventPublisher(this.eventPublisher)
+    every { inProcessEventPublisher.publishEvent(any()) } returns Unit
   }
 
   @Test

@@ -88,7 +88,7 @@ class CsmRbacTests {
   @BeforeTest
   fun beforeEachTest() {
     logger.trace("Begin test")
-    csmPlatformProperties = mockk<CsmPlatformProperties>(relaxed = true)
+    csmPlatformProperties = mockk<CsmPlatformProperties>()
     every { csmPlatformProperties.rbac.enabled } answers { true }
     every { csmPlatformProperties.authorization.rolesJwtClaim } answers { "roles" }
     every { csmPlatformProperties.authorization.mailJwtClaim } answers { "upn" }
@@ -132,7 +132,7 @@ class CsmRbacTests {
     admin = CsmAdmin(csmPlatformProperties)
     rbac = CsmRbac(csmPlatformProperties, admin)
 
-    securityContext = mockk<SecurityContext>(relaxed = true)
+    securityContext = mockk<SecurityContext>()
 
     mockkStatic("org.springframework.security.core.context.SecurityContextHolder")
     every { SecurityContextHolder.getContext() } returns securityContext

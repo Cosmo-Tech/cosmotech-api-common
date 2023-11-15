@@ -27,19 +27,20 @@ class KeycloakJwtAuthenticationConverterTests {
   @BeforeTest
   fun beforeEachTest() {
     logger.trace("Begin test")
-    csmPlatformProperties = mockk<CsmPlatformProperties>(relaxed = true)
-    jwt = mockk<Jwt>(relaxed = true)
+    csmPlatformProperties = mockk<CsmPlatformProperties>()
+    jwt = mockk<Jwt>()
     keycloakJwtAuthenticationConverter = KeycloakJwtAuthenticationConverter(csmPlatformProperties)
   }
 
   @Test
   fun `convertRolesToAuthorities with correct values`() {
+    val principalClaimValue = "my.principal@me.com"
     val claims =
         mutableMapOf(
             "claim1" to "10",
             "claimRoles" to listOf("role1", "role2", "role3"),
             "claimName" to "myClaimName",
-            "sub" to "my.principal@me.com")
+            "sub" to principalClaimValue)
     val expectedSimpleGrantedAuthorities =
         listOf(
             SimpleGrantedAuthority("role1"),
@@ -48,45 +49,53 @@ class KeycloakJwtAuthenticationConverterTests {
 
     every { jwt.claims } returns claims
     every { csmPlatformProperties.authorization.rolesJwtClaim } returns "claimRoles"
+    every { csmPlatformProperties.authorization.principalJwtClaim } returns principalClaimValue
+    every { jwt.getClaimAsString(principalClaimValue) } returns principalClaimValue
 
     val jwtConverted = keycloakJwtAuthenticationConverter.convert(jwt)
 
     assertEquals(
-        JwtAuthenticationToken(jwt, expectedSimpleGrantedAuthorities, "my.principal@me.com"),
+        JwtAuthenticationToken(jwt, expectedSimpleGrantedAuthorities, principalClaimValue),
         jwtConverted)
   }
 
   @Test
   fun `convertRolesToAuthorities with non-existing role claim values`() {
+    val principalClaimValue = "my.principal@me.com"
     val claims =
         mutableMapOf(
             "claim1" to "10",
             "claimRoles" to listOf("role1", "role2", "role3"),
             "claimName" to "myClaimName",
-            "sub" to "my.principal@me.com")
+            "sub" to principalClaimValue)
 
     every { jwt.claims } returns claims
     every { csmPlatformProperties.authorization.rolesJwtClaim } returns "unexisting-role-claim"
+    every { csmPlatformProperties.authorization.principalJwtClaim } returns principalClaimValue
+    every { jwt.getClaimAsString(principalClaimValue) } returns principalClaimValue
 
     val jwtConverted = keycloakJwtAuthenticationConverter.convert(jwt)
 
-    assertEquals(JwtAuthenticationToken(jwt, emptyList(), "my.principal@me.com"), jwtConverted)
+    assertEquals(JwtAuthenticationToken(jwt, emptyList(), principalClaimValue), jwtConverted)
   }
 
   @Test
   fun `convertRolesToAuthorities with existing role claim but no roles defined`() {
+    val principalClaimValue = "my.principal@me.com"
     val claims =
         mutableMapOf(
             "claim1" to "10",
             "claimRoles" to emptyList<String>(),
             "claimName" to "myClaimName",
-            "sub" to "my.principal@me.com")
+            "sub" to principalClaimValue)
 
     every { jwt.claims } returns claims
     every { csmPlatformProperties.authorization.rolesJwtClaim } returns "claimRoles"
+    every { csmPlatformProperties.authorization.principalJwtClaim } returns principalClaimValue
+    every { jwt.getClaimAsString(principalClaimValue) } returns principalClaimValue
 
     val jwtConverted = keycloakJwtAuthenticationConverter.convert(jwt)
 
-    assertEquals(JwtAuthenticationToken(jwt, emptyList(), "my.principal@me.com"), jwtConverted)
+    assertEquals(JwtAuthenticationToken(jwt, emptyList(), principalClaimValue), jwtConverted)
   }
 }
