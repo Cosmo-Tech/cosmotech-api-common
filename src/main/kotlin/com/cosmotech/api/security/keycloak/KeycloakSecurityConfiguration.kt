@@ -8,6 +8,7 @@ import com.cosmotech.api.security.ROLE_ORGANIZATION_USER
 import com.cosmotech.api.security.ROLE_ORGANIZATION_VIEWER
 import com.cosmotech.api.security.ROLE_PLATFORM_ADMIN
 import java.util.Collections
+import java.util.Objects
 import java.util.stream.Collectors
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -143,9 +144,10 @@ class KeycloakJwtGrantedAuthoritiesConverter(
     if (!CollectionUtils.isEmpty(attributes) && StringUtils.hasText(claimKey)) {
       val rawRoleClaim = attributes[claimKey]
       if (rawRoleClaim is Collection<*>) {
-        return (rawRoleClaim as Collection<String>)
+        return rawRoleClaim
             .stream()
-            .map { role: String -> SimpleGrantedAuthority(role) }
+            .map { role: Any? -> SimpleGrantedAuthority((role as? String)) }
+            .filter(Objects::nonNull)
             .collect(Collectors.toList())
       } else if (rawRoleClaim != null) {
         logger.debug(

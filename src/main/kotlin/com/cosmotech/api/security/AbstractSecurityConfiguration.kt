@@ -453,9 +453,9 @@ abstract class AbstractSecurityConfiguration {
     return http
         .cors { cors ->
           cors.configurationSource {
-            CorsConfiguration().applyPermitDefaultValues().apply {
-              allowedMethods = corsHttpMethodsAllowed
-            }
+            val corsConfig = CorsConfiguration().applyPermitDefaultValues()
+            corsConfig.apply { allowedMethods = corsHttpMethodsAllowed }
+            corsConfig
           }
         }
         .authorizeHttpRequests { requests ->
@@ -495,19 +495,27 @@ internal class CsmSecurityEndpointsRolesWriter(
       requests:
           AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry
   ) {
-    // TODO crappy trick find another way
-    val authoritiesList = this.roles.toMutableList()
-    authoritiesList.addAll(listOf(ROLE_PLATFORM_ADMIN, customAdmin))
-    val authoritiesSet = authoritiesList.toSet()
+    val authoritiesList = addAdminRolesIfNotAlreadyDefined(this.roles)
     this.paths.forEach { path ->
       requests
           .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.POST, "$path/*"))
-          .hasAnyAuthority(*authoritiesSet.toTypedArray())
+          .hasAnyAuthority(*authoritiesList.toTypedArray())
           .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.PATCH, "$path/*"))
-          .hasAnyAuthority(*authoritiesSet.toTypedArray())
+          .hasAnyAuthority(*authoritiesList.toTypedArray())
           .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.DELETE, "$path/*"))
-          .hasAnyAuthority(*authoritiesSet.toTypedArray())
+          .hasAnyAuthority(*authoritiesList.toTypedArray())
     }
+  }
+
+  private fun addAdminRolesIfNotAlreadyDefined(roles: Array<String>): MutableList<String> {
+    val authoritiesList = roles.toMutableList()
+    if (ROLE_PLATFORM_ADMIN !in authoritiesList) {
+      authoritiesList.add(ROLE_PLATFORM_ADMIN)
+    }
+    if (customAdmin !in authoritiesList) {
+      authoritiesList.add(customAdmin)
+    }
+    return authoritiesList
   }
 }
 
@@ -522,14 +530,22 @@ internal class CsmSecurityEndpointsRolesReader(
       requests:
           AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry
   ) {
-    // TODO crappy trick find another way
-    val authoritiesList = this.roles.toMutableList()
-    authoritiesList.addAll(listOf(ROLE_PLATFORM_ADMIN, customAdmin))
-    val authoritiesSet = authoritiesList.toSet()
+    val authoritiesList = addAdminRolesIfNotAlreadyDefined(this.roles)
     this.paths.forEach { path ->
       requests
           .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.GET, "$path/*"))
-          .hasAnyAuthority(*authoritiesSet.toTypedArray())
+          .hasAnyAuthority(*authoritiesList.toTypedArray())
     }
+  }
+
+  private fun addAdminRolesIfNotAlreadyDefined(roles: Array<String>): MutableList<String> {
+    val authoritiesList = roles.toMutableList()
+    if (ROLE_PLATFORM_ADMIN !in authoritiesList) {
+      authoritiesList.add(ROLE_PLATFORM_ADMIN)
+    }
+    if (customAdmin !in authoritiesList) {
+      authoritiesList.add(customAdmin)
+    }
+    return authoritiesList
   }
 }
