@@ -7,6 +7,7 @@ import com.cosmotech.api.security.AbstractSecurityConfiguration
 import com.cosmotech.api.security.ROLE_ORGANIZATION_USER
 import com.cosmotech.api.security.ROLE_ORGANIZATION_VIEWER
 import com.cosmotech.api.security.ROLE_PLATFORM_ADMIN
+import com.okta.spring.boot.oauth.Okta
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
@@ -39,6 +40,9 @@ internal open class OktaSecurityConfiguration(
     super.getOAuth2ResourceServer(
             http, organizationAdminGroup, organizationUserGroup, organizationViewerGroup)
         .oauth2ResourceServer { oauth2 -> oauth2.jwt {} }
+
+    // Send a 401 message to the browser (w/o this, you'll see a blank page)
+    Okta.configureResourceServer401ResponseBody(http)
 
     return http.build()
   }
