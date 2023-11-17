@@ -508,7 +508,7 @@ internal class CsmSecurityEndpointsRolesWriter(
   }
 
   private fun addAdminRolesIfNotAlreadyDefined(roles: Array<String>): MutableList<String> {
-    val authoritiesList = roles.toMutableList()
+    val authoritiesList = roles.toSet().toMutableList()
     if (ROLE_PLATFORM_ADMIN !in authoritiesList) {
       authoritiesList.add(ROLE_PLATFORM_ADMIN)
     }
@@ -539,7 +539,7 @@ internal class CsmSecurityEndpointsRolesReader(
   }
 
   private fun addAdminRolesIfNotAlreadyDefined(roles: Array<String>): MutableList<String> {
-    val authoritiesList = roles.toMutableList()
+    val authoritiesList = roles.toSet().toMutableList()
     if (ROLE_PLATFORM_ADMIN !in authoritiesList) {
       authoritiesList.add(ROLE_PLATFORM_ADMIN)
     }
