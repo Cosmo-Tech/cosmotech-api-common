@@ -44,12 +44,12 @@ open class CsmRedisTestBase : AbstractTestcontainersRedisTestBase() {
               .value
               .ipAddress
       logger.error(
-          "* Test-Container 'Redis': spring.redis.host = {} ; spring.redis.port = {}",
+          "* Test-Container 'Redis': spring.data.redis.host = {} ; spring.data.redis.port = {}",
           containerIp,
           DEFAULT_REDIS_PORT)
 
-      registry.add("spring.redis.host") { containerIp }
-      registry.add("spring.redis.port") { DEFAULT_REDIS_PORT }
+      registry.add("spring.data.redis.host") { containerIp }
+      registry.add("spring.data.redis.port") { DEFAULT_REDIS_PORT }
     }
   }
 
