@@ -20,7 +20,7 @@ class StringExtensionsTests {
   @Test
   fun `sanitizeForRedis should escape special characters`() {
     val input = "te.st@cosmo-tech.com"
-    val expected = "te\\.st\\@cosmo\\-tech\\.com"
+    val expected = "te\\\\.st\\\\@cosmo\\\\-tech\\\\.com"
     val actual = input.sanitizeForRedis()
     assertEquals(expected, actual)
   }
