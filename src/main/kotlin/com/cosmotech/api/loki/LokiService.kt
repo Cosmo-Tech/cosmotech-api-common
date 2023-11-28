@@ -11,6 +11,10 @@ import org.apache.http.util.EntityUtils
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
 
+// Needed for authentication in multitenant mode
+// https://grafana.com/docs/loki/latest/operations/authentication/
+private const val CUSTOM_HEADER_TENANT_ID = "X-Scope-OrgID"
+
 @Service("csmLoki")
 class LokiService(private val csmPlatformProperties: CsmPlatformProperties) {
   private fun getLokiQueryURI(): String {
@@ -39,6 +43,7 @@ class LokiService(private val csmPlatformProperties: CsmPlatformProperties) {
     reqBuilder = reqBuilder.setUri(getLokiQueryURI())
     reqBuilder = reqBuilder.addHeader(HttpHeaders.CONTENT_TYPE, "application/x-ndjson")
     reqBuilder = reqBuilder.addHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded")
+    reqBuilder = reqBuilder.addHeader(CUSTOM_HEADER_TENANT_ID, csmPlatformProperties.namespace)
     reqBuilder = reqBuilder.addParameter("query", getQuery(namespace, podName))
     val startTime =
         OffsetDateTime.now().minusDays(csmPlatformProperties.loki.queryDaysAgo).toString()
