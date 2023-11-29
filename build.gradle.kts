@@ -95,6 +95,8 @@ configure<SpotlessExtension> {
   }
 }
 
+tasks.withType<JavaCompile>() { options.compilerArgs.add("-parameters") }
+
 tasks.withType<Detekt>().configureEach {
   buildUponDefaultConfig = true // preconfigure defaults
   allRules = false // activate all available (even unstable) rules.
