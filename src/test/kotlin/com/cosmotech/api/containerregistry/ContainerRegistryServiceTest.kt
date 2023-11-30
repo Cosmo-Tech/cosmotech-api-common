@@ -9,7 +9,7 @@ import io.mockk.spyk
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import org.apache.http.client.ClientProtocolException
+import org.apache.hc.client5.http.ClientProtocolException
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.jupiter.api.assertThrows
