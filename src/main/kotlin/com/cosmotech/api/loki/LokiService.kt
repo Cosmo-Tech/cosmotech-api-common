@@ -44,6 +44,7 @@ class LokiService(private val csmPlatformProperties: CsmPlatformProperties) {
         Request.get(uri)
             .addHeader(HttpHeaders.CONTENT_TYPE, "application/x-ndjson")
             .addHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded")
+            .addHeader(CUSTOM_HEADER_TENANT_ID, csmPlatformProperties.namespace)
             .execute()
 
     return response.toString()
