@@ -18,12 +18,12 @@ fun unzip(file: InputStream, prefixNames: List<String>, fileExtension: String): 
     ZipInputStream(file).use { zipInputStream ->
       generateSequence { zipInputStream.nextEntry }
           .filterNot { it.isDirectory }
-          .filter { prefixNames.any { prefix -> it.name.startsWith(prefix, true) } }
+          .filter { prefixNames.any { prefix -> it.name.contains(prefix, true) } }
           .filter { it.name.endsWith(fileExtension, true) }
           .map {
             UnzippedFile(
                 filename = it.name.extractFileNameFromPath(),
-                prefix = prefixNames.first { prefix -> it.name.startsWith(prefix, true) },
+                prefix = prefixNames.first { prefix -> it.name.contains(prefix, true) },
                 content = zipInputStream.readAllBytes())
           }
           .toList()
