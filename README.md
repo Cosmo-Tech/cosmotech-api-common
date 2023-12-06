@@ -5,7 +5,7 @@ Local build
 ```
 Package creation use last git tag to generate next version.
 Update git tags with:
-``` bash
+``` bash 
 git pull --all
 ```
 Assemble and publish package in local maven repository (~/.m2/repository/com/github/Cosmo-Tech/cosmotech-api-common/):
