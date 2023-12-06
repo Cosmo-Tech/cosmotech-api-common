@@ -47,16 +47,13 @@ jobs:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
           arguments: test -x spotlessCheck
           
-          
-  update_snapshot:
+  update_snapshot_and_package:
     runs-on: ubuntu-latest
     needs:
       - build_and_test
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
     permissions: write-all
-
     steps:
       - uses: actions/checkout@v3
         with:
@@ -88,3 +85,21 @@ jobs:
           gh release create "$TAG" \
               --title="$TAG" \
               --generate-notes
+
+      - name: Set up JDK
+        if: ${{ endsWith(steps.previoustag.outputs.tag, '-SNAPSHOT') }}
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          
+      - name: Publish with Gradle
+        if: ${{ endsWith(steps.previoustag.outputs.tag, '-SNAPSHOT') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.previoustag.outputs.tag }}
+        uses: gradle/gradle-build-action@v2
+        with:
+          cache-disabled: true
+          arguments: |
+            publish
