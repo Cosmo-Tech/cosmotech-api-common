@@ -49,3 +49,30 @@ class ScenarioRunEndTimeRequest(
     val workspaceId: String,
     val scenarioRunId: String
 ) : CsmRequestResponseEvent<ZonedDateTime>(publisher)
+
+class AddDatasetToWorkspace(
+    publisher: Any,
+    val organizationId: String,
+    val workspaceId: String,
+    val datasetId: String
+) : CsmRequestResponseEvent<MutableList<String>>(publisher)
+
+class RemoveDatasetFromWorkspace(
+    publisher: Any,
+    val organizationId: String,
+    val workspaceId: String,
+    val datasetId: String
+) : CsmRequestResponseEvent<MutableList<String>>(publisher)
+
+class AddWorkspaceToDataset(
+    publisher: Any,
+    val organizationId: String,
+    val datasetId: String,
+    val workspaceId: String
+) : CsmRequestResponseEvent<MutableList<String>>(publisher)
+class RemoveWorkspaceFromDataset(
+    publisher: Any,
+    val organizationId: String,
+    val datasetId: String,
+    val workspaceId: String
+) : CsmRequestResponseEvent<MutableList<String>>(publisher)
