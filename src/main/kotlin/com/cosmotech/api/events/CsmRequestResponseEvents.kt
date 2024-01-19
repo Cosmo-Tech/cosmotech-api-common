@@ -70,6 +70,7 @@ class AddWorkspaceToDataset(
     val datasetId: String,
     val workspaceId: String
 ) : CsmRequestResponseEvent<MutableList<String>>(publisher)
+
 class RemoveWorkspaceFromDataset(
     publisher: Any,
     val organizationId: String,
