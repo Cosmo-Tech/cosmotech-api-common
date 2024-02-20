@@ -36,7 +36,7 @@ import org.springframework.util.CollectionUtils
 import org.springframework.util.StringUtils
 
 @Configuration
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity
 @ConditionalOnProperty(
     name = ["csm.platform.identityProvider.code"], havingValue = "okta", matchIfMissing = false)
 @EnableMethodSecurity(securedEnabled = true, prePostEnabled = true, proxyTargetClass = true)
