@@ -3,6 +3,6 @@
 package com.cosmotech.api.events
 
 @Suppress("UnusedPrivateMember")
-class RunStart(publisher: Any, runner: Any) : CsmRequestResponseEvent<Any>(publisher)
+class RunStart(publisher: Any, val runnerData: Any) : CsmRequestResponseEvent<String>(publisher)
 
-@Suppress("UnusedPrivateMember") class RunStop(publisher: Any, run: String) : CsmEvent(publisher)
+@Suppress("UnusedPrivateMember") class RunStop(publisher: Any, val runnerData: Any) : CsmEvent(publisher)
