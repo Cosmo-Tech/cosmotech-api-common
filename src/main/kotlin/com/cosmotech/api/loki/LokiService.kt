@@ -4,12 +4,10 @@ package com.cosmotech.api.loki
 
 import com.cosmotech.api.config.CsmPlatformProperties
 import java.time.OffsetDateTime
-import org.apache.hc.client5.http.fluent.Request
-import org.apache.hc.core5.http.NameValuePair
-import org.apache.hc.core5.http.message.BasicNameValuePair
-import org.apache.hc.core5.net.URIBuilder
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
+import org.springframework.web.client.RestClient
+import org.springframework.web.client.body
 
 // Needed for authentication in multitenant mode
 // https://grafana.com/docs/loki/latest/operations/authentication/
@@ -18,16 +16,14 @@ private const val CUSTOM_HEADER_TENANT_ID = "X-Scope-OrgID"
 @Service("csmLoki")
 class LokiService(private val csmPlatformProperties: CsmPlatformProperties) {
 
+  private var restClient = RestClient.builder().baseUrl(csmPlatformProperties.loki.baseUrl).build()
+
   fun getPodLogs(namespace: String, podName: String) = execRequest(namespace, podName)
 
   fun getPodsLogs(namespace: String, podNames: List<String>): Map<String, String> {
-    var podsLogs = mutableMapOf<String, String>()
+    val podsLogs = mutableMapOf<String, String>()
     podNames.forEach { podsLogs[it] = getPodLogs(namespace, it) }
     return podsLogs
-  }
-
-  private fun getLokiQueryURI(): String {
-    return csmPlatformProperties.loki.baseUrl + csmPlatformProperties.loki.queryPath
   }
 
   private fun execRequest(namespace: String, podName: String): String {
@@ -38,16 +34,14 @@ class LokiService(private val csmPlatformProperties: CsmPlatformProperties) {
 
     val parameters = buildParameters(namespace, podName, startTime, endTime)
 
-    val uri = URIBuilder(getLokiQueryURI()).addParameters(parameters).build()
-
-    val response =
-        Request.get(uri)
-            .addHeader(HttpHeaders.CONTENT_TYPE, "application/x-ndjson")
-            .addHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded")
-            .addHeader(CUSTOM_HEADER_TENANT_ID, csmPlatformProperties.namespace)
-            .execute()
-
-    return response.toString()
+    return restClient
+        .get()
+        .uri(csmPlatformProperties.loki.queryPath, parameters)
+        .header(
+            HttpHeaders.CONTENT_TYPE, "application/x-ndjson", "application/x-www-form-urlencoded")
+        .header(CUSTOM_HEADER_TENANT_ID, csmPlatformProperties.namespace)
+        .retrieve()
+        .body<String>()!!
   }
 
   private fun buildParameters(
@@ -55,11 +49,7 @@ class LokiService(private val csmPlatformProperties: CsmPlatformProperties) {
       podName: String,
       startTime: String,
       endTime: String
-  ) =
-      mutableListOf<NameValuePair>(
-          BasicNameValuePair("query", getQuery(namespace, podName)),
-          BasicNameValuePair("start", startTime),
-          BasicNameValuePair("end", endTime))
+  ) = mapOf("query" to getQuery(namespace, podName), "start" to startTime, "end" to endTime)
 
   private fun getQuery(namespace: String, podName: String) =
       "{namespace=\"$namespace\",pod=\"$podName\"}"

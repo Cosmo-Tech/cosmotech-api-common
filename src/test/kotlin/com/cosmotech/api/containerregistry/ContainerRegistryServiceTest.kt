@@ -3,31 +3,89 @@
 package com.cosmotech.api.containerregistry
 
 import com.cosmotech.api.config.CsmPlatformProperties
+import com.cosmotech.api.exceptions.CsmClientException
 import io.mockk.every
+import io.mockk.impl.annotations.SpyK
 import io.mockk.mockk
-import io.mockk.spyk
 import kotlin.test.BeforeTest
 import kotlin.test.Test
-import kotlin.test.assertEquals
-import org.apache.hc.client5.http.ClientProtocolException
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.jupiter.api.assertThrows
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
+import org.springframework.test.util.ReflectionTestUtils
+import org.springframework.web.client.HttpClientErrorException
+import org.springframework.web.client.HttpServerErrorException
+import org.springframework.web.client.RestClient
+import org.springframework.web.client.RestClient.ResponseSpec
 
 class ContainerRegistryServiceTest {
-  var csmPlatformProperties: CsmPlatformProperties = mockk(relaxed = true)
-  lateinit var containerRegistryService: ContainerRegistryService
+
+  private var csmPlatformProperties: CsmPlatformProperties = mockk(relaxed = true)
+  private var restClient: RestClient = mockk(relaxed = true)
+
+  @SpyK lateinit var containerRegistryService: ContainerRegistryService
 
   @BeforeTest
   fun beforeTest() {
-    containerRegistryService = spyk(ContainerRegistryService(csmPlatformProperties))
+    containerRegistryService = ContainerRegistryService(csmPlatformProperties)
+    ReflectionTestUtils.setField(containerRegistryService, "restClient", restClient)
     every { csmPlatformProperties.containerRegistry.registryUrl } answers { "localhost:5000" }
   }
 
   @Test
-  fun `check solution image with wrong repository and tag throws exception`() {
-    assertThrows<ClientProtocolException> {
+  fun `check solution image with restClient throwing HttpServerErrorException`() {
+    assertThrows<CsmClientException> {
+      every {
+        restClient
+            .get()
+            .uri("/v2/any/tags/list")
+            .header(HttpHeaders.AUTHORIZATION, any())
+            .retrieve()
+            .body(String::class.java)
+      } throws HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR)
+
       containerRegistryService.checkSolutionImage("any", "any")
+    }
+  }
+
+  @Test
+  fun `check solution image with restClient throwing HttpClientErrorException`() {
+    assertThrows<CsmClientException> {
+      every {
+        restClient
+            .get()
+            .uri("/v2/any/tags/list")
+            .header(HttpHeaders.AUTHORIZATION, any())
+            .retrieve()
+            .body(String::class.java)
+      } throws HttpClientErrorException(HttpStatus.BAD_REQUEST)
+
+      containerRegistryService.checkSolutionImage("any", "any")
+    }
+  }
+
+  @Test
+  fun `check solution image with existing repository and unknown tag`() {
+    assertThrows<CsmClientException> {
+      val ja = JSONArray()
+      ja.put("latest")
+
+      val jo = JSONObject()
+      jo.put("name", "my-repository")
+      jo.put("tags", ja)
+
+      every {
+        restClient
+            .get()
+            .uri("/v2/any/tags/list")
+            .header(HttpHeaders.AUTHORIZATION, any())
+            .retrieve()
+            .body(String::class.java)
+      } returns jo.toString()
+
+      containerRegistryService.checkSolutionImage("any", "wrong_tag")
     }
   }
 
@@ -39,14 +97,19 @@ class ContainerRegistryServiceTest {
     val jo = JSONObject()
     jo.put("name", "my-repository")
     jo.put("tags", ja)
+    val reponseMockk = mockk<ResponseSpec>()
 
-    every { containerRegistryService.getRepositoryTagList("my-repository") } returns jo.toString()
+    every {
+      restClient
+          .get()
+          .uri("/v2/my-repository/tags/list")
+          .header(HttpHeaders.AUTHORIZATION, any())
+          .retrieve()
+    } returns reponseMockk
+
+    every { reponseMockk.onStatus(any(), any()) } returns reponseMockk
+    every { reponseMockk.body(String::class.java) } returns jo.toString()
 
     containerRegistryService.checkSolutionImage("my-repository", "latest")
-  }
-
-  @Test
-  fun `check endpoint url`() {
-    assertEquals(containerRegistryService.getEndpoint(), "localhost:5000")
   }
 }
