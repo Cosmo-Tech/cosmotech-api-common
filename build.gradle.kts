@@ -164,7 +164,6 @@ val tikaVersion = "2.9.1"
 val kubernetesClientVersion = "19.0.0"
 val redisOMVersion = "0.8.8"
 val kotlinCoroutinesCoreVersion = "1.7.3"
-val httpclient5Version = "5.2.1"
 
 // Checks
 val detektVersion = "1.23.1"
@@ -228,7 +227,6 @@ dependencies {
 
   implementation("com.redis.testcontainers:testcontainers-redis-junit:$testcontainersRedis")
   implementation("org.springframework.boot:spring-boot-starter-test")
-  implementation("org.apache.httpcomponents.client5:httpclient5-fluent:$httpclient5Version")
 
   testImplementation(kotlin("test"))
   testImplementation(platform("org.junit:junit-bom:${jUnitBomVersion}"))
