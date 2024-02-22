@@ -5,6 +5,7 @@ package com.cosmotech.api.exceptions
 import java.net.URI
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
+import org.springframework.security.authentication.AuthenticationServiceException
 import org.springframework.security.authentication.InsufficientAuthenticationException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -48,5 +49,29 @@ open class CsmExceptionHandling : ResponseEntityExceptionHandler() {
     problemDetail.type = URI.create(httpStatusCodeTypePrefix + badRequestStatus.value())
     problemDetail.detail = exception.message
     return problemDetail
+  }
+
+  @ExceptionHandler(AuthenticationServiceException::class)
+  fun handleAuthenticationServiceException(
+      exception: AuthenticationServiceException
+  ): ProblemDetail {
+    val response = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    val internalServerErrorStatus = HttpStatus.INTERNAL_SERVER_ERROR
+    response.type = URI.create(httpStatusCodeTypePrefix + internalServerErrorStatus.value())
+    if (exception.message != null) {
+      response.detail = exception.message
+    }
+    return response
+  }
+
+  @ExceptionHandler(IndexOutOfBoundsException::class)
+  fun handleIndexOutOfBoundsException(exception: IndexOutOfBoundsException): ProblemDetail {
+    val response = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    val internalServerErrorStatus = HttpStatus.INTERNAL_SERVER_ERROR
+    response.type = URI.create(httpStatusCodeTypePrefix + internalServerErrorStatus.value())
+    if (exception.message != null) {
+      response.detail = exception.message
+    }
+    return response
   }
 }
