@@ -5,3 +5,11 @@ package com.cosmotech.api.events
 class RunStart(publisher: Any, val runnerData: Any) : CsmRequestResponseEvent<String>(publisher)
 
 class RunStop(publisher: Any, val runnerData: Any) : CsmEvent(publisher)
+
+class AskRunStatusEvent(
+    publisher: Any,
+    val organizationId: String,
+    val workspaceId: String,
+    val runnerId: String,
+    val runId: String
+) : CsmRequestResponseEvent<String>(publisher)
