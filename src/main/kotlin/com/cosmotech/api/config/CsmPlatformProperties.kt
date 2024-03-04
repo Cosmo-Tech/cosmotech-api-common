@@ -340,7 +340,8 @@ data class CsmPlatformProperties(
 
   enum class Vendor {
     /** Microsoft Azure : https://azure.microsoft.com/en-us/ */
-    AZURE
+    AZURE,
+    ON_PREMISE
   }
 
   data class DataIngestion(
