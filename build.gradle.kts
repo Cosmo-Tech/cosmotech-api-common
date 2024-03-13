@@ -2,15 +2,16 @@
 // Licensed under the MIT license.
 import com.diffplug.gradle.spotless.SpotlessExtension
 import io.gitlab.arturbosch.detekt.Detekt
+import org.gradle.kotlin.dsl.implementation
 
 plugins {
-  val kotlinVersion = "1.8.0"
+  val kotlinVersion = "1.9.10"
   kotlin("jvm") version kotlinVersion
-  id("com.diffplug.spotless") version "6.12.0"
-  id("org.springframework.boot") version "2.7.11" apply false
-  id("io.gitlab.arturbosch.detekt") version "1.22.0"
-  id("pl.allegro.tech.build.axion-release") version "1.14.3"
-  id("org.jetbrains.kotlinx.kover") version "0.6.1"
+  id("com.diffplug.spotless") version "6.22.0"
+  id("org.springframework.boot") version "3.2.2" apply false
+  id("io.gitlab.arturbosch.detekt") version "1.23.1"
+  id("pl.allegro.tech.build.axion-release") version "1.15.5"
+  id("org.jetbrains.kotlinx.kover") version "0.7.4"
   `maven-publish`
   // Apply the java-library plugin for API and implementation separation.
   `java-library`
@@ -94,6 +95,8 @@ configure<SpotlessExtension> {
   }
 }
 
+tasks.withType<JavaCompile>() { options.compilerArgs.add("-parameters") }
+
 tasks.withType<Detekt>().configureEach {
   buildUponDefaultConfig = true // preconfigure defaults
   allRules = false // activate all available (even unstable) rules.
@@ -109,23 +112,27 @@ tasks.withType<Detekt>().configureEach {
     html {
       // observe findings in your browser with structure and code snippets
       required.set(true)
-      outputLocation.set(file("$buildDir/reports/detekt/${project.name}-detekt.html"))
+      outputLocation.set(
+          file("${layout.buildDirectory.get()}/reports/detekt/${project.name}-detekt.html"))
     }
     xml {
       // checkstyle like format mainly for integrations like Jenkins
       required.set(false)
-      outputLocation.set(file("$buildDir/reports/detekt/${project.name}-detekt.xml"))
+      outputLocation.set(
+          file("${layout.buildDirectory.get()}/reports/detekt/${project.name}-detekt.xml"))
     }
     txt {
       // similar to the console output, contains issue signature to manually edit baseline files
       required.set(true)
-      outputLocation.set(file("$buildDir/reports/detekt/${project.name}-detekt.txt"))
+      outputLocation.set(
+          file("${layout.buildDirectory.get()}/reports/detekt/${project.name}-detekt.txt"))
     }
     sarif {
       // standardized SARIF format (https://sarifweb.azurewebsites.net/) to support integrations
       // with Github Code Scanning
       required.set(true)
-      outputLocation.set(file("$buildDir/reports/detekt/${project.name}-detekt.sarif"))
+      outputLocation.set(
+          file("${layout.buildDirectory.get()}/reports/detekt/${project.name}-detekt.sarif"))
     }
   }
 }
@@ -138,35 +145,41 @@ tasks.jar {
 }
 
 // Dependencies version
+
+// Required versions
+val jacksonVersion = "2.15.3"
+val springWebVersion = "6.1.4"
+val springBootVersion = "3.2.2"
+
 // Implementation
-val swaggerParserVersion = "2.1.13"
+val swaggerParserVersion = "2.1.16"
 val hashidsVersion = "1.0.3"
 val springOauthAutoConfigureVersion = "2.6.8"
 val springSecurityJwtVersion = "1.1.1.RELEASE"
-val springBootStarterWebVersion = "2.7.0"
-val springDocVersion = "1.6.13"
-val springOauthVersion = "5.8.3"
-val zalandoSpringProblemVersion = "0.27.0"
-val servletApiVersion = "4.0.1"
-val oktaSpringBootVersion = "2.1.6"
-val azureSpringBootBomVersion = "3.14.0"
-val tikaVersion = "2.6.0"
-val kubernetesClientVersion = "18.0.0"
-val jedisVersion = "3.9.0"
-val jredistimeseriesVersion = "1.6.0"
-val redisOMVersion = "0.6.4"
+val springDocVersion = "2.2.0"
+val springOauthVersion = "6.2.2"
+val servletApiVersion = "6.0.0"
+val oktaSpringBootVersion = "3.0.5"
+val tikaVersion = "2.9.1"
+val kubernetesClientVersion = "19.0.0"
+val redisOMVersion = "0.8.8"
+val kotlinCoroutinesCoreVersion = "1.7.3"
+
+// Checks
+val detektVersion = "1.23.1"
 
 // Tests
-val jUnitBomVersion = "5.9.1"
-val mockkVersion = "1.13.2"
+val jUnitBomVersion = "5.10.0"
+val mockkVersion = "1.13.8"
 val awaitilityKVersion = "4.2.0"
-val testcontainersRedis = "1.6.2"
+val testcontainersRedis = "1.6.4"
 
 dependencies {
   implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
 
-  detekt("io.gitlab.arturbosch.detekt:detekt-cli:1.22.0")
-  detekt("io.gitlab.arturbosch.detekt:detekt-formatting:1.22.0")
+  detekt("io.gitlab.arturbosch.detekt:detekt-cli:$detektVersion")
+  detekt("io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion")
+  detektPlugins("io.gitlab.arturbosch.detekt:detekt-rules-libraries:$detektVersion")
 
   // Align versions of all Kotlin components
   implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
@@ -179,7 +192,18 @@ dependencies {
   implementation("io.swagger.parser.v3:swagger-parser-v3:${swaggerParserVersion}")
 
   implementation(
-      "org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:${springOauthAutoConfigureVersion}")
+      "org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:${springOauthAutoConfigureVersion}") {
+        constraints {
+          implementation("com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion")
+          implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
+          implementation("org.springframework:spring-web:$springWebVersion")
+          implementation("org.springframework.boot:spring-boot-autoconfigure:$springBootVersion")
+        }
+      }
+  implementation("org.springframework.boot:spring-boot-starter-security")
+  implementation("org.springframework.security:spring-security-oauth2-jose:${springOauthVersion}")
+  implementation(
+      "org.springframework.security:spring-security-oauth2-resource-server:${springOauthVersion}")
   implementation("org.springframework.security:spring-security-jwt:${springSecurityJwtVersion}")
 
   implementation("org.springframework.boot:spring-boot-starter-web") {
@@ -187,32 +211,22 @@ dependencies {
   }
   implementation("io.kubernetes:client-java:${kubernetesClientVersion}")
 
-  implementation("org.springdoc:springdoc-openapi-ui:${springDocVersion}")
-  implementation("org.springdoc:springdoc-openapi-kotlin:${springDocVersion}")
-  implementation("org.zalando:problem-spring-web-starter:${zalandoSpringProblemVersion}")
-  implementation("javax.servlet:javax.servlet-api:${servletApiVersion}")
-  implementation("org.springframework.boot:spring-boot-starter-security")
-  implementation("org.springframework.security:spring-security-oauth2-jose:${springOauthVersion}")
-  implementation(
-      "org.springframework.security:spring-security-oauth2-resource-server:${springOauthVersion}")
-  implementation("com.okta.spring:okta-spring-boot-starter:${oktaSpringBootVersion}")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${springDocVersion}")
+  // https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-kotlin
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.16.0-rc1")
 
+  implementation("jakarta.servlet:jakarta.servlet-api:${servletApiVersion}")
+  implementation("com.okta.spring:okta-spring-boot-starter:${oktaSpringBootVersion}")
   implementation("org.springframework.boot:spring-boot-starter-actuator")
   implementation("io.micrometer:micrometer-registry-prometheus")
   implementation("org.springframework.boot:spring-boot-starter-aop")
 
   implementation("org.apache.tika:tika-core:${tikaVersion}")
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-
-  implementation("redis.clients:jedis:${jedisVersion}")
-  implementation("com.redislabs:jredistimeseries:${jredistimeseriesVersion}")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesCoreVersion")
   implementation("com.redis.om:redis-om-spring:${redisOMVersion}")
+
   implementation("com.redis.testcontainers:testcontainers-redis-junit:$testcontainersRedis")
   implementation("org.springframework.boot:spring-boot-starter-test")
-  implementation("org.apache.httpcomponents:httpclient:4.5.14")
-
-  implementation("com.github.docker-java:docker-java-core:3.3.2")
-  implementation("com.github.docker-java:docker-java-transport-httpclient5:3.3.2")
 
   testImplementation(kotlin("test"))
   testImplementation(platform("org.junit:junit-bom:${jUnitBomVersion}"))
@@ -229,11 +243,16 @@ dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 }
 
-kover {
+extensions.configure<kotlinx.kover.gradle.plugin.dsl.KoverReportExtension> {
+  defaults {
+    // reports configs for XML, HTML, verify reports
+  }
   filters {
-    classes {
-      includes +=
-          listOf("com.cosmotech.api.id.*", "com.cosmotech.api.rbac.*", "com.cosmotech.utils.*")
+    includes {
+      packages("com.cosmotech.api")
+      classes("com.cosmotech.api.id.*")
+      classes("com.cosmotech.api.rbac.*")
+      classes("com.cosmotech.utils.*")
     }
   }
 }

@@ -4,13 +4,8 @@ package com.cosmotech.api.security
 
 import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
-import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer
-import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer
-import org.springframework.security.oauth2.core.OAuth2TokenValidator
-import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult
-import org.springframework.security.oauth2.jwt.Jwt
-import org.springframework.security.oauth2.jwt.JwtClaimValidator
+import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.springframework.web.cors.CorsConfiguration
 
 // Business roles
@@ -68,6 +63,8 @@ const val PATH_ORGANIZATIONS_USERS = "/organizations/*/users"
 const val PATH_ORGANIZATIONS_SERVICES = "/organizations/*/services"
 val PATHS_ORGANIZATIONS =
     listOf(PATH_ORGANIZATIONS, PATH_ORGANIZATIONS_USERS, PATH_ORGANIZATIONS_SERVICES)
+
+// Path Scenarios
 const val PATH_SCENARIOS = "/organizations/*/workspaces/*/scenarios"
 const val PATH_SCENARIOS_COMPARE = "/organizations/*/workspaces/*/scenarios/*/compare"
 const val PATH_SCENARIOS_USERS = "/organizations/*/workspaces/*/scenarios/*/users"
@@ -79,6 +76,8 @@ val PATHS_SCENARIOS =
         PATH_SCENARIOS_COMPARE,
         PATH_SCENARIOS_USERS,
         PATH_SCENARIOS_PARAMETERVALUES)
+
+// Path ScenarioRuns
 const val PATH_SCENARIORUNS = "/organizations/*/scenarioruns"
 const val PATH_SCENARIORUNS_STATUS = "/organizations/*/scenarioruns/*/status"
 const val PATH_SCENARIORUNS_LOGS = "/organizations/*/scenarioruns/*/logs"
@@ -94,6 +93,13 @@ val PATHS_SCENARIORUNS =
         PATH_SCENARIORUNS_CUMULATEDLOGS,
         PATH_SCENARIORUNS_WORKSPACES,
         PATH_SCENARIORUNS_SCENARIOS)
+
+// Path ScenarioRunResults
+const val PATH_SCENARIORUNRESULTS =
+    "/organizations/*/workspaces/*/scenarios/*/scenarioruns/*/probes"
+val PATHS_SCENARIORUNRESULTS = listOf(PATH_SCENARIORUNRESULTS)
+
+// Path Solutions
 const val PATH_SOLUTIONS = "/organizations/*/solutions"
 const val PATH_SOLUTIONS_PARAMETERS = "/organizations/*/solutions/*/parameters"
 const val PATH_SOLUTIONS_PARAMETERGROUPS = "/organizations/*/solutions/*/parameterGroups"
@@ -107,14 +113,18 @@ val PATHS_SOLUTIONS =
         PATH_SOLUTIONS_PARAMETERGROUPS,
         PATH_SOLUTIONS_RUNTEMPLATES,
         PATH_SOLUTIONS_RUNTEMPLATES_HANDLERS_UPLOAD)
+
+// Path Workspaces
 const val PATH_WORKSPACES = "/organizations/*/workspaces"
 const val PATH_WORKSPACES_USERS = "/organizations/*/workspaces/*/users"
 val PATHS_WORKSPACES = listOf(PATH_WORKSPACES, PATH_WORKSPACES_USERS)
 const val PATH_WORKSPACES_FILES = "/organizations/*/workspaces/*/files"
-// Job
+
+// Path Job
 const val PATH_JOB_STATUS = "/organizations/*/job/*/status"
 val PATHS_JOB = listOf(PATH_JOB_STATUS)
-// Twingraph
+
+// Path Twingraph
 const val PATH_TWIN_GRAPH_IMPORT = "/organizations/*/twingraph/import"
 const val PATH_TWIN_GRAPH = "/organizations/*/twingraph"
 const val PATH_TWIN_GRAPHS = "/organizations/*/twingraphs"
@@ -227,6 +237,20 @@ internal fun endpointSecurityReaders(
             customAdmin = customOrganizationAdmin),
         CsmSecurityEndpointsRolesReader(
             paths = PATHS_SCENARIORUNS,
+            roles =
+                arrayOf(
+                    ROLE_SCENARIORUN_READER,
+                    ROLE_SCENARIORUN_WRITER,
+                    ROLE_ORGANIZATION_ADMIN,
+                    ROLE_ORGANIZATION_COLLABORATOR,
+                    ROLE_ORGANIZATION_MODELER,
+                    ROLE_ORGANIZATION_USER,
+                    SCOPE_SCENARIORUN_READ,
+                    SCOPE_SCENARIORUN_WRITE,
+                    customOrganizationUser),
+            customAdmin = customOrganizationAdmin),
+        CsmSecurityEndpointsRolesReader(
+            paths = PATHS_SCENARIORUNRESULTS,
             roles =
                 arrayOf(
                     ROLE_SCENARIORUN_READER,
@@ -360,6 +384,18 @@ internal fun endpointSecurityWriters(
                     customOrganizationUser),
             customAdmin = customOrganizationAdmin),
         CsmSecurityEndpointsRolesWriter(
+            paths = PATHS_SCENARIORUNRESULTS,
+            roles =
+                arrayOf(
+                    ROLE_SCENARIORUN_WRITER,
+                    ROLE_ORGANIZATION_ADMIN,
+                    ROLE_ORGANIZATION_COLLABORATOR,
+                    ROLE_ORGANIZATION_MODELER,
+                    ROLE_ORGANIZATION_USER,
+                    SCOPE_SCENARIORUN_WRITE,
+                    customOrganizationUser),
+            customAdmin = customOrganizationAdmin),
+        CsmSecurityEndpointsRolesWriter(
             paths = PATHS_SOLUTIONS,
             roles =
                 arrayOf(
@@ -402,34 +438,36 @@ internal fun endpointSecurityWriters(
             customAdmin = customOrganizationAdmin),
     )
 
-abstract class AbstractSecurityConfiguration : WebSecurityConfigurerAdapter() {
+abstract class AbstractSecurityConfiguration {
 
   fun getOAuth2ResourceServer(
       http: HttpSecurity,
       organizationAdminGroup: String,
       organizationUserGroup: String,
       organizationViewerGroup: String
-  ): OAuth2ResourceServerConfigurer<HttpSecurity> {
+  ): HttpSecurity {
 
     val corsHttpMethodsAllowed =
         HttpMethod.values().filterNot { it == HttpMethod.TRACE }.map(HttpMethod::name)
 
     return http
-        .cors()
-        .configurationSource {
-          CorsConfiguration().applyPermitDefaultValues().apply {
-            allowedMethods = corsHttpMethodsAllowed
+        .cors { cors ->
+          cors.configurationSource {
+            val corsConfig = CorsConfiguration().applyPermitDefaultValues()
+            corsConfig.apply { allowedMethods = corsHttpMethodsAllowed }
+            corsConfig
           }
         }
-        .and()
-        .authorizeRequests { requests ->
-          requests.antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
+        .authorizeHttpRequests { requests ->
+          requests
+              .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.OPTIONS, "/**"))
+              .permitAll()
           // Public paths
           endpointSecurityPublic.forEach { path ->
-            requests.antMatchers(HttpMethod.GET, path).permitAll()
+            requests
+                .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.GET, path))
+                .permitAll()
           }
-
           // Endpoint security for reader roles
           endpointSecurityReaders(
                   organizationAdminGroup, organizationUserGroup, organizationViewerGroup)
@@ -443,7 +481,6 @@ abstract class AbstractSecurityConfiguration : WebSecurityConfigurerAdapter() {
 
           requests.anyRequest().authenticated()
         }
-        .oauth2ResourceServer()
   }
 }
 
@@ -455,17 +492,30 @@ internal class CsmSecurityEndpointsRolesWriter(
 
   @Suppress("SpreadOperator")
   fun applyRoles(
-      requests: ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry
+      requests:
+          AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry
   ) {
+    val authoritiesList = addAdminRolesIfNotAlreadyDefined(this.roles)
     this.paths.forEach { path ->
       requests
-          .antMatchers(HttpMethod.POST, path, "$path/*")
-          .hasAnyAuthority(ROLE_PLATFORM_ADMIN, customAdmin, *this.roles)
-          .antMatchers(HttpMethod.PATCH, path, "$path/*")
-          .hasAnyAuthority(ROLE_PLATFORM_ADMIN, customAdmin, *this.roles)
-          .antMatchers(HttpMethod.DELETE, path, "$path/*")
-          .hasAnyAuthority(ROLE_PLATFORM_ADMIN, customAdmin, *this.roles)
+          .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.POST, "$path/*"))
+          .hasAnyAuthority(*authoritiesList.toTypedArray())
+          .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.PATCH, "$path/*"))
+          .hasAnyAuthority(*authoritiesList.toTypedArray())
+          .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.DELETE, "$path/*"))
+          .hasAnyAuthority(*authoritiesList.toTypedArray())
     }
+  }
+
+  private fun addAdminRolesIfNotAlreadyDefined(roles: Array<String>): MutableList<String> {
+    val authoritiesList = roles.toSet().toMutableList()
+    if (ROLE_PLATFORM_ADMIN !in authoritiesList) {
+      authoritiesList.add(ROLE_PLATFORM_ADMIN)
+    }
+    if (customAdmin !in authoritiesList) {
+      authoritiesList.add(customAdmin)
+    }
+    return authoritiesList
   }
 }
 
@@ -477,25 +527,25 @@ internal class CsmSecurityEndpointsRolesReader(
 
   @Suppress("SpreadOperator")
   fun applyRoles(
-      requests: ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry
+      requests:
+          AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry
   ) {
+    val authoritiesList = addAdminRolesIfNotAlreadyDefined(this.roles)
     this.paths.forEach { path ->
       requests
-          .antMatchers(HttpMethod.GET, path, "$path/*")
-          .hasAnyAuthority(ROLE_PLATFORM_ADMIN, customAdmin, *this.roles)
+          .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.GET, "$path/*"))
+          .hasAnyAuthority(*authoritiesList.toTypedArray())
     }
   }
-}
 
-class CsmJwtClaimValueInCollectionValidator(
-    claimName: String,
-    private val allowed: Collection<String>
-) : OAuth2TokenValidator<Jwt> {
-
-  private val jwtClaimValidator: JwtClaimValidator<String> =
-      JwtClaimValidator(claimName, allowed::contains)
-
-  override fun validate(token: Jwt?): OAuth2TokenValidatorResult =
-      this.jwtClaimValidator.validate(
-          token ?: throw IllegalArgumentException("JWT must not be null"))
+  private fun addAdminRolesIfNotAlreadyDefined(roles: Array<String>): MutableList<String> {
+    val authoritiesList = roles.toSet().toMutableList()
+    if (ROLE_PLATFORM_ADMIN !in authoritiesList) {
+      authoritiesList.add(ROLE_PLATFORM_ADMIN)
+    }
+    if (customAdmin !in authoritiesList) {
+      authoritiesList.add(customAdmin)
+    }
+    return authoritiesList
+  }
 }

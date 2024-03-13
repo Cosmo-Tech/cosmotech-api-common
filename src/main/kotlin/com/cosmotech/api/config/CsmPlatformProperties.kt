@@ -3,10 +3,8 @@
 package com.cosmotech.api.config
 
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.ConstructorBinding
 
 /** Configuration Properties for the Cosmo Tech Platform */
-@ConstructorBinding
 @ConfigurationProperties(prefix = "csm.platform")
 data class CsmPlatformProperties(
 
@@ -216,7 +214,7 @@ data class CsmPlatformProperties(
        * csmenginesdev.azurecr.io, for Azure ghcr.io, for github https://index.docker.io/v1/, for
        * local registry
        */
-      val provider: String = "local",
+      val checkSolutionImage: Boolean = true,
       val registryUrl: String = "csmenginesdev.azurecr.io",
       val registryUserName: String? = null,
       val registryPassword: String? = null,
@@ -299,7 +297,7 @@ data class CsmPlatformProperties(
         val baseUri: String,
         val resourceUri: String
     )
-    @Deprecated(message = "use csm.platform.containerregistrie instead")
+    @Deprecated(message = "use csm.platform.containerregistries instead")
     data class CsmPlatformAzureContainerRegistries(val core: String, val solutions: String)
 
     data class CsmPlatformAzureEventBus(
@@ -342,7 +340,8 @@ data class CsmPlatformProperties(
 
   enum class Vendor {
     /** Microsoft Azure : https://azure.microsoft.com/en-us/ */
-    AZURE
+    AZURE,
+    ON_PREMISE
   }
 
   data class DataIngestion(

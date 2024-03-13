@@ -8,13 +8,16 @@ import com.cosmotech.api.security.ROLE_ORGANIZATION_USER
 import com.cosmotech.api.security.ROLE_ORGANIZATION_VIEWER
 import com.cosmotech.api.security.ROLE_PLATFORM_ADMIN
 import java.util.Collections
+import java.util.Objects
 import java.util.stream.Collectors
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
+import org.springframework.core.convert.converter.Converter
+import org.springframework.security.authentication.AbstractAuthenticationToken
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.core.GrantedAuthority
@@ -27,15 +30,16 @@ import org.springframework.security.oauth2.jwt.JwtClaimValidator
 import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.security.oauth2.jwt.JwtValidators
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.util.CollectionUtils
 import org.springframework.util.StringUtils
 
 @Configuration
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity
 @ConditionalOnProperty(
     name = ["csm.platform.identityProvider.code"], havingValue = "keycloak", matchIfMissing = false)
-@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true, proxyTargetClass = true)
+@EnableMethodSecurity(securedEnabled = true, prePostEnabled = true, proxyTargetClass = true)
 internal open class KeycloakSecurityConfiguration(
     private val oAuth2ResourceServerProperties: OAuth2ResourceServerProperties,
     private val csmPlatformProperties: CsmPlatformProperties
@@ -49,14 +53,22 @@ internal open class KeycloakSecurityConfiguration(
   private val organizationViewerGroup =
       csmPlatformProperties.identityProvider?.viewerGroup ?: ROLE_ORGANIZATION_VIEWER
 
-  override fun configure(http: HttpSecurity) {
-    logger.info("Keycloak http security configuration")
-
+  @Bean
+  open fun filterChain(http: HttpSecurity): SecurityFilterChain? {
+    logger.info("Okta http security configuration")
     super.getOAuth2ResourceServer(
             http, organizationAdminGroup, organizationUserGroup, organizationViewerGroup)
-        .jwt()
-        .decoder(keycloakJwtDecoder(oAuth2ResourceServerProperties, csmPlatformProperties))
-        .jwtAuthenticationConverter(KeycloakJwtAuthenticationConverter(csmPlatformProperties))
+        .oauth2ResourceServer { oauth2 ->
+          oauth2.jwt { jwt ->
+            run {
+              jwt.decoder(keycloakJwtDecoder(oAuth2ResourceServerProperties, csmPlatformProperties))
+              jwt.jwtAuthenticationConverter(
+                  KeycloakJwtAuthenticationConverter(csmPlatformProperties))
+            }
+          }
+        }
+
+    return http.build()
   }
 
   @Bean
@@ -113,14 +125,13 @@ internal open class KeycloakSecurityConfiguration(
   }
 }
 
-class KeycloakJwtAuthenticationConverter(private val csmPlatformProperties: CsmPlatformProperties) :
-    JwtAuthenticationConverter() {
+class KeycloakJwtGrantedAuthoritiesConverter(
+    private val csmPlatformProperties: CsmPlatformProperties
+) : Converter<Jwt, Collection<GrantedAuthority>> {
 
-  private val logger = LoggerFactory.getLogger(KeycloakJwtAuthenticationConverter::class.java)
-
-  @Deprecated("Deprecated in Java")
-  override fun extractAuthorities(jwt: Jwt): MutableCollection<GrantedAuthority> {
-    val extractAuthorities = super.extractAuthorities(jwt)
+  private val logger = LoggerFactory.getLogger(KeycloakJwtGrantedAuthoritiesConverter::class.java)
+  override fun convert(jwt: Jwt): Collection<GrantedAuthority> {
+    val extractAuthorities = mutableListOf<GrantedAuthority>()
     extractAuthorities.addAll(
         convertRolesToAuthorities(jwt.claims, csmPlatformProperties.authorization.rolesJwtClaim))
     return extractAuthorities
@@ -133,9 +144,10 @@ class KeycloakJwtAuthenticationConverter(private val csmPlatformProperties: CsmP
     if (!CollectionUtils.isEmpty(attributes) && StringUtils.hasText(claimKey)) {
       val rawRoleClaim = attributes[claimKey]
       if (rawRoleClaim is Collection<*>) {
-        return (rawRoleClaim as Collection<String>)
+        return rawRoleClaim
             .stream()
-            .map { role: String -> SimpleGrantedAuthority(role) }
+            .map { role: Any? -> SimpleGrantedAuthority((role as? String)) }
+            .filter(Objects::nonNull)
             .collect(Collectors.toList())
       } else if (rawRoleClaim != null) {
         logger.debug(
@@ -143,5 +155,17 @@ class KeycloakJwtAuthenticationConverter(private val csmPlatformProperties: CsmP
       }
     }
     return mutableSetOf()
+  }
+}
+
+class KeycloakJwtAuthenticationConverter(private val csmPlatformProperties: CsmPlatformProperties) :
+    Converter<Jwt, AbstractAuthenticationToken> {
+
+  override fun convert(jwt: Jwt): AbstractAuthenticationToken {
+    val authorities: Collection<GrantedAuthority> =
+        KeycloakJwtGrantedAuthoritiesConverter(csmPlatformProperties).convert(jwt)
+    val principalClaimValue: String =
+        jwt.getClaimAsString(csmPlatformProperties.authorization.principalJwtClaim)
+    return JwtAuthenticationToken(jwt, authorities, principalClaimValue)
   }
 }

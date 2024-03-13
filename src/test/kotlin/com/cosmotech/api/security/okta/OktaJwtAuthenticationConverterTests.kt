@@ -1,6 +1,6 @@
 // Copyright (c) Cosmo Tech.
 // Licensed under the MIT license.
-package com.cosmotech.api.security.keycloak
+package com.cosmotech.api.security.okta
 
 import com.cosmotech.api.config.CsmPlatformProperties
 import io.mockk.every
@@ -14,13 +14,13 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 
-class KeycloakJwtAuthenticationConverterTests {
+class OktaJwtAuthenticationConverterTests {
 
   private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
   private lateinit var csmPlatformProperties: CsmPlatformProperties
 
-  lateinit var keycloakJwtAuthenticationConverter: KeycloakJwtAuthenticationConverter
+  lateinit var oktaJwtAuthenticationConverter: OktaJwtAuthenticationConverter
 
   lateinit var jwt: Jwt
 
@@ -29,7 +29,7 @@ class KeycloakJwtAuthenticationConverterTests {
     logger.trace("Begin test")
     csmPlatformProperties = mockk<CsmPlatformProperties>()
     jwt = mockk<Jwt>()
-    keycloakJwtAuthenticationConverter = KeycloakJwtAuthenticationConverter(csmPlatformProperties)
+    oktaJwtAuthenticationConverter = OktaJwtAuthenticationConverter(csmPlatformProperties)
   }
 
   @Test
@@ -52,7 +52,7 @@ class KeycloakJwtAuthenticationConverterTests {
     every { csmPlatformProperties.authorization.principalJwtClaim } returns principalClaimValue
     every { jwt.getClaimAsString(principalClaimValue) } returns principalClaimValue
 
-    val jwtConverted = keycloakJwtAuthenticationConverter.convert(jwt)
+    val jwtConverted = oktaJwtAuthenticationConverter.convert(jwt)
 
     assertEquals(
         JwtAuthenticationToken(jwt, expectedSimpleGrantedAuthorities, principalClaimValue),
@@ -74,7 +74,7 @@ class KeycloakJwtAuthenticationConverterTests {
     every { csmPlatformProperties.authorization.principalJwtClaim } returns principalClaimValue
     every { jwt.getClaimAsString(principalClaimValue) } returns principalClaimValue
 
-    val jwtConverted = keycloakJwtAuthenticationConverter.convert(jwt)
+    val jwtConverted = oktaJwtAuthenticationConverter.convert(jwt)
 
     assertEquals(JwtAuthenticationToken(jwt, emptyList(), principalClaimValue), jwtConverted)
   }
@@ -94,7 +94,7 @@ class KeycloakJwtAuthenticationConverterTests {
     every { csmPlatformProperties.authorization.principalJwtClaim } returns principalClaimValue
     every { jwt.getClaimAsString(principalClaimValue) } returns principalClaimValue
 
-    val jwtConverted = keycloakJwtAuthenticationConverter.convert(jwt)
+    val jwtConverted = oktaJwtAuthenticationConverter.convert(jwt)
 
     assertEquals(JwtAuthenticationToken(jwt, emptyList(), principalClaimValue), jwtConverted)
   }
