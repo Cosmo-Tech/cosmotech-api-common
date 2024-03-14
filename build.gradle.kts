@@ -162,7 +162,7 @@ val servletApiVersion = "6.0.0"
 val oktaSpringBootVersion = "3.0.5"
 val tikaVersion = "2.9.1"
 val kubernetesClientVersion = "19.0.0"
-val redisOMVersion = "0.8.8"
+val redisOMVersion = "0.8.9"
 val kotlinCoroutinesCoreVersion = "1.7.3"
 
 // Checks
