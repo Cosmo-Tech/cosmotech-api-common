@@ -147,7 +147,7 @@ tasks.jar {
 // Dependencies version
 
 // Required versions
-val jacksonVersion = "2.15.3"
+val jacksonVersion = "2.17.0"
 val springWebVersion = "6.1.4"
 val springBootVersion = "3.2.2"
 
