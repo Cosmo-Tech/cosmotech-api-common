@@ -21,7 +21,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
 
       - name: Build with Gradle
         env:
@@ -92,7 +92,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
           
       - name: Publish with Gradle
         if: ${{ endsWith(steps.previoustag.outputs.tag, '-SNAPSHOT') }}
