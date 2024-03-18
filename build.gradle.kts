@@ -152,7 +152,7 @@ val springWebVersion = "6.1.4"
 val springBootVersion = "3.2.2"
 
 // Implementation
-val swaggerParserVersion = "2.1.16"
+val swaggerParserVersion = "2.1.21"
 val hashidsVersion = "1.0.3"
 val springOauthAutoConfigureVersion = "2.6.8"
 val springSecurityJwtVersion = "1.1.1.RELEASE"
