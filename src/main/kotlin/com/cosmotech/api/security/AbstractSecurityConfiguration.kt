@@ -2,11 +2,21 @@
 // Licensed under the MIT license.
 package com.cosmotech.api.security
 
+import jakarta.servlet.FilterChain
+import jakarta.servlet.ServletRequest
+import jakarta.servlet.ServletResponse
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpMethod
+import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer
+import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.authority.AuthorityUtils
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.filter.GenericFilterBean
 
 // Business roles
 const val ROLE_PLATFORM_ADMIN = "Platform.Admin"
@@ -458,6 +468,8 @@ abstract class AbstractSecurityConfiguration {
             corsConfig
           }
         }
+        .addFilterAfter(
+            ApiKeyAuthenticationFilter(), UsernamePasswordAuthenticationFilter::class.java)
         .authorizeHttpRequests { requests ->
           requests
               .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.OPTIONS, "/**"))
@@ -481,6 +493,37 @@ abstract class AbstractSecurityConfiguration {
 
           requests.anyRequest().authenticated()
         }
+  }
+}
+
+class ApiKeyAuthentication(val apiKey: String, authorities: MutableCollection<GrantedAuthority>) :
+    AbstractAuthenticationToken(authorities) {
+  init {
+    this.isAuthenticated = true
+  }
+  override fun getCredentials(): Any? {
+    return null
+  }
+
+  override fun getPrincipal(): Any {
+    return apiKey
+  }
+}
+
+class ApiKeyAuthenticationFilter : GenericFilterBean() {
+
+  private var authTokenHeaderName = "X-API-KEY"
+  private var authTokenToken = "toto"
+
+  @Suppress("TooGenericExceptionCaught")
+  override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
+    val apiKey = (request as HttpServletRequest).getHeader(authTokenHeaderName)
+    if (!apiKey.isNullOrEmpty() && apiKey == authTokenToken) {
+      val authentication =
+          ApiKeyAuthentication(apiKey, AuthorityUtils.createAuthorityList("Platform.Admin"))
+      SecurityContextHolder.getContext().authentication = authentication
+    }
+    chain.doFilter(request, response)
   }
 }
 
