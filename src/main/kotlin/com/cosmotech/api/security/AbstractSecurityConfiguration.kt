@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 package com.cosmotech.api.security
 
+import com.cosmotech.api.config.CsmPlatformProperties
 import jakarta.servlet.FilterChain
 import jakarta.servlet.ServletRequest
 import jakarta.servlet.ServletResponse
@@ -454,7 +455,8 @@ abstract class AbstractSecurityConfiguration {
       http: HttpSecurity,
       organizationAdminGroup: String,
       organizationUserGroup: String,
-      organizationViewerGroup: String
+      organizationViewerGroup: String,
+      csmPlatformProperties: CsmPlatformProperties
   ): HttpSecurity {
 
     val corsHttpMethodsAllowed =
@@ -469,7 +471,8 @@ abstract class AbstractSecurityConfiguration {
           }
         }
         .addFilterAfter(
-            ApiKeyAuthenticationFilter(), UsernamePasswordAuthenticationFilter::class.java)
+            ApiKeyAuthenticationFilter(csmPlatformProperties),
+            UsernamePasswordAuthenticationFilter::class.java)
         .authorizeHttpRequests { requests ->
           requests
               .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.OPTIONS, "/**"))
@@ -510,18 +513,21 @@ class ApiKeyAuthentication(val apiKey: String, authorities: MutableCollection<Gr
   }
 }
 
-class ApiKeyAuthenticationFilter : GenericFilterBean() {
-
-  private var authTokenHeaderName = "X-API-KEY"
-  private var authTokenToken = "toto"
+class ApiKeyAuthenticationFilter(val csmPlatformProperties: CsmPlatformProperties) :
+    GenericFilterBean() {
 
   @Suppress("TooGenericExceptionCaught")
   override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
-    val apiKey = (request as HttpServletRequest).getHeader(authTokenHeaderName)
-    if (!apiKey.isNullOrEmpty() && apiKey == authTokenToken) {
-      val authentication =
-          ApiKeyAuthentication(apiKey, AuthorityUtils.createAuthorityList("Platform.Admin"))
-      SecurityContextHolder.getContext().authentication = authentication
+
+    csmPlatformProperties.authorization.allowedApiKeyConsumers.forEach { apiKeyConsumer ->
+      val apiKeyInRequest =
+          (request as HttpServletRequest).getHeader(apiKeyConsumer.apiKeyHeaderName)
+      if (!apiKeyInRequest.isNullOrEmpty() && apiKeyInRequest == apiKeyConsumer.apiKey) {
+        val authentication =
+            ApiKeyAuthentication(
+                apiKeyInRequest, AuthorityUtils.createAuthorityList(apiKeyConsumer.associatedRole))
+        SecurityContextHolder.getContext().authentication = authentication
+      }
     }
     chain.doFilter(request, response)
   }

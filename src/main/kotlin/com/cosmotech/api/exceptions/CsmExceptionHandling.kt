@@ -6,6 +6,7 @@ import java.net.URI
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
 import org.springframework.security.authentication.AuthenticationServiceException
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.InsufficientAuthenticationException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -44,6 +45,14 @@ open class CsmExceptionHandling : ResponseEntityExceptionHandler() {
 
   @ExceptionHandler
   fun handleCsmClientException(exception: CsmClientException): ProblemDetail {
+    val badRequestStatus = HttpStatus.BAD_REQUEST
+    val problemDetail = ProblemDetail.forStatus(badRequestStatus)
+    problemDetail.type = URI.create(httpStatusCodeTypePrefix + badRequestStatus.value())
+    problemDetail.detail = exception.message
+    return problemDetail
+  }
+  @ExceptionHandler
+  fun handleBadCredentialsException(exception: BadCredentialsException): ProblemDetail {
     val badRequestStatus = HttpStatus.BAD_REQUEST
     val problemDetail = ProblemDetail.forStatus(badRequestStatus)
     problemDetail.type = URI.create(httpStatusCodeTypePrefix + badRequestStatus.value())

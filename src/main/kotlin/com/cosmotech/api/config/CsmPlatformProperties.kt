@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 package com.cosmotech.api.config
 
+import com.cosmotech.api.security.ROLE_ORGANIZATION_USER
 import org.springframework.boot.context.properties.ConfigurationProperties
 
 /** Configuration Properties for the Cosmo Tech Platform */
@@ -107,8 +108,26 @@ data class CsmPlatformProperties(
        * List of additional tenants allowed to register, besides the configured
        * `csm.platform.azure.credentials.tenantId`
        */
-      val allowedTenants: List<String> = emptyList()
-  )
+      val allowedTenants: List<String> = emptyList(),
+
+      /** List of Api key allowed to access data, besides Oauth2 configuration */
+      val allowedApiKeyConsumers: List<ApiKeyConsumer> = emptyList()
+  ) {
+    class ApiKeyConsumer(
+
+        /** The consumer name (human readable) to track usage */
+        val name: String,
+
+        /** Api Key associated to consumer that is passed in request */
+        val apiKey: String,
+
+        /** Default Header name that contains apiKey value in requests */
+        val apiKeyHeaderName: String = "CSM-API-KEY",
+
+        /** Platform Role associated to apiKey */
+        val associatedRole: String = ROLE_ORGANIZATION_USER
+    )
+  }
 
   data class CsmImages(
       /** Container image to fetch Scenario Parameters */
