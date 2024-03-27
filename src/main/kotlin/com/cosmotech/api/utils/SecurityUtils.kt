@@ -12,9 +12,11 @@ import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.JWTParser
 import java.text.ParseException
 import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.core.userdetails.User
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 
@@ -67,6 +69,7 @@ fun getCurrentAuthenticatedRoles(configuration: CsmPlatformProperties): List<Str
       ?: emptyList())
 }
 
+@Suppress("ReturnCount")
 fun <T> getValueFromAuthenticatedToken(
     configuration: CsmPlatformProperties,
     actionLambda: (String) -> T
@@ -101,6 +104,17 @@ fun <T> getValueFromAuthenticatedToken(
       throw BadCredentialsException("Api key sent is not allowed")
     }
     return actionLambda(jwtClaimsSet.toString())
+  }
+  if (authentication is UsernamePasswordAuthenticationToken) {
+    val username = (authentication.principal as User).username
+    return actionLambda(
+        JWTClaimsSet.Builder()
+            .issuer(username)
+            .claim(configuration.authorization.principalJwtClaim, username)
+            .claim(configuration.authorization.mailJwtClaim, username)
+            .claim(configuration.authorization.rolesJwtClaim, "Platform.Admin")
+            .build()
+            .toString())
   }
   return (authentication as BearerTokenAuthentication).token.tokenValue.let { actionLambda(it) }
 }
