@@ -112,7 +112,7 @@ fun <T> getValueFromAuthenticatedToken(
             .issuer(username)
             .claim(configuration.authorization.principalJwtClaim, username)
             .claim(configuration.authorization.mailJwtClaim, username)
-            .claim(configuration.authorization.rolesJwtClaim, "Platform.Admin")
+            .claim(configuration.authorization.rolesJwtClaim, listOf("Platform.Admin"))
             .build()
             .toString())
   }
