@@ -76,8 +76,17 @@ data class CsmPlatformProperties(
 
     /** Loki Service */
     val loki: Loki = Loki(),
-) {
 
+    /** Storage properties */
+    val storage: CsmStorage,
+
+    /** Queue configuration */
+    val eventbus: CsmEventBus
+) {
+  data class CsmStorage(val host: String, val reader: CsmStorageUser, val admin: CsmStorageUser) {
+    data class CsmStorageUser(val username: String, val password: String)
+  }
+  data class CsmEventBus(val host: String, val username: String, val password: String)
   data class Metrics(
       val enabled: Boolean = true,
       val retentionDays: Int = 7,
