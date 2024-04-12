@@ -15,3 +15,9 @@ class UserRemovedFromWorkspace(
     val workspaceId: String,
     val userId: String
 ) : CsmEvent(publisher)
+
+class WorkspaceCreated(publisher: Any, val organizationId: String, val workspaceId: String) :
+    CsmEvent(publisher)
+
+class WorkspaceDeleted(publisher: Any, val organizationId: String, val workspaceId: String) :
+    CsmEvent(publisher)
