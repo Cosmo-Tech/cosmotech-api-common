@@ -77,6 +77,9 @@ data class CsmPlatformProperties(
     /** Loki Service */
     val loki: Loki = Loki(),
 
+    /** Define if current API use internal result data service or cloud one */
+    val useInternalResultServices: Boolean = false,
+
     /** Storage properties */
     val storage: CsmStorage,
 
@@ -85,7 +88,7 @@ data class CsmPlatformProperties(
 ) {
   data class CsmStorage(
       val host: String,
-      val port: String = "5432",
+      val port: Int = 5432,
       val reader: CsmStorageUser,
       val writer: CsmStorageUser,
       val admin: CsmStorageUser
@@ -94,11 +97,11 @@ data class CsmPlatformProperties(
   }
   data class CsmEventBus(
       val host: String,
-      val port: String = "5672",
+      val port: Int = 5672,
       val defaultExchange: String = "csm-exchange",
       val defaultQueue: String = "csm",
       val defaultRoutingKey: String = "csm",
-      val admin: CsmEventBusUser,
+      val listener: CsmEventBusUser,
       val sender: CsmEventBusUser
   ) {
     data class CsmEventBusUser(val username: String, val password: String)
