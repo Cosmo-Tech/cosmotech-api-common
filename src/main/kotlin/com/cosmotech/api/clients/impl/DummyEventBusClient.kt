@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 
 @Component
 @Deprecated("Will be removed once cosmotech-api-scenario and cosmotech-api-scenario are removed")
-@ConditionalOnExpression("'\${csm.platform.use-internal-result-services}' == 'true'")
+@ConditionalOnExpression("'\${csm.platform.internalResultServices.enabled}' == 'true'")
 class DummyEventBusClient : EventBusClient {
 
   override fun sendMetaData(
