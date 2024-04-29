@@ -91,7 +91,7 @@ data class CsmPlatformProperties(
       val storage: CsmStorage,
 
       /** Queue configuration */
-      val eventbus: CsmEventBus
+      val eventBus: CsmEventBus
   ) {
     data class CsmStorage(
         val host: String,
