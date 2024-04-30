@@ -60,7 +60,7 @@ class MonitorServiceAspect(
 
     val name = signature.name
     val user = getCurrentAuthenticatedUserName(csmPlatformProperties)
-    val issuer = getCurrentAuthenticatedIssuer()
+    val issuer = getCurrentAuthenticatedIssuer(csmPlatformProperties)
     Counter.builder("cosmotech.$name")
         .description(name)
         .tag("method", name)
