@@ -2,11 +2,21 @@
 // Licensed under the MIT license.
 package com.cosmotech.api.security
 
+import com.cosmotech.api.config.CsmPlatformProperties
+import jakarta.servlet.FilterChain
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpMethod
+import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer
+import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.authority.AuthorityUtils
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.web.access.intercept.AuthorizationFilter
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.filter.OncePerRequestFilter
 
 // Business roles
 const val ROLE_PLATFORM_ADMIN = "Platform.Admin"
@@ -444,7 +454,8 @@ abstract class AbstractSecurityConfiguration {
       http: HttpSecurity,
       organizationAdminGroup: String,
       organizationUserGroup: String,
-      organizationViewerGroup: String
+      organizationViewerGroup: String,
+      csmPlatformProperties: CsmPlatformProperties
   ): HttpSecurity {
 
     val corsHttpMethodsAllowed =
@@ -458,6 +469,8 @@ abstract class AbstractSecurityConfiguration {
             corsConfig
           }
         }
+        .addFilterBefore(
+            ApiKeyAuthenticationFilter(csmPlatformProperties), AuthorizationFilter::class.java)
         .authorizeHttpRequests { requests ->
           requests
               .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.OPTIONS, "/**"))
@@ -547,5 +560,59 @@ internal class CsmSecurityEndpointsRolesReader(
       authoritiesList.add(customAdmin)
     }
     return authoritiesList
+  }
+}
+
+class ApiKeyAuthentication(val apiKey: String, authorities: MutableCollection<GrantedAuthority>) :
+    AbstractAuthenticationToken(authorities) {
+  init {
+    this.isAuthenticated = true
+  }
+  override fun getCredentials(): Any? {
+    return null
+  }
+
+  override fun getPrincipal(): Any {
+    return apiKey
+  }
+
+}
+
+class ApiKeyAuthenticationFilter(val csmPlatformProperties: CsmPlatformProperties) :
+    OncePerRequestFilter() {
+
+  override fun doFilterInternal(
+      request: HttpServletRequest,
+      response: HttpServletResponse,
+      chain: FilterChain
+  ) {
+
+    val allowedApiKeyConsumers = csmPlatformProperties.authorization.allowedApiKeyConsumers
+    if (allowedApiKeyConsumers.isEmpty()) chain.doFilter(request, response)
+
+    allowedApiKeyConsumers.forEach { apiKeyConsumer ->
+      val apiKey = request.getHeader(apiKeyConsumer.apiKeyHeaderName)
+      if (!apiKey.isNullOrEmpty() && apiKey == apiKeyConsumer.apiKey) {
+        verifyAuthentication(
+            apiKeyConsumer.securedUris, request.requestURI, apiKey, apiKeyConsumer.associatedRole)
+      }
+    }
+    chain.doFilter(request, response)
+  }
+
+  private fun verifyAuthentication(
+      securedUris: List<String>,
+      requestUri: String,
+      apiKey: String,
+      associatedRole: String
+  ) {
+    if (securedUris.isNotEmpty()) {
+      securedUris.forEach { uriRegexp ->
+        if (uriRegexp.toRegex().matches(requestUri)) {
+          SecurityContextHolder.getContext().authentication =
+              ApiKeyAuthentication(apiKey, AuthorityUtils.createAuthorityList(associatedRole))
+        }
+      }
+    }
   }
 }
