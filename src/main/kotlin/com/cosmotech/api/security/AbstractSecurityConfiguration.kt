@@ -602,7 +602,7 @@ class ApiKeyAuthenticationFilter(val csmPlatformProperties: CsmPlatformPropertie
       response: HttpServletResponse,
       chain: FilterChain
   ) {
-
+    logger.debug("[ApiKeyAuthenticationFilter] API Key filter")
     val allowedApiKeyConsumers = csmPlatformProperties.authorization.allowedApiKeyConsumers
     if (allowedApiKeyConsumers.isEmpty()) chain.doFilter(request, response)
 
@@ -617,14 +617,21 @@ class ApiKeyAuthenticationFilter(val csmPlatformProperties: CsmPlatformPropertie
       val securedUris = matchingApiKeyConsumer.securedUris
       val associatedRole = matchingApiKeyConsumer.associatedRole
       val apiKeyValue = request.getHeader(apiKeyHeaderName)
+      logger.debug(
+          "[ApiKeyAuthenticationFilter] Request matches with API Key " +
+              matchingApiKeyConsumer.apiKeyHeaderName)
 
       if (securedUris.isNotEmpty()) {
+        logger.debug("[ApiKeyAuthenticationFilter] Secured Uris are defined")
+        logger.debug("[ApiKeyAuthenticationFilter] Request URI : ${request.requestURI}")
         if (apiKeyValue == apiKeyValueConfigured) {
           val isUriMatching =
               securedUris.firstOrNull { uriRegexp ->
                 uriRegexp.toRegex().matches(request.requestURI)
               }
           if (isUriMatching != null) {
+            logger.debug(
+                "[ApiKeyAuthenticationFilter] Everything is matching, save ApiKeyAuthentication into context")
             val securityContext = SecurityContextHolder.getContext()
             securityContext.authentication =
                 ApiKeyAuthentication(
