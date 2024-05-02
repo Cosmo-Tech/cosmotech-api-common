@@ -8,12 +8,16 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AbstractAuthenticationToken
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.access.intercept.AuthorizationFilter
+import org.springframework.security.web.context.DelegatingSecurityContextRepository
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher
 import org.springframework.web.cors.CorsConfiguration
@@ -476,6 +480,12 @@ abstract class AbstractSecurityConfiguration {
                 RequestHeaderRequestMatcher(apiKeyConsumer.apiKeyHeaderName))
           }
         }
+        .securityContext {
+          it.securityContextRepository(
+              DelegatingSecurityContextRepository(
+                  RequestAttributeSecurityContextRepository(),
+                  HttpSessionSecurityContextRepository()))
+        }
         .addFilterBefore(
             ApiKeyAuthenticationFilter(csmPlatformProperties), AuthorizationFilter::class.java)
         .authorizeHttpRequests { requests ->
@@ -596,29 +606,37 @@ class ApiKeyAuthenticationFilter(val csmPlatformProperties: CsmPlatformPropertie
     val allowedApiKeyConsumers = csmPlatformProperties.authorization.allowedApiKeyConsumers
     if (allowedApiKeyConsumers.isEmpty()) chain.doFilter(request, response)
 
-    allowedApiKeyConsumers.forEach { apiKeyConsumer ->
-      val apiKey = request.getHeader(apiKeyConsumer.apiKeyHeaderName)
-      if (!apiKey.isNullOrEmpty() && apiKey == apiKeyConsumer.apiKey) {
-        verifyAuthentication(
-            apiKeyConsumer.securedUris, request.requestURI, apiKey, apiKeyConsumer.associatedRole)
-      }
-    }
-    chain.doFilter(request, response)
-  }
+    val matchingApiKeyConsumer =
+        allowedApiKeyConsumers.firstOrNull { apiKeyConsumer ->
+          request.getHeader(apiKeyConsumer.apiKeyHeaderName) != null
+        }
 
-  private fun verifyAuthentication(
-      securedUris: List<String>,
-      requestUri: String,
-      apiKey: String,
-      associatedRole: String
-  ) {
-    if (securedUris.isNotEmpty()) {
-      securedUris.forEach { uriRegexp ->
-        if (uriRegexp.toRegex().matches(requestUri)) {
-          SecurityContextHolder.getContext().authentication =
-              ApiKeyAuthentication(apiKey, AuthorityUtils.createAuthorityList(associatedRole))
+    if (matchingApiKeyConsumer != null) {
+      val apiKeyHeaderName = matchingApiKeyConsumer.apiKeyHeaderName
+      val apiKeyValueConfigured = matchingApiKeyConsumer.apiKey
+      val securedUris = matchingApiKeyConsumer.securedUris
+      val associatedRole = matchingApiKeyConsumer.associatedRole
+      val apiKeyValue = request.getHeader(apiKeyHeaderName)
+
+      if (securedUris.isNotEmpty()) {
+        if (apiKeyValue == apiKeyValueConfigured) {
+          val isUriMatching =
+              securedUris.firstOrNull { uriRegexp ->
+                uriRegexp.toRegex().matches(request.requestURI)
+              }
+          if (isUriMatching != null) {
+            val securityContext = SecurityContextHolder.getContext()
+            securityContext.authentication =
+                ApiKeyAuthentication(
+                    apiKeyValueConfigured, AuthorityUtils.createAuthorityList(associatedRole))
+            HttpSessionSecurityContextRepository().saveContext(securityContext, request, response)
+          }
+        } else {
+          throw BadCredentialsException("Bad value for api key $apiKeyHeaderName")
         }
       }
     }
+
+    chain.doFilter(request, response)
   }
 }
