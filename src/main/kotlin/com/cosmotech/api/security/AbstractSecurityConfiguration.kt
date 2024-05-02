@@ -15,6 +15,7 @@ import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.access.intercept.AuthorizationFilter
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
+import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.filter.OncePerRequestFilter
 
@@ -469,6 +470,12 @@ abstract class AbstractSecurityConfiguration {
             corsConfig
           }
         }
+        .csrf { csrfConfigurer ->
+          csmPlatformProperties.authorization.allowedApiKeyConsumers.forEach { apiKeyConsumer ->
+            csrfConfigurer.ignoringRequestMatchers(
+                RequestHeaderRequestMatcher(apiKeyConsumer.apiKeyHeaderName))
+          }
+        }
         .addFilterBefore(
             ApiKeyAuthenticationFilter(csmPlatformProperties), AuthorizationFilter::class.java)
         .authorizeHttpRequests { requests ->
@@ -575,7 +582,6 @@ class ApiKeyAuthentication(val apiKey: String, authorities: MutableCollection<Gr
   override fun getPrincipal(): Any {
     return apiKey
   }
-
 }
 
 class ApiKeyAuthenticationFilter(val csmPlatformProperties: CsmPlatformProperties) :
