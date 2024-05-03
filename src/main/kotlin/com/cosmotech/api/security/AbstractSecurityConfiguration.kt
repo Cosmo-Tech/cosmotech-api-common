@@ -3,17 +3,10 @@
 package com.cosmotech.api.security
 
 import com.cosmotech.api.config.CsmPlatformProperties
-import jakarta.servlet.FilterChain
-import jakarta.servlet.http.HttpServletRequest
-import jakarta.servlet.http.HttpServletResponse
+import com.cosmotech.api.security.filters.ApiKeyAuthenticationFilter
 import org.springframework.http.HttpMethod
-import org.springframework.security.authentication.AbstractAuthenticationToken
-import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer
-import org.springframework.security.core.GrantedAuthority
-import org.springframework.security.core.authority.AuthorityUtils
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.access.intercept.AuthorizationFilter
 import org.springframework.security.web.context.DelegatingSecurityContextRepository
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository
@@ -21,7 +14,6 @@ import org.springframework.security.web.context.RequestAttributeSecurityContextR
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher
 import org.springframework.web.cors.CorsConfiguration
-import org.springframework.web.filter.OncePerRequestFilter
 
 // Business roles
 const val ROLE_PLATFORM_ADMIN = "Platform.Admin"
@@ -577,73 +569,5 @@ internal class CsmSecurityEndpointsRolesReader(
       authoritiesList.add(customAdmin)
     }
     return authoritiesList
-  }
-}
-
-class ApiKeyAuthentication(val apiKey: String, authorities: MutableCollection<GrantedAuthority>) :
-    AbstractAuthenticationToken(authorities) {
-  init {
-    this.isAuthenticated = true
-  }
-  override fun getCredentials(): Any? {
-    return null
-  }
-
-  override fun getPrincipal(): Any {
-    return apiKey
-  }
-}
-
-class ApiKeyAuthenticationFilter(val csmPlatformProperties: CsmPlatformProperties) :
-    OncePerRequestFilter() {
-
-  override fun doFilterInternal(
-      request: HttpServletRequest,
-      response: HttpServletResponse,
-      chain: FilterChain
-  ) {
-    logger.debug("[ApiKeyAuthenticationFilter] API Key filter")
-    val allowedApiKeyConsumers = csmPlatformProperties.authorization.allowedApiKeyConsumers
-    if (allowedApiKeyConsumers.isEmpty()) chain.doFilter(request, response)
-
-    val matchingApiKeyConsumer =
-        allowedApiKeyConsumers.firstOrNull { apiKeyConsumer ->
-          request.getHeader(apiKeyConsumer.apiKeyHeaderName) != null
-        }
-
-    if (matchingApiKeyConsumer != null) {
-      val apiKeyHeaderName = matchingApiKeyConsumer.apiKeyHeaderName
-      val apiKeyValueConfigured = matchingApiKeyConsumer.apiKey
-      val securedUris = matchingApiKeyConsumer.securedUris
-      val associatedRole = matchingApiKeyConsumer.associatedRole
-      val apiKeyValue = request.getHeader(apiKeyHeaderName)
-      logger.debug(
-          "[ApiKeyAuthenticationFilter] Request matches with API Key " +
-              matchingApiKeyConsumer.apiKeyHeaderName)
-
-      if (securedUris.isNotEmpty()) {
-        logger.debug("[ApiKeyAuthenticationFilter] Secured Uris are defined")
-        logger.debug("[ApiKeyAuthenticationFilter] Request URI : ${request.requestURI}")
-        if (apiKeyValue == apiKeyValueConfigured) {
-          val isUriMatching =
-              securedUris.firstOrNull { uriRegexp ->
-                uriRegexp.toRegex().matches(request.requestURI)
-              }
-          if (isUriMatching != null) {
-            logger.debug(
-                "[ApiKeyAuthenticationFilter] Everything is matching, save ApiKeyAuthentication into context")
-            val securityContext = SecurityContextHolder.getContext()
-            securityContext.authentication =
-                ApiKeyAuthentication(
-                    apiKeyValueConfigured, AuthorityUtils.createAuthorityList(associatedRole))
-            HttpSessionSecurityContextRepository().saveContext(securityContext, request, response)
-          }
-        } else {
-          throw BadCredentialsException("Bad value for api key $apiKeyHeaderName")
-        }
-      }
-    }
-
-    chain.doFilter(request, response)
   }
 }

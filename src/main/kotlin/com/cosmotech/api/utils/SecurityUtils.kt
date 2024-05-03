@@ -5,7 +5,7 @@
 package com.cosmotech.api.utils
 
 import com.cosmotech.api.config.CsmPlatformProperties
-import com.cosmotech.api.security.ApiKeyAuthentication
+import com.cosmotech.api.security.filters.ApiKeyAuthentication
 import com.nimbusds.jose.util.JSONObjectUtils
 import com.nimbusds.jwt.JWTClaimNames
 import com.nimbusds.jwt.JWTClaimsSet
