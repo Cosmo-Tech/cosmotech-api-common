@@ -57,7 +57,9 @@ class ApiKeyAuthenticationFilter(val csmPlatformProperties: CsmPlatformPropertie
             val securityContext = SecurityContextHolder.getContext()
             securityContext.authentication =
                 ApiKeyAuthentication(
-                    apiKeyValueConfigured, AuthorityUtils.createAuthorityList(associatedRole))
+                    apiKeyValueConfigured,
+                    apiKeyHeaderName,
+                    AuthorityUtils.createAuthorityList(associatedRole))
             HttpSessionSecurityContextRepository().saveContext(securityContext, request, response)
           } else {
             response.status = HttpStatus.FORBIDDEN.value()
@@ -89,8 +91,12 @@ class ApiKeyAuthenticationFilter(val csmPlatformProperties: CsmPlatformPropertie
       }
 }
 
-class ApiKeyAuthentication(val apiKey: String, authorities: MutableCollection<GrantedAuthority>) :
-    AbstractAuthenticationToken(authorities) {
+class ApiKeyAuthentication(
+    val apiKey: String,
+    val apiKeyName: String,
+    authorities: MutableCollection<GrantedAuthority>
+) : AbstractAuthenticationToken(authorities) {
+
   init {
     this.isAuthenticated = true
   }
@@ -99,6 +105,6 @@ class ApiKeyAuthentication(val apiKey: String, authorities: MutableCollection<Gr
   }
 
   override fun getPrincipal(): Any {
-    return apiKey
+    return apiKeyName
   }
 }
