@@ -46,7 +46,7 @@ class ApiKeyAuthenticationFilter(val csmPlatformProperties: CsmPlatformPropertie
           val requestUri = request.requestURI
           val isUriMatching =
               securedUris
-                  .associateWith { it.split(".*", ignoreCase = true, limit = 2) }
+                  .associateWith { it.split("/.*", ignoreCase = true, limit = 2) }
                   .filter { (securedUri, securedUriSplitted) ->
                     filterSecuredUriWithRequestUri(securedUriSplitted, requestUri, securedUri)
                   }
