@@ -22,7 +22,7 @@ class ApiKeyAuthenticationFilter(val csmPlatformProperties: CsmPlatformPropertie
       response: HttpServletResponse,
       chain: FilterChain
   ) {
-    logger.debug("API-Key filter starts")
+    logger.trace("API-Key filter starts")
     val allowedApiKeyConsumers = csmPlatformProperties.authorization.allowedApiKeyConsumers
     if (allowedApiKeyConsumers.isEmpty()) chain.doFilter(request, response)
 
