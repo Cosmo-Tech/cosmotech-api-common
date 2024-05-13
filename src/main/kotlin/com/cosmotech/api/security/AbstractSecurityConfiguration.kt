@@ -2,10 +2,17 @@
 // Licensed under the MIT license.
 package com.cosmotech.api.security
 
+import com.cosmotech.api.config.CsmPlatformProperties
+import com.cosmotech.api.security.filters.ApiKeyAuthenticationFilter
 import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer
+import org.springframework.security.web.access.intercept.AuthorizationFilter
+import org.springframework.security.web.context.DelegatingSecurityContextRepository
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
+import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher
 import org.springframework.web.cors.CorsConfiguration
 
 // Business roles
@@ -444,7 +451,8 @@ abstract class AbstractSecurityConfiguration {
       http: HttpSecurity,
       organizationAdminGroup: String,
       organizationUserGroup: String,
-      organizationViewerGroup: String
+      organizationViewerGroup: String,
+      csmPlatformProperties: CsmPlatformProperties
   ): HttpSecurity {
 
     val corsHttpMethodsAllowed =
@@ -458,6 +466,20 @@ abstract class AbstractSecurityConfiguration {
             corsConfig
           }
         }
+        .csrf { csrfConfigurer ->
+          csmPlatformProperties.authorization.allowedApiKeyConsumers.forEach { apiKeyConsumer ->
+            csrfConfigurer.ignoringRequestMatchers(
+                RequestHeaderRequestMatcher(apiKeyConsumer.apiKeyHeaderName))
+          }
+        }
+        .securityContext {
+          it.securityContextRepository(
+              DelegatingSecurityContextRepository(
+                  RequestAttributeSecurityContextRepository(),
+                  HttpSessionSecurityContextRepository()))
+        }
+        .addFilterBefore(
+            ApiKeyAuthenticationFilter(csmPlatformProperties), AuthorizationFilter::class.java)
         .authorizeHttpRequests { requests ->
           requests
               .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.OPTIONS, "/**"))

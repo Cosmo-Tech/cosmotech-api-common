@@ -8,7 +8,7 @@ plugins {
   val kotlinVersion = "1.9.23"
   kotlin("jvm") version kotlinVersion
   id("com.diffplug.spotless") version "6.22.0"
-  id("org.springframework.boot") version "3.2.2" apply false
+  id("org.springframework.boot") version "3.2.5" apply false
   id("io.gitlab.arturbosch.detekt") version "1.23.5"
   id("pl.allegro.tech.build.axion-release") version "1.15.5"
   id("org.jetbrains.kotlinx.kover") version "0.7.6"
@@ -149,7 +149,7 @@ tasks.jar {
 // Required versions
 val jacksonVersion = "2.15.3"
 val springWebVersion = "6.1.4"
-val springBootVersion = "3.2.2"
+val springBootVersion = "3.2.5"
 
 // Implementation
 val swaggerParserVersion = "2.1.16"
@@ -162,7 +162,7 @@ val servletApiVersion = "6.0.0"
 val oktaSpringBootVersion = "3.0.5"
 val tikaVersion = "2.9.1"
 val kubernetesClientVersion = "19.0.0"
-val redisOMVersion = "0.8.8"
+val redisOMVersion = "0.9.0"
 val kotlinCoroutinesCoreVersion = "1.7.3"
 
 // Checks
