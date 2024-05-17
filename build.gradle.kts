@@ -152,17 +152,17 @@ val springWebVersion = "6.1.4"
 val springBootVersion = "3.2.5"
 
 // Implementation
-val swaggerParserVersion = "2.1.16"
+val swaggerParserVersion = "2.1.22"
 val hashidsVersion = "1.0.3"
 val springOauthAutoConfigureVersion = "2.6.8"
 val springSecurityJwtVersion = "1.1.1.RELEASE"
-val springDocVersion = "2.2.0"
+val springDocVersion = "2.5.0"
 val springOauthVersion = "6.2.2"
 val servletApiVersion = "6.0.0"
 val oktaSpringBootVersion = "3.0.5"
 val tikaVersion = "2.9.1"
 val kubernetesClientVersion = "19.0.0"
-val redisOMVersion = "0.9.0"
+val redisOMVersion = "0.9.1"
 val kotlinCoroutinesCoreVersion = "1.7.3"
 
 // Checks
