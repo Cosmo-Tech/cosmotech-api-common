@@ -24,7 +24,6 @@ class ApiKeyAuthenticationFilter(val csmPlatformProperties: CsmPlatformPropertie
   ) {
     logger.trace("API-Key filter starts")
     val allowedApiKeyConsumers = csmPlatformProperties.authorization.allowedApiKeyConsumers
-    if (allowedApiKeyConsumers.isEmpty()) chain.doFilter(request, response)
 
     val matchingApiKeyConsumer =
         allowedApiKeyConsumers.firstOrNull { apiKeyConsumer ->
@@ -86,8 +85,12 @@ class ApiKeyAuthenticationFilter(val csmPlatformProperties: CsmPlatformPropertie
         true
       } else {
         val requestUriSplitted = requestUri.split(securedUriSplitted[0])
-        val uriSuffix = securedUriSplitted[0] + requestUriSplitted[1]
-        securedUri.toRegex().matches(uriSuffix)
+        if (requestUriSplitted.size < 2) {
+          false
+        } else {
+          val uriSuffix = securedUriSplitted[0] + requestUriSplitted[1]
+          securedUri.toRegex().matches(uriSuffix)
+        }
       }
 }
 
