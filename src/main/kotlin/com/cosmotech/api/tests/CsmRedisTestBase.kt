@@ -38,7 +38,11 @@ open class CsmRedisTestBase : AbstractTestcontainersRedisTestBase() {
     @DynamicPropertySource
     fun connectionProperties(registry: DynamicPropertyRegistry) {
       logger.error("Override properties to connect to Testcontainers:")
-      val containerIp = redisStackServer.redisURI
+      val containerIp =
+          redisStackServer.containerInfo.networkSettings.networks.entries
+              .elementAt(0)
+              .value
+              .ipAddress
       logger.error(
           "* Test-Container 'Redis': spring.data.redis.host = {} ; spring.data.redis.port = {}",
           containerIp,
