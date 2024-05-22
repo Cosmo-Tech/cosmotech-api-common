@@ -41,6 +41,9 @@ data class CsmPlatformProperties(
     val azure: CsmPlatformAzure?,
     val containerRegistry: CsmPlatformContainerRegistries = CsmPlatformContainerRegistries(),
 
+    /** S3 service */
+    val s3: S3,
+
     /** Argo Service */
     val argo: Argo,
 
@@ -191,6 +194,17 @@ data class CsmPlatformProperties(
       val imageVersion: String = "latest",
   )
 
+  data class S3(
+      /** Endpoint URL */
+      val endpointUrl: String = "http://localhost:9000",
+      /** Bucket name */
+      val bucketName: String = "cosmotech-api",
+      /** Credentials: access key id */
+      val accessKeyId: String = "",
+      /** Credentials: secret access key */
+      val secretAccessKey: String = ""
+  )
+
   data class Loki(
       val baseUrl: String = "http://loki.default.svc.cluster.local:3100",
       val queryPath: String = "/loki/api/v1/query_range",
@@ -280,7 +294,6 @@ data class CsmPlatformProperties(
   data class CsmPlatformAzure(
       /** Azure Credentials */
       val credentials: CsmPlatformAzureCredentials,
-      val storage: CsmPlatformAzureStorage,
       val containerRegistries: CsmPlatformAzureContainerRegistries,
       val eventBus: CsmPlatformAzureEventBus,
       val dataWarehouseCluster: CsmPlatformAzureDataWarehouseCluster,
@@ -350,11 +363,6 @@ data class CsmPlatformProperties(
       )
     }
 
-    data class CsmPlatformAzureStorage(
-        val connectionString: String,
-        val baseUri: String,
-        val resourceUri: String
-    )
     @Deprecated(message = "use csm.platform.containerregistries instead")
     data class CsmPlatformAzureContainerRegistries(val core: String, val solutions: String)
 
