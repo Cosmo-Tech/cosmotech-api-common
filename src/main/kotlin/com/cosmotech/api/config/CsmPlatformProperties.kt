@@ -10,19 +10,19 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 @ConfigurationProperties(prefix = "csm.platform")
 data class CsmPlatformProperties(
 
-    /** the Platform summary */
+    /** Platform summary */
     val summary: String?,
 
-    /** the Platform description */
+    /** Platform description */
     val description: String?,
 
-    /** the Platform version (MAJOR.MINOR.PATCH). */
+    /** Platform version (MAJOR.MINOR.PATCH) */
     val version: String?,
 
-    /** the Platform exact commit ID. */
+    /** Platform exact commit ID */
     val commitId: String? = null,
 
-    /** the Platform exact Version-Control System reference. */
+    /** Platform exact Version-Control System reference */
     val vcsRef: String? = null,
 
     /** API Configuration */
@@ -37,8 +37,7 @@ data class CsmPlatformProperties(
     /** Event Publisher */
     val eventPublisher: EventPublisher,
 
-    /** Azure Platform */
-    val azure: CsmPlatformAzure?,
+    /** Container Registry */
     val containerRegistry: CsmPlatformContainerRegistries = CsmPlatformContainerRegistries(),
 
     /** S3 service */
@@ -57,16 +56,15 @@ data class CsmPlatformProperties(
     val authorization: Authorization = Authorization(),
 
     /**
-     * Identity provider used for (azure : Azure Active Directory ,okta : Okta) if openapi default
-     * configuration needs to be overwritten
+     * Identity provider used for (Entra ID ,Okta, Keycloak) if openapi default configuration needs
+     * to be overwritten
      */
-    val identityProvider: CsmIdentityProvider?,
+    val identityProvider: CsmIdentityProvider,
 
     /** Okta configuration */
     val okta: CsmPlatformOkta?,
 
-    /** Data Ingestion reporting behavior */
-    val dataIngestion: DataIngestion = DataIngestion(),
+    /** Twin Data Layer configuration */
     val twincache: CsmTwinCacheProperties,
 
     /** RBAC / ACL configuration */
@@ -74,6 +72,8 @@ data class CsmPlatformProperties(
 
     /** Upload files properties */
     val upload: Upload = Upload(),
+
+    /** Kubernetes namespace */
     val namespace: String = "phoenix",
 
     /** Persistent metrics configuration */
@@ -81,6 +81,8 @@ data class CsmPlatformProperties(
 
     /** Loki Service */
     val loki: Loki = Loki(),
+
+    /** Internal result data service configuration */
     val internalResultServices: CsmServiceResult?,
 ) {
   @ConditionalOnProperty(
@@ -91,28 +93,50 @@ data class CsmPlatformProperties(
       /** Define if current API use internal result data service or cloud one */
       val enabled: Boolean = false,
 
-      /** Storage properties */
+      /** Storage configuration */
       val storage: CsmStorage,
 
       /** Queue configuration */
       val eventBus: CsmEventBus
   ) {
     data class CsmStorage(
+        /** Storage host */
         val host: String,
+
+        /** Storage port */
         val port: Int = 5432,
+
+        /** Storage reader user configuration */
         val reader: CsmStorageUser,
+
+        /** Storage writer user configuration */
         val writer: CsmStorageUser,
+
+        /** Storage admin user configuration */
         val admin: CsmStorageUser
     ) {
       data class CsmStorageUser(val username: String, val password: String)
     }
     data class CsmEventBus(
+        /** EventBus host */
         val host: String,
+
+        /** EventBus port */
         val port: Int = 5672,
+
+        /** EventBus default exchange */
         val defaultExchange: String = "csm-exchange",
+
+        /** EventBus default queue */
         val defaultQueue: String = "csm",
+
+        /** EventBus default routing key */
         val defaultRoutingKey: String = "csm",
+
+        /** EventBus listener user configuration */
         val listener: CsmEventBusUser,
+
+        /** EventBus sender user configuration */
         val sender: CsmEventBusUser
     ) {
       data class CsmEventBusUser(val username: String, val password: String)
@@ -120,10 +144,19 @@ data class CsmPlatformProperties(
   }
 
   data class Metrics(
+      /** Enable Metrics service */
       val enabled: Boolean = true,
+
+      /** Metrics service retention days */
       val retentionDays: Int = 7,
+
+      /** Metrics service down-sampling activation */
       val downSamplingDefaultEnabled: Boolean = false,
+
+      /** Metrics service down-sampling retention days */
       val downSamplingRetentionDays: Int = 400,
+
+      /** Metrics service down-sampling bucket duration (in ms) */
       val downSamplingBucketDurationMs: Int = 3600000,
   )
 
@@ -155,7 +188,7 @@ data class CsmPlatformProperties(
   ) {
     class ApiKeyConsumer(
 
-        /** The consumer name (human readable) to track usage */
+        /** The consumer name (human-readable) to track usage */
         val name: String,
 
         /** Api Key associated to consumer that is passed in request */
@@ -206,8 +239,13 @@ data class CsmPlatformProperties(
   )
 
   data class Loki(
+      /** Base Loki url */
       val baseUrl: String = "http://loki.default.svc.cluster.local:3100",
+
+      /** Query path for Loki service */
       val queryPath: String = "/loki/api/v1/query_range",
+
+      /** Query range for logs (default: retrieve logs from past day) */
       val queryDaysAgo: Long = 1
   )
   data class Argo(
@@ -282,127 +320,22 @@ data class CsmPlatformProperties(
   }
 
   data class CsmPlatformContainerRegistries(
+
+      /** Verify if solution docker image is present in container registry */
+      val checkSolutionImage: Boolean = true,
+
       /**
-       * csmenginesdev.azurecr.io, for Azure ghcr.io, for github https://index.docker.io/v1/, for
+       * csmenginesdev.azurecr.io, for Azure ghcr.io for github https://index.docker.io/v1/, for
        * local registry
        */
-      val checkSolutionImage: Boolean = true,
       val registryUrl: String = "csmenginesdev.azurecr.io",
+
+      /** Container registry username */
       val registryUserName: String? = null,
+
+      /** Container registry password */
       val registryPassword: String? = null,
   )
-  data class CsmPlatformAzure(
-      /** Azure Credentials */
-      val credentials: CsmPlatformAzureCredentials,
-      val containerRegistries: CsmPlatformAzureContainerRegistries,
-      val eventBus: CsmPlatformAzureEventBus,
-      val dataWarehouseCluster: CsmPlatformAzureDataWarehouseCluster,
-      val keyVault: String,
-      val analytics: CsmPlatformAzureAnalytics,
-      val appIdUri: String,
-      val claimToAuthorityPrefix: Map<String, String> = mutableMapOf("roles" to "")
-  ) {
-
-    data class CsmPlatformAzureCredentials(
-        /** The Azure Tenant ID (core App) */
-        @Deprecated(message = "use csm.platform.azure.credentials.core.tenantId instead")
-        val tenantId: String? = null,
-
-        /** The Azure Client ID (core App) */
-        @Deprecated(message = "use csm.platform.azure.credentials.core.clientId instead")
-        val clientId: String? = null,
-
-        /** The Azure Client Secret (core App) */
-        @Deprecated(message = "use csm.platform.azure.credentials.core.clientSecret instead")
-        val clientSecret: String? = null,
-
-        /**
-         * The Azure Active Directory Pod Id binding bound to an AKS pod identity linked to a
-         * managed identity
-         */
-        @Deprecated(message = "use csm.platform.azure.credentials.core.aadPodIdBinding instead")
-        val aadPodIdBinding: String? = null,
-
-        /** The core App Registration credentials - provided by Cosmo Tech */
-        val core: CsmPlatformAzureCredentialsCore,
-
-        /**
-         * Any customer-provided app registration. Useful for example when calling Azure Digital
-         * Twins, because of security enforcement preventing from assigning permissions in the
-         * context of a managed app, deployed via the Azure Marketplace
-         */
-        val customer: CsmPlatformAzureCredentialsCustomer? = null,
-    ) {
-
-      data class CsmPlatformAzureCredentialsCore(
-          /** The Azure Tenant ID (core App) */
-          val tenantId: String,
-
-          /** The Azure Client ID (core App) */
-          val clientId: String,
-
-          /** The Azure Client Secret (core App) */
-          val clientSecret: String,
-
-          /**
-           * The Azure Active Directory Pod Id binding bound to an AKS pod identity linked to a
-           * managed identity
-           */
-          val aadPodIdBinding: String? = null,
-      )
-
-      data class CsmPlatformAzureCredentialsCustomer(
-          /** The Azure Tenant ID (customer App Registration) */
-          val tenantId: String?,
-
-          /** The Azure Client ID (customer App Registration) */
-          val clientId: String?,
-
-          /** The Azure Client Secret (customer App Registration) */
-          val clientSecret: String?,
-      )
-    }
-
-    @Deprecated(message = "use csm.platform.containerregistries instead")
-    data class CsmPlatformAzureContainerRegistries(val core: String, val solutions: String)
-
-    data class CsmPlatformAzureEventBus(
-        val baseUri: String,
-        val authentication: Authentication = Authentication()
-    ) {
-      data class Authentication(
-          val strategy: Strategy = Strategy.TENANT_CLIENT_CREDENTIALS,
-          val sharedAccessPolicy: SharedAccessPolicyDetails? = null,
-          val tenantClientCredentials: TenantClientCredentials? = null
-      ) {
-        enum class Strategy {
-          TENANT_CLIENT_CREDENTIALS,
-          SHARED_ACCESS_POLICY
-        }
-
-        data class SharedAccessPolicyDetails(
-            val namespace: SharedAccessPolicyCredentials? = null,
-        )
-
-        data class SharedAccessPolicyCredentials(val name: String, val key: String)
-        data class TenantClientCredentials(
-            val tenantId: String,
-            val clientId: String,
-            val clientSecret: String
-        )
-      }
-    }
-
-    data class CsmPlatformAzureDataWarehouseCluster(val baseUri: String, val options: Options) {
-      data class Options(val ingestionUri: String)
-    }
-
-    data class CsmPlatformAzureAnalytics(
-        val resourceUri: String,
-        val instrumentationKey: String,
-        val connectionString: String
-    )
-  }
 
   enum class Vendor {
     /** Microsoft Azure : https://azure.microsoft.com/en-us/ */
@@ -410,59 +343,41 @@ data class CsmPlatformProperties(
     ON_PREMISE
   }
 
-  data class DataIngestion(
-      /**
-       * Number of seconds to wait after a scenario run workflow end time, before starting to check
-       * ADX for data ingestion state. See https://bit.ly/3FXshzE for the rationale
-       */
-      val waitingTimeBeforeIngestionSeconds: Long = 15,
-
-      /**
-       * number of minutes after a scenario run workflow end time during which an ingestion failure
-       * detected is considered linked to the current scenario run
-       */
-      val ingestionObservationWindowToBeConsideredAFailureMinutes: Long = 5,
-
-      /** Data ingestion state handling default behavior */
-      val state: State = State()
-  ) {
-    data class State(
-        /**
-         * The timeout in second before considering no data in probes measures and control plane is
-         * an issue
-         */
-        val noDataTimeOutSeconds: Long = 180,
-    )
-  }
-
   data class CsmIdentityProvider(
-      /** okta|azure */
+      /** okta|azure|keycloak */
       val code: String,
+
       /**
        * entry sample :
        * - {"http://dev.api.cosmotech.com/platform" to "Platform scope"}
        * - {"default" to "Default scope"}
        */
       val defaultScopes: Map<String, String> = emptyMap(),
+
       /**
        * - "https://{yourOktaDomain}/oauth2/default/v1/authorize"
        * - "https://login.microsoftonline.com/common/oauth2/v2.0/authorize"
        */
       val authorizationUrl: String,
+
       /**
        * - "https://{yourOktaDomain}/oauth2/default/v1/token"
        * - "https://login.microsoftonline.com/common/oauth2/v2.0/token"
        */
       val tokenUrl: String,
+
       /**
        * entry sample :
        * - {"csm.read.scenario" to "Read access to scenarios"}
        */
       val containerScopes: Map<String, String> = emptyMap(),
+
       /** Custom group name used acted as Organization.Admin default: Platform.Admin */
       val adminGroup: String? = null,
+
       /** Custom group name used acted as Organization.User default: Organization.User */
       val userGroup: String? = null,
+
       /** Custom group name used acted as Organization.Viewer default: Organization.Viewer */
       val viewerGroup: String? = null,
   )
