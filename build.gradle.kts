@@ -25,7 +25,7 @@ scmVersion {
 
 project.version = scmVersion.version
 
-val kotlinJvmTarget = 17
+val kotlinJvmTarget = 21
 
 java { toolchain { languageVersion.set(JavaLanguageVersion.of(kotlinJvmTarget)) } }
 
