@@ -38,17 +38,17 @@ val COMMON_ROLE_ADMIN_PERMISSIONS =
     )
 
 // Scenario roles & permissions
-val SCENARIO_ROLE_VIEWER_PERMISSIONS = listOf(PERMISSION_READ, PERMISSION_READ_SECURITY)
-val SCENARIO_ROLE_EDITOR_PERMISSIONS =
+val RUNNER_ROLE_VIEWER_PERMISSIONS = listOf(PERMISSION_READ, PERMISSION_READ_SECURITY)
+val RUNNER_ROLE_EDITOR_PERMISSIONS =
     listOf(PERMISSION_READ, PERMISSION_READ_SECURITY, PERMISSION_LAUNCH, PERMISSION_WRITE)
-val SCENARIO_ROLE_VALIDATOR_PERMISSIONS =
+val RUNNER_ROLE_VALIDATOR_PERMISSIONS =
     listOf(
         PERMISSION_READ,
         PERMISSION_READ_SECURITY,
         PERMISSION_LAUNCH,
         PERMISSION_WRITE,
         PERMISSION_VALIDATE)
-val SCENARIO_ROLE_ADMIN_PERMISSIONS =
+val RUNNER_ROLE_ADMIN_PERMISSIONS =
     listOf(
         PERMISSION_READ,
         PERMISSION_READ_SECURITY,
@@ -77,8 +77,8 @@ fun getAllRolesDefinition(): Map<String, MutableMap<String, MutableList<String>>
               .permissions
               .mapValues { it.value.toMutableList() }
               .toMutableMap(),
-      "scenario" to
-          getScenarioRolesDefinition()
+      "runner" to
+          getRunnerRolesDefinition()
               .permissions
               .mapValues { it.value.toMutableList() }
               .toMutableMap())
@@ -100,14 +100,14 @@ fun getCommonRolesDefinition(): RolesDefinition {
       adminRole = ROLE_ADMIN)
 }
 
-fun getScenarioRolesDefinition(): RolesDefinition {
+fun getRunnerRolesDefinition(): RolesDefinition {
   return RolesDefinition(
       permissions =
           mutableMapOf(
-              ROLE_VIEWER to SCENARIO_ROLE_VIEWER_PERMISSIONS,
-              ROLE_EDITOR to SCENARIO_ROLE_EDITOR_PERMISSIONS,
-              ROLE_VALIDATOR to SCENARIO_ROLE_VALIDATOR_PERMISSIONS,
-              ROLE_ADMIN to SCENARIO_ROLE_ADMIN_PERMISSIONS,
+              ROLE_VIEWER to RUNNER_ROLE_VIEWER_PERMISSIONS,
+              ROLE_EDITOR to RUNNER_ROLE_EDITOR_PERMISSIONS,
+              ROLE_VALIDATOR to RUNNER_ROLE_VALIDATOR_PERMISSIONS,
+              ROLE_ADMIN to RUNNER_ROLE_ADMIN_PERMISSIONS,
           ),
       adminRole = ROLE_ADMIN)
 }

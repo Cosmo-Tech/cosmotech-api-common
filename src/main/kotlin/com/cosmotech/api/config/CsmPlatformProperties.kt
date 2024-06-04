@@ -175,7 +175,6 @@ data class CsmPlatformProperties(
 
       /** Container image to send data to DataWarehouse */
       val sendDataWarehouse: String,
-      val scenarioDataUpload: String = "cosmo-tech/azure-storage-publish:latest",
   )
 
   data class CsmContainers(
@@ -502,8 +501,8 @@ data class CsmPlatformProperties(
       /** Twin cache query page information for workspace */
       val workspace: PageSizing = PageSizing(),
 
-      /** Twin cache query page information for scenario */
-      val scenario: PageSizing = PageSizing(),
+      /** Twin cache query page information for runner */
+      val runner: PageSizing = PageSizing(),
 
       /** Twin cache query page information for connector */
       val connector: PageSizing = PageSizing(),
@@ -511,8 +510,8 @@ data class CsmPlatformProperties(
       /** Twin cache query page information for dataset */
       val dataset: PageSizing = PageSizing(),
 
-      /** Twin cache query page information for scenariorun */
-      val scenariorun: PageSizing = PageSizing(),
+      /** Twin cache query page information for run */
+      val run: PageSizing = PageSizing(),
 
       /** Twin cache query page information for solution */
       val solution: PageSizing = PageSizing(),
