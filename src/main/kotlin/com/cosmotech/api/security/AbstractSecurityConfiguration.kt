@@ -64,15 +64,12 @@ const val PATH_SOLUTIONS = "/organizations/*/solutions"
 const val PATH_SOLUTIONS_PARAMETERS = "/organizations/*/solutions/*/parameters"
 const val PATH_SOLUTIONS_PARAMETERGROUPS = "/organizations/*/solutions/*/parameterGroups"
 const val PATH_SOLUTIONS_RUNTEMPLATES = "/organizations/*/solutions/*/runTemplates"
-const val PATH_SOLUTIONS_RUNTEMPLATES_HANDLERS_UPLOAD =
-    "/organizations/*/solutions/*/runTemplates/*/handlers/*/upload"
 val PATHS_SOLUTIONS =
     listOf(
         PATH_SOLUTIONS,
         PATH_SOLUTIONS_PARAMETERS,
         PATH_SOLUTIONS_PARAMETERGROUPS,
-        PATH_SOLUTIONS_RUNTEMPLATES,
-        PATH_SOLUTIONS_RUNTEMPLATES_HANDLERS_UPLOAD)
+        PATH_SOLUTIONS_RUNTEMPLATES)
 
 // Path Workspaces
 const val PATH_WORKSPACES = "/organizations/*/workspaces"
