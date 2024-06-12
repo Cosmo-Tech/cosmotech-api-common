@@ -34,9 +34,9 @@ class MonitorServiceAspect(
       setOf(
           "organizationId",
           "workspaceId",
-          "scenarioId",
           "solutionId",
-          "scenariorunId",
+          "runnerId",
+          "runId",
           "datasetId",
           "connectorId")
 
