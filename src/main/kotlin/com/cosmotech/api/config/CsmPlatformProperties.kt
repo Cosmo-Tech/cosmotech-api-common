@@ -29,7 +29,7 @@ data class CsmPlatformProperties(
     val api: Api,
 
     /** Platform vendor */
-    val vendor: Vendor,
+    val vendor: Vendor = Vendor.ON_PREMISE,
 
     /** Id Generator */
     val idGenerator: IdGenerator,
@@ -177,10 +177,7 @@ data class CsmPlatformProperties(
       /** The JWT Claim used to define application id in ACL */
       val applicationIdJwtClaim: String = "oid",
 
-      /**
-       * List of additional tenants allowed to register, besides the configured
-       * `csm.platform.azure.credentials.tenantId`
-       */
+      /** List of additional tenants allowed to register */
       val allowedTenants: List<String> = emptyList(),
 
       /** List of Api key allowed to access data, besides Oauth2 configuration */

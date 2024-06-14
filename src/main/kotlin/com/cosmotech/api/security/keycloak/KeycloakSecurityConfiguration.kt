@@ -38,7 +38,7 @@ import org.springframework.util.StringUtils
 @Configuration
 @EnableWebSecurity
 @ConditionalOnProperty(
-    name = ["csm.platform.identityProvider.code"], havingValue = "keycloak", matchIfMissing = false)
+    name = ["csm.platform.identityProvider.code"], havingValue = "keycloak", matchIfMissing = true)
 @EnableMethodSecurity(securedEnabled = true, prePostEnabled = true, proxyTargetClass = true)
 internal open class KeycloakSecurityConfiguration(
     private val oAuth2ResourceServerProperties: OAuth2ResourceServerProperties,
