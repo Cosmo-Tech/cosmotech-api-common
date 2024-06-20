@@ -61,9 +61,6 @@ data class CsmPlatformProperties(
      */
     val identityProvider: CsmIdentityProvider,
 
-    /** Okta configuration */
-    val okta: CsmPlatformOkta?,
-
     /** Twin Data Layer configuration */
     val twincache: CsmTwinCacheProperties,
 
@@ -377,21 +374,28 @@ data class CsmPlatformProperties(
 
       /** Custom group name used acted as Organization.Viewer default: Organization.Viewer */
       val viewerGroup: String? = null,
-  )
 
-  data class CsmPlatformOkta(
-      /** Okta Issuer */
-      val issuer: String,
+      /** Identity available during run */
+      val identity: CsmIdentity,
 
-      /** Okta Application Id */
-      val clientId: String,
+      /** Server base Url for identity provider (without / at the end) */
+      val serverBaseUrl: String = "",
 
-      /** Okta Application Secret */
-      val clientSecret: String,
+      /** Audience */
+      val audience: String = ""
+  ) {
+    data class CsmIdentity(
 
-      /** Okta Authorization Server Audience */
-      val audience: String,
-  )
+        /** Tenant/realm's identifier: default cosmotech */
+        val tenantId: String = "cosmotech",
+
+        /** Client identifier: default cosmotech-api-client */
+        val clientId: String = "cosmotech-api-client",
+
+        /** Client secret */
+        val clientSecret: String,
+    )
+  }
 
   data class CsmTwinCacheProperties(
       /** Twin cache host */
