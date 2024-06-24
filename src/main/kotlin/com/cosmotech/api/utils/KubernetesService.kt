@@ -34,21 +34,19 @@ class KubernetesService(private val kubernetesApi: CoreV1Api?) : SecretManager {
     val secretNameLower = secretName.lowercase()
     val labelSelector = buildLabelSector(secretNameLower)
 
-    val secrets =
-        api.listNamespacedSecret(
-            namespace, null, null, null, null, labelSelector, null, null, null, null, null, true)
+    val secrets = api.listNamespacedSecret(namespace).labelSelector(labelSelector).execute()
     if (secrets.items.isEmpty()) {
       logger.debug("Secret does not exists in namespace $namespace: cannot delete it")
     } else {
       logger.info("Secret exists in namespace $namespace: deleting it")
-      api.deleteNamespacedSecret(secretNameLower, namespace, null, null, null, null, null, null)
+      api.deleteNamespacedSecret(secretNameLower, namespace).execute()
     }
   }
 
   private fun getSecretFromKubernetes(namespace: String, secretName: String): Map<String, String> {
     val api = checkKubernetesContext()
     val secretNameLower = secretName.lowercase()
-    val result = api.readNamespacedSecret(secretNameLower, namespace, "")
+    val result = api.readNamespacedSecret(secretNameLower, namespace).execute()
 
     logger.debug("Secret retrieved for namespace $namespace")
     return result.data?.mapValues { Base64.getDecoder().decode(it.value).toString(Charsets.UTF_8) }
@@ -76,15 +74,13 @@ class KubernetesService(private val kubernetesApi: CoreV1Api?) : SecretManager {
     body.data = secretData.mapValues { Base64.getEncoder().encode(it.value.toByteArray()) }
     body.type = "Opaque"
 
-    val secrets =
-        api.listNamespacedSecret(
-            namespace, null, null, null, null, labelSelector, null, null, null, null, null, true)
+    val secrets = api.listNamespacedSecret(namespace).labelSelector(labelSelector).execute()
     if (secrets.items.isEmpty()) {
       logger.debug("Secret does not exists in namespace $namespace: creating it")
-      api.createNamespacedSecret(namespace, body, null, null, null, null)
+      api.createNamespacedSecret(namespace, body).execute()
     } else {
       logger.debug("Secret already exists in namespace $namespace: replacing it")
-      api.replaceNamespacedSecret(secretNameLower, namespace, body, null, null, null, null)
+      api.replaceNamespacedSecret(secretNameLower, namespace, body).execute()
     }
     logger.info("Secret created/replaced")
   }
