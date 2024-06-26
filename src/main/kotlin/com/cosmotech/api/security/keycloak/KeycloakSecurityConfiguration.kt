@@ -38,7 +38,7 @@ import org.springframework.util.StringUtils
 @Configuration
 @EnableWebSecurity
 @ConditionalOnProperty(
-    name = ["csm.platform.identityProvider.code"], havingValue = "keycloak", matchIfMissing = false)
+    name = ["csm.platform.identityProvider.code"], havingValue = "keycloak", matchIfMissing = true)
 @EnableMethodSecurity(securedEnabled = true, prePostEnabled = true, proxyTargetClass = true)
 internal open class KeycloakSecurityConfiguration(
     private val oAuth2ResourceServerProperties: OAuth2ResourceServerProperties,
@@ -47,11 +47,11 @@ internal open class KeycloakSecurityConfiguration(
 
   private val logger = LoggerFactory.getLogger(KeycloakSecurityConfiguration::class.java)
   private val organizationAdminGroup =
-      csmPlatformProperties.identityProvider?.adminGroup ?: ROLE_PLATFORM_ADMIN
+      csmPlatformProperties.identityProvider.adminGroup ?: ROLE_PLATFORM_ADMIN
   private val organizationUserGroup =
-      csmPlatformProperties.identityProvider?.userGroup ?: ROLE_ORGANIZATION_USER
+      csmPlatformProperties.identityProvider.userGroup ?: ROLE_ORGANIZATION_USER
   private val organizationViewerGroup =
-      csmPlatformProperties.identityProvider?.viewerGroup ?: ROLE_ORGANIZATION_VIEWER
+      csmPlatformProperties.identityProvider.viewerGroup ?: ROLE_ORGANIZATION_VIEWER
 
   @Bean
   open fun filterChain(http: HttpSecurity): SecurityFilterChain? {

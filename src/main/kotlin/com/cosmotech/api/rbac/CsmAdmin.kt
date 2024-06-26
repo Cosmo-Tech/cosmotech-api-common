@@ -15,7 +15,7 @@ class CsmAdmin(val csmPlatformProperties: CsmPlatformProperties) {
 
   fun verifyRolesAdmin(roles: List<String>): Boolean {
     logger.debug("Verifying if token roles contains Platform Admin")
-    val customAdminGroup = csmPlatformProperties.identityProvider?.adminGroup
+    val customAdminGroup = csmPlatformProperties.identityProvider.adminGroup
     if (customAdminGroup.isNullOrBlank()) {
       return roles.contains(ROLE_PLATFORM_ADMIN)
     }

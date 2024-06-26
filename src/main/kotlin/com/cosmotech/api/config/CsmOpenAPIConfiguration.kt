@@ -75,27 +75,18 @@ open class CsmOpenAPIConfiguration(val csmPlatformProperties: CsmPlatformPropert
     // so as to have the base URL auto-generated based on the incoming requests
     openAPI.servers = listOf()
 
-    if (csmPlatformProperties.identityProvider != null) {
-      val scopes = Scopes()
-      scopes.putAll(csmPlatformProperties.identityProvider.defaultScopes)
+    val scopes = Scopes()
+    scopes.putAll(csmPlatformProperties.identityProvider.defaultScopes)
 
-      val authorizationCodeFlow =
-          OAuthFlows()
-              .authorizationCode(
-                  OAuthFlow()
-                      .scopes(scopes)
-                      .tokenUrl(csmPlatformProperties.identityProvider.tokenUrl)
-                      .authorizationUrl(csmPlatformProperties.identityProvider.authorizationUrl))
+    val authorizationCodeFlow =
+        OAuthFlows()
+            .authorizationCode(
+                OAuthFlow()
+                    .scopes(scopes)
+                    .tokenUrl(csmPlatformProperties.identityProvider.tokenUrl)
+                    .authorizationUrl(csmPlatformProperties.identityProvider.authorizationUrl))
 
-      openAPI.components.securitySchemes["oAuth2AuthCode"]?.flows(authorizationCodeFlow)
-    } else {
-      val oauth2Scopes =
-          openAPI.components.securitySchemes["oAuth2AuthCode"]?.flows?.implicit?.scopes
-      if (csmPlatformProperties.azure != null) {
-        oauth2Scopes?.clear()
-        oauth2Scopes?.put("${csmPlatformProperties.azure.appIdUri}/platform", "Platform scope")
-      }
-    }
+    openAPI.components.securitySchemes["oAuth2AuthCode"]?.flows(authorizationCodeFlow)
 
     return openAPI
   }

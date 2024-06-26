@@ -42,7 +42,7 @@ const val USER_IN_PARENT = "usertestinparent@cosmotech.com"
 const val USER_ADMIN = "usertestadmin@cosmotech.com"
 const val USER_ADMIN_2 = "usertestadmin2@cosmotech.com"
 const val USER_NOTIN = "usertestnotin@cosmotech.com"
-const val USER_MAIL_TOKEN = "vincent.carluer@cosmotech.com"
+const val USER_MAIL_TOKEN = "john.doe@cosmotech.com"
 
 const val USER_NEW_READER = "usertestnew@cosmotech.com"
 
@@ -83,7 +83,13 @@ class CsmRbacTests {
           tokenUrl = "http://my-fake-token.url/token",
           adminGroup = CUSTOM_ADMIN_GROUP,
           userGroup = CUSTOM_USER_GROUP,
-          viewerGroup = CUSTOM_VIEWER_GROUP)
+          viewerGroup = CUSTOM_VIEWER_GROUP,
+          serverBaseUrl = "http://localhost:8080/",
+          identity =
+              CsmPlatformProperties.CsmIdentityProvider.CsmIdentity(
+                  tenantId = "my_tenant_id",
+                  clientId = "my_client_id",
+                  clientSecret = "my_client_secret"))
 
   @BeforeTest
   fun beforeEachTest() {
