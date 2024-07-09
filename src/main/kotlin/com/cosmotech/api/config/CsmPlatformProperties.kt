@@ -38,7 +38,7 @@ data class CsmPlatformProperties(
     val eventPublisher: EventPublisher,
 
     /** Container Registry */
-    val containerRegistry: CsmPlatformContainerRegistries = CsmPlatformContainerRegistries(),
+    val containerRegistry: CsmPlatformContainerRegistry = CsmPlatformContainerRegistry(),
 
     /** Blob Persistence */
     val blobPersistence: BlobPersistence,
@@ -307,22 +307,22 @@ data class CsmPlatformProperties(
     }
   }
 
-  data class CsmPlatformContainerRegistries(
+  data class CsmPlatformContainerRegistry(
 
       /** Verify if solution docker image is present in container registry */
       val checkSolutionImage: Boolean = true,
 
-      /**
-       * csmenginesdev.azurecr.io, for Azure ghcr.io for github https://index.docker.io/v1/, for
-       * local registry
-       */
-      val registryUrl: String = "csmenginesdev.azurecr.io",
+      /** Scheme/protocol used to connect to the registry API */
+      val scheme: String = "https",
+
+      /** Host of the container registry */
+      val host: String = "csmenginesdev.azurecr.io",
 
       /** Container registry username */
-      val registryUserName: String? = null,
+      val username: String? = null,
 
       /** Container registry password */
-      val registryPassword: String? = null,
+      val password: String? = null,
   )
 
   enum class Vendor {

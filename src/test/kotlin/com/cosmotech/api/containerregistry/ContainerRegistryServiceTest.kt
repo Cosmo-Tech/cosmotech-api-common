@@ -31,7 +31,8 @@ class ContainerRegistryServiceTest {
   fun beforeTest() {
     containerRegistryService = ContainerRegistryService(csmPlatformProperties)
     ReflectionTestUtils.setField(containerRegistryService, "restClient", restClient)
-    every { csmPlatformProperties.containerRegistry.registryUrl } answers { "localhost:5000" }
+    every { csmPlatformProperties.containerRegistry.scheme } answers { "http" }
+    every { csmPlatformProperties.containerRegistry.host } answers { "localhost:5000" }
   }
 
   @Test

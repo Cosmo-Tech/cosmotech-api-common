@@ -17,11 +17,14 @@ import org.springframework.web.client.RestClientException
 class ContainerRegistryService(private val csmPlatformProperties: CsmPlatformProperties) {
 
   private val restClient =
-      RestClient.builder().baseUrl(csmPlatformProperties.containerRegistry.registryUrl).build()
+      RestClient.builder()
+          .baseUrl(
+              "${csmPlatformProperties.containerRegistry.scheme}://${csmPlatformProperties.containerRegistry.host}")
+          .build()
 
   private fun getHeaderAuthorization(): String {
-    val user = csmPlatformProperties.containerRegistry.registryUserName!!
-    val password = csmPlatformProperties.containerRegistry.registryPassword!!
+    val user = csmPlatformProperties.containerRegistry.username!!
+    val password = csmPlatformProperties.containerRegistry.password!!
     val basicToken = Base64.getEncoder().encodeToString("$user:$password".toByteArray())
     return "Basic $basicToken"
   }
