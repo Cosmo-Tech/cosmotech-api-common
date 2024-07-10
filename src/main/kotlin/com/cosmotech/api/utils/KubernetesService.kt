@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service
 private const val SECRET_LABEL = "cosmotech.com/context"
 
 @Service
-class KubernetesService(private val kubernetesApi: CoreV1Api?) : SecretManager {
+class KubernetesService(private val kubernetesApi: CoreV1Api) : SecretManager {
 
   private val logger = LoggerFactory.getLogger(KubernetesService::class.java)
 
@@ -30,23 +30,22 @@ class KubernetesService(private val kubernetesApi: CoreV1Api?) : SecretManager {
   }
 
   private fun deleteSecretFromKubernetes(namespace: String, secretName: String) {
-    val api = checkKubernetesContext()
     val secretNameLower = secretName.lowercase()
     val labelSelector = buildLabelSector(secretNameLower)
 
-    val secrets = api.listNamespacedSecret(namespace).labelSelector(labelSelector).execute()
+    val secrets =
+        kubernetesApi.listNamespacedSecret(namespace).labelSelector(labelSelector).execute()
     if (secrets.items.isEmpty()) {
       logger.debug("Secret does not exists in namespace $namespace: cannot delete it")
     } else {
       logger.info("Secret exists in namespace $namespace: deleting it")
-      api.deleteNamespacedSecret(secretNameLower, namespace).execute()
+      kubernetesApi.deleteNamespacedSecret(secretNameLower, namespace).execute()
     }
   }
 
   private fun getSecretFromKubernetes(namespace: String, secretName: String): Map<String, String> {
-    val api = checkKubernetesContext()
     val secretNameLower = secretName.lowercase()
-    val result = api.readNamespacedSecret(secretNameLower, namespace).execute()
+    val result = kubernetesApi.readNamespacedSecret(secretNameLower, namespace).execute()
 
     logger.debug("Secret retrieved for namespace $namespace")
     return result.data?.mapValues { Base64.getDecoder().decode(it.value).toString(Charsets.UTF_8) }
@@ -58,7 +57,6 @@ class KubernetesService(private val kubernetesApi: CoreV1Api?) : SecretManager {
       secretName: String,
       secretData: Map<String, String>
   ) {
-    val api = checkKubernetesContext()
     logger.debug("Creating secret $secretName in namespace $namespace")
 
     val secretNameLower = secretName.lowercase()
@@ -74,19 +72,16 @@ class KubernetesService(private val kubernetesApi: CoreV1Api?) : SecretManager {
     body.data = secretData.mapValues { Base64.getEncoder().encode(it.value.toByteArray()) }
     body.type = "Opaque"
 
-    val secrets = api.listNamespacedSecret(namespace).labelSelector(labelSelector).execute()
+    val secrets =
+        kubernetesApi.listNamespacedSecret(namespace).labelSelector(labelSelector).execute()
     if (secrets.items.isEmpty()) {
       logger.debug("Secret does not exists in namespace $namespace: creating it")
-      api.createNamespacedSecret(namespace, body).execute()
+      kubernetesApi.createNamespacedSecret(namespace, body).execute()
     } else {
       logger.debug("Secret already exists in namespace $namespace: replacing it")
-      api.replaceNamespacedSecret(secretNameLower, namespace, body).execute()
+      kubernetesApi.replaceNamespacedSecret(secretNameLower, namespace, body).execute()
     }
     logger.info("Secret created/replaced")
-  }
-
-  private fun checkKubernetesContext(): CoreV1Api {
-    return this.kubernetesApi ?: throw IllegalStateException("Kubernetes API is not available")
   }
 
   private fun buildLabelSector(secretName: String) = "$SECRET_LABEL=$secretName"
