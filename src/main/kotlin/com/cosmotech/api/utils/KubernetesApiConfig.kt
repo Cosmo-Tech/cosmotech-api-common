@@ -8,14 +8,17 @@ import io.kubernetes.client.util.ClientBuilder
 import io.kubernetes.client.util.KubeConfig
 import java.io.FileReader
 import java.io.IOException
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
 open class KubernetesApiConfig {
   @Bean
+  @ConditionalOnProperty(
+      name = ["csm.platform.kubernetesAccessEnabled"], havingValue = "true", matchIfMissing = true)
   open fun coreV1Api(csmPlatformProperties: CsmPlatformProperties): CoreV1Api {
-    val kubernetesContext = System.getProperty("localKubernetesContext")
+    val kubernetesContext = System.getProperty("useKubernetesContext")
     if (kubernetesContext != null) {
       // Locate kube config file
       val kubeConfigPath =
