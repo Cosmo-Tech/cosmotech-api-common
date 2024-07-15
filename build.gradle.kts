@@ -212,8 +212,7 @@ dependencies {
   implementation("io.kubernetes:client-java:${kubernetesClientVersion}")
 
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${springDocVersion}")
-  // https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-kotlin
-  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.16.0-rc1")
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.2")
 
   implementation("jakarta.servlet:jakarta.servlet-api:${servletApiVersion}")
   implementation("com.okta.spring:okta-spring-boot-starter:${oktaSpringBootVersion}")
