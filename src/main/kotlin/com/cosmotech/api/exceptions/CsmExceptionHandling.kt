@@ -4,19 +4,43 @@ package com.cosmotech.api.exceptions
 
 import java.net.URI
 import org.apache.commons.lang3.NotImplementedException
+import org.springframework.core.Ordered
+import org.springframework.core.annotation.Order
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatusCode
 import org.springframework.http.ProblemDetail
+import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.security.authentication.AuthenticationServiceException
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.InsufficientAuthenticationException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
 
+@Order(Ordered.HIGHEST_PRECEDENCE)
 @RestControllerAdvice
 open class CsmExceptionHandling : ResponseEntityExceptionHandler() {
 
   private val httpStatusCodeTypePrefix = "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/"
+
+  override fun handleHttpMessageNotReadable(
+      exception: HttpMessageNotReadableException,
+      headers: HttpHeaders,
+      status: HttpStatusCode,
+      request: WebRequest
+  ): ResponseEntity<Any>? {
+    val badRequestStatus = HttpStatus.BAD_REQUEST
+    val problemDetail = ProblemDetail.forStatus(badRequestStatus)
+    problemDetail.type = URI.create(httpStatusCodeTypePrefix + badRequestStatus.value())
+
+    if (exception.message != null) {
+      problemDetail.detail = exception.message
+    }
+    return super.handleExceptionInternal(exception, problemDetail, headers, status, request)
+  }
 
   @ExceptionHandler
   fun handleIllegalArgumentException(exception: IllegalArgumentException): ProblemDetail {
