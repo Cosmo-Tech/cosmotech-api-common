@@ -3,13 +3,23 @@
 package com.cosmotech.api.loki
 
 import com.cosmotech.api.config.CsmPlatformProperties
-import java.time.OffsetDateTime
+import java.time.Duration
+import java.time.Instant
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.body
 import org.springframework.web.util.UriComponentsBuilder
+
+private const val MILLI_TO_NANO = 1_000_000
+// Use the default value of loki for limits_config.max_query_length
+// This should be made dynamic based on the actual loki configuration in v4.0
+// Loki default is actually 30d1h
+private const val LOKI_MAX_QUERY_LENGTH_DAYS = 30L
+// Use the default value of loki for limits_config.max_entries_limit_per_query
+// This should be made dynamic based on the actual loki configuration in v4.0
+private const val LOKI_MAX_ENTRIES_LIMIT_PER_QUERY = "5000"
 
 // Needed for authentication in multitenant mode
 // https://grafana.com/docs/loki/latest/operations/authentication/
@@ -20,25 +30,26 @@ class LokiService(private val csmPlatformProperties: CsmPlatformProperties) {
 
   private var restClient = RestClient.builder().baseUrl(csmPlatformProperties.loki.baseUrl).build()
 
-  fun getPodLogs(namespace: String, podName: String) = execRequest(namespace, podName)
+  fun getPodLogs(namespace: String, podName: String, startTime: Instant) =
+      execRequest(namespace, podName, startTime)
 
-  fun getPodsLogs(namespace: String, podNames: List<String>): Map<String, String> {
+  fun getPodsLogs(
+      namespace: String,
+      podNames: List<String>,
+      startTime: Instant
+  ): Map<String, String> {
     val podsLogs = mutableMapOf<String, String>()
-    podNames.forEach { podsLogs[it] = getPodLogs(namespace, it) }
+    podNames.forEach { podsLogs[it] = getPodLogs(namespace, it, startTime) }
     return podsLogs
   }
 
-  private fun execRequest(namespace: String, podName: String): String {
-    // TODO Change it regarding sjoubert remarks
-    val startTime =
-        OffsetDateTime.now()
-            .minusDays(csmPlatformProperties.loki.queryDaysAgo)
-            .toInstant()
-            .toEpochMilli()
-            .toString()
-    val endTime = OffsetDateTime.now().toInstant().toEpochMilli().toString()
+  private fun execRequest(namespace: String, podName: String, startTime: Instant): String {
+    val startTimeNano = startTime.toEpochMilli() * MILLI_TO_NANO
+    val endTimeNano =
+        startTime.plus(Duration.ofDays(LOKI_MAX_QUERY_LENGTH_DAYS)).toEpochMilli() * MILLI_TO_NANO
 
-    val parameters = buildParameters(namespace, podName, startTime, endTime)
+    val parameters =
+        buildParameters(namespace, podName, startTimeNano.toString(), endTimeNano.toString())
 
     return restClient
         .get()
@@ -64,6 +75,7 @@ class LokiService(private val csmPlatformProperties: CsmPlatformProperties) {
   ): LinkedMultiValueMap<String, String> {
     val params = LinkedMultiValueMap<String, String>()
     params.add("query", getQuery(namespace, podName))
+    params.add("limit", LOKI_MAX_ENTRIES_LIMIT_PER_QUERY)
     params.add("start", startTime)
     params.add("end", endTime)
     return params
