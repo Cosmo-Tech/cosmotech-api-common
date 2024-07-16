@@ -229,12 +229,6 @@ data class CsmPlatformProperties(
   data class Loki(
       /** Base Loki url */
       val baseUrl: String = "http://loki.default.svc.cluster.local:3100",
-
-      /** Query path for Loki service */
-      val queryPath: String = "/loki/api/v1/query_range",
-
-      /** Query range for logs (default: retrieve logs from past day) */
-      val queryDaysAgo: Long = 1
   )
   data class Argo(
       /** Argo service base Uri */
