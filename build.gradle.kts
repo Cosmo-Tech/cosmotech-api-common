@@ -161,7 +161,6 @@ val springOauthVersion = "6.2.2"
 val servletApiVersion = "6.0.0"
 val oktaSpringBootVersion = "3.0.5"
 val tikaVersion = "2.9.1"
-val kubernetesClientVersion = "21.0.0"
 val redisOMVersion = "0.9.1"
 val kotlinCoroutinesCoreVersion = "1.7.3"
 
@@ -209,7 +208,6 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-web") {
     exclude(group = "org.springframework.boot", module = "spring-boot-starter-tomcat")
   }
-  implementation("io.kubernetes:client-java:${kubernetesClientVersion}")
 
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${springDocVersion}")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.2")
