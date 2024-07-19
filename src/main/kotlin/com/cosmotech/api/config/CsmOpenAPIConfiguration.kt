@@ -8,32 +8,15 @@ import io.swagger.v3.oas.models.security.OAuthFlows
 import io.swagger.v3.oas.models.security.Scopes
 import io.swagger.v3.parser.OpenAPIV3Parser
 import java.io.BufferedReader
-import org.springdoc.core.customizers.OperationCustomizer
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Primary
 
 @Configuration
-@ConditionalOnProperty(name = ["csm.cliapplication"], havingValue = "false", matchIfMissing = true)
 open class CsmOpenAPIConfiguration(val csmPlatformProperties: CsmPlatformProperties) {
 
   @Value("\${api.version:?}") private lateinit var apiVersion: String
 
-  // TODO For some reason, all operation IDs exposed are suffixed with "_1" by SpringDoc.
-  // This removes such suffix dynamically, until we find a better strategy
-  @Bean
-  open fun csmOpenAPIOperationCustomizer(): OperationCustomizer {
-    return OperationCustomizer { operation, _ ->
-      if (operation.operationId?.endsWith("_1") == true) {
-        operation.operationId = operation.operationId.substringBefore("_1")
-      }
-      operation
-    }
-  }
-
-  @Primary
   @Bean
   open fun csmOpenAPI(): OpenAPI {
     val openApiYamlInputStream =
@@ -55,20 +38,11 @@ open class CsmOpenAPIConfiguration(val csmPlatformProperties: CsmPlatformPropert
 
     openAPI.info.version = apiVersion
 
-    if (openAPI.info.description.isNullOrBlank()) {
-      openAPI.info.description = "Cosmo Tech Platform API"
+    if (!csmPlatformProperties.vcsRef.isNullOrBlank()) {
+      openAPI.info.description += " / ${csmPlatformProperties.vcsRef}"
     }
     if (!csmPlatformProperties.commitId.isNullOrBlank()) {
-      if (csmPlatformProperties.vcsRef.isNullOrBlank()) {
-        openAPI.info.description += " (${csmPlatformProperties.commitId})"
-      } else {
-        openAPI.info.description +=
-            " (${csmPlatformProperties.vcsRef} / ${csmPlatformProperties.commitId})"
-      }
-    } else {
-      if (!csmPlatformProperties.vcsRef.isNullOrBlank()) {
-        openAPI.info.description += " (${csmPlatformProperties.vcsRef})"
-      }
+      openAPI.info.description += " / ${csmPlatformProperties.commitId}"
     }
 
     // Remove any set of servers already defined in the input openapi.yaml,
