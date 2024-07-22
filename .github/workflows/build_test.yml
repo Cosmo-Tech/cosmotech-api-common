@@ -23,30 +23,24 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
       - name: Build with Gradle
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        uses: gradle/gradle-build-action@v3
-        with:
-          cache-disabled: false
-          # Cache storage space is limited for GitHub actions
-          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
-          arguments: |
+        run: >
+            ./gradlew
             build
             -x test
             -x spotlessCheck
             -x detekt
-            
+
       - name: Run unit tests
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        uses: gradle/gradle-build-action@v3
-        with:
-          cache-disabled: false
-          # Cache storage space is limited for GitHub actions
-          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
-          arguments: test -x spotlessCheck
-          
+        run: ./gradlew test -x spotlessCheck
+
   update_snapshot_and_package:
     runs-on: ubuntu-latest
     if: ${{ github.ref == 'refs/heads/main' }}
@@ -69,14 +63,14 @@ jobs:
         with:
           tag_name: ${{ steps.previoustag.outputs.tag }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: Create tag
         if: ${{ endsWith(steps.previoustag.outputs.tag, '-SNAPSHOT') }}
         uses: EndBug/latest-tag@latest
         with:
           ref: ${{ steps.previoustag.outputs.tag }}
           description: ${{ steps.previoustag.outputs.tag }}
-            
+
       - name: Create Release
         if: ${{ endsWith(steps.previoustag.outputs.tag, '-SNAPSHOT') }}
         env:
@@ -93,14 +87,10 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
-          
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
       - name: Publish with Gradle
         if: ${{ endsWith(steps.previoustag.outputs.tag, '-SNAPSHOT') }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ steps.previoustag.outputs.tag }}
-        uses: gradle/gradle-build-action@v3
-        with:
-          cache-disabled: true
-          arguments: |
-            publish
+        run: ./gradlew publish
