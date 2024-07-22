@@ -64,7 +64,7 @@ jobs:
         uses: "WyriHaximus/github-action-get-previous-tag@v1"
 
       - name: Clean Snapshot
-        uses: dev-drprasad/delete-tag-and-release@v1.0
+        uses: dev-drprasad/delete-tag-and-release@v1.1
         if: ${{ endsWith(steps.previoustag.outputs.tag, '-SNAPSHOT') }}
         with:
           tag_name: ${{ steps.previoustag.outputs.tag }}
