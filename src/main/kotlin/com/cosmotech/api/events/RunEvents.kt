@@ -13,3 +13,10 @@ class AskRunStatusEvent(
     val runnerId: String,
     val runId: String
 ) : CsmRequestResponseEvent<String>(publisher)
+
+class HasRunningRuns(
+    publisher: Any,
+    val organizationId: String,
+    val workspaceId: String,
+    val runnerId: String
+) : CsmRequestResponseEvent<Boolean>(publisher)
