@@ -15,3 +15,10 @@ class AskRunnerStatusEvent(
     val workspaceId: String,
     val runnerId: String
 ) : CsmRequestResponseEvent<String>(publisher)
+
+class RunnerDeleted(
+    publisher: Any,
+    val organizationId: String,
+    val workspaceId: String,
+    val runnerId: String
+) : CsmEvent(publisher)
