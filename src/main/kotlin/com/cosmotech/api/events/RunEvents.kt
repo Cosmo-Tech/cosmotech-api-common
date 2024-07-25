@@ -20,3 +20,11 @@ class HasRunningRuns(
     val workspaceId: String,
     val runnerId: String
 ) : CsmRequestResponseEvent<Boolean>(publisher)
+
+class RunDeleted(
+    publisher: Any,
+    val organizationId: String,
+    val workspaceId: String,
+    val runnerId: String,
+    val runId: String
+) : CsmEvent(publisher)
