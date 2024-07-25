@@ -3,13 +3,12 @@
 package com.cosmotech.api.loki
 
 import com.cosmotech.api.config.CsmPlatformProperties
-import java.time.OffsetDateTime
+import java.time.Duration
+import java.time.Instant
 import org.apache.http.client.methods.HttpUriRequest
 import org.apache.http.client.methods.RequestBuilder
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.util.EntityUtils
-import java.time.Duration
-import java.time.Instant
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
 
@@ -33,14 +32,19 @@ class LokiService(private val csmPlatformProperties: CsmPlatformProperties) {
   }
 
   private fun execRequest(namespace: String, podName: String, startTime: Instant): String {
-    val httpResponse = getHttpClient().execute(buildHttpRequest(namespace, podName,startTime))
+    val httpResponse = getHttpClient().execute(buildHttpRequest(namespace, podName, startTime))
     return EntityUtils.toString(httpResponse.getEntity())
   }
-  fun getPodLogs(namespace: String, podName: String, startTime: Instant) = execRequest(namespace, podName, startTime)
+  fun getPodLogs(namespace: String, podName: String, startTime: Instant) =
+      execRequest(namespace, podName, startTime)
 
-  fun getPodsLogs(namespace: String, podNames: List<String>, startTime: Instant): Map<String, String> {
-    var podsLogs = mutableMapOf<String, String>()
-    podNames.forEach { podsLogs[it] = getPodLogs(namespace, it, startTime)!! }
+  fun getPodsLogs(
+      namespace: String,
+      podNames: List<String>,
+      startTime: Instant
+  ): Map<String, String> {
+    val podsLogs = mutableMapOf<String, String>()
+    podNames.forEach { podsLogs[it] = getPodLogs(namespace, it, startTime) }
     return podsLogs
   }
 
@@ -49,7 +53,11 @@ class LokiService(private val csmPlatformProperties: CsmPlatformProperties) {
 
   private fun getHttpClient() = HttpClients.createDefault()
 
-  private fun buildHttpRequest(namespace: String, podName: String, startTime: Instant): HttpUriRequest {
+  private fun buildHttpRequest(
+      namespace: String,
+      podName: String,
+      startTime: Instant
+  ): HttpUriRequest {
     var reqBuilder = RequestBuilder.get()
     reqBuilder = reqBuilder.setUri(getLokiQueryURI())
     reqBuilder = reqBuilder.addHeader(HttpHeaders.CONTENT_TYPE, "application/x-ndjson")
@@ -58,12 +66,12 @@ class LokiService(private val csmPlatformProperties: CsmPlatformProperties) {
     reqBuilder = reqBuilder.addParameter("query", getQuery(namespace, podName))
     reqBuilder = reqBuilder.addParameter("limit", LOKI_MAX_ENTRIES_LIMIT_PER_QUERY)
 
-      val startTimeNano = startTime.toEpochMilli() * MILLI_TO_NANO
-      val endTimeNano =
-          startTime.plus(Duration.ofDays(LOKI_MAX_QUERY_LENGTH_DAYS)).toEpochMilli() * MILLI_TO_NANO
+    val startTimeNano = startTime.toEpochMilli() * MILLI_TO_NANO
+    val endTimeNano =
+        startTime.plus(Duration.ofDays(LOKI_MAX_QUERY_LENGTH_DAYS)).toEpochMilli() * MILLI_TO_NANO
 
-    reqBuilder = reqBuilder.addParameter("start", startTimeNano)
-    reqBuilder = reqBuilder.addParameter("end", endTimeNano)
+    reqBuilder = reqBuilder.addParameter("start", startTimeNano.toString())
+    reqBuilder = reqBuilder.addParameter("end", endTimeNano.toString())
     return reqBuilder.build()
   }
 }
