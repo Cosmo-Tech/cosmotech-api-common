@@ -217,7 +217,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-actuator")
   implementation("io.micrometer:micrometer-registry-prometheus")
   implementation("org.springframework.boot:spring-boot-starter-aop")
-
+/* test */
   implementation("org.apache.tika:tika-core:${tikaVersion}")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesCoreVersion")
   implementation("com.redis.om:redis-om-spring:${redisOMVersion}") {
