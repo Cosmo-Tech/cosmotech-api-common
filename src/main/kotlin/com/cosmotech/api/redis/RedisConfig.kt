@@ -18,14 +18,11 @@ open class RedisConfig {
 
   @Value("\${spring.data.redis.port}") private lateinit var twincachePort: String
 
-  @Value("\${spring.data.redis.ssl.enabled}") private var twincacheTLS: Boolean = false
-
   @Value("\${spring.data.redis.password}") private lateinit var twincachePassword: String
 
   @Bean
   open fun csmJedisClientConfig(): JedisClientConfig =
       DefaultJedisClientConfig.builder()
-          .ssl(twincacheTLS)
           .password(twincachePassword)
           .timeoutMillis(Protocol.DEFAULT_TIMEOUT)
           .build()

@@ -392,9 +392,6 @@ data class CsmPlatformProperties(
       /** Twin cache port */
       val port: String = "6379",
 
-      /** Twin cache tls enabled */
-      val tls: Boolean = false,
-
       /** Twin cache user */
       val username: String = "default",
 
