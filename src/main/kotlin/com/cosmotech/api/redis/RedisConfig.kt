@@ -18,6 +18,7 @@ open class RedisConfig {
 
   @Value("\${spring.data.redis.port}") private lateinit var twincachePort: String
 
+  // This property path is compatible with spring.data.redis used in redis om also
   @Value("\${spring.data.redis.ssl.enabled}") private var twincacheTLS: Boolean = false
 
   @Value("\${spring.data.redis.password}") private lateinit var twincachePassword: String
