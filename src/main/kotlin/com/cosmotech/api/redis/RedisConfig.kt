@@ -19,10 +19,12 @@ open class RedisConfig {
 
   @Value("\${spring.data.redis.port}") private lateinit var twincachePort: String
 
-  // This property path is compatible with spring.data.redis used by redis-om auto configuration
-  @Value("\${spring.data.redis.ssl.enabled}") private var twincacheTLS: Boolean = false
+  // This property path is not compatible with spring.data.redis used by redis-om auto configuration
+  @Value("\${csm.platform.twincache.tls.enabled}") private var twincacheTLS: Boolean = false
 
-  @Value("\${spring.data.redis.ssl.bundle}") private var twinCacheTLSBundle: String = ""
+  // This property path is not compatible with spring.data.redis used by redis-om auto configuration
+  // It is duplicated since spring.data.redis.ssl.bundle cannot be empty
+  @Value("\${csm.platform.twincache.tls.bundle}") private var twinCacheTLSBundle: String = ""
 
   @Value("\${spring.data.redis.password}") private lateinit var twincachePassword: String
 
