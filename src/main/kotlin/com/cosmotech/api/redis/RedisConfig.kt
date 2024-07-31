@@ -3,6 +3,7 @@
 package com.cosmotech.api.redis
 
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.ssl.SslBundles
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import redis.clients.jedis.DefaultJedisClientConfig
@@ -21,15 +22,27 @@ open class RedisConfig {
   // This property path is compatible with spring.data.redis used by redis-om auto configuration
   @Value("\${spring.data.redis.ssl.enabled}") private var twincacheTLS: Boolean = false
 
+  @Value("\${spring.data.redis.ssl.bundle}") private var twinCacheTLSBundle: String? = null
+
   @Value("\${spring.data.redis.password}") private lateinit var twincachePassword: String
 
   @Bean
-  open fun csmJedisClientConfig(): JedisClientConfig =
-      DefaultJedisClientConfig.builder()
-          .ssl(twincacheTLS)
-          .password(twincachePassword)
-          .timeoutMillis(Protocol.DEFAULT_TIMEOUT)
-          .build()
+  open fun csmJedisClientConfig(sslBundles: SslBundles): JedisClientConfig =
+      twinCacheTLSBundle?.let {
+        return DefaultJedisClientConfig.builder()
+            .ssl(twincacheTLS)
+            .sslSocketFactory(sslBundles.getBundle(it).createSslContext().socketFactory)
+            .password(twincachePassword)
+            .timeoutMillis(Protocol.DEFAULT_TIMEOUT)
+            .build()
+      }
+          ?: run {
+            return DefaultJedisClientConfig.builder()
+                .ssl(twincacheTLS)
+                .password(twincachePassword)
+                .timeoutMillis(Protocol.DEFAULT_TIMEOUT)
+                .build()
+          }
 
   @Bean
   open fun unifiedJedis(csmJedisClientConfig: JedisClientConfig): UnifiedJedis {
