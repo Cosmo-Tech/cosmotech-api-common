@@ -393,7 +393,7 @@ data class CsmPlatformProperties(
       val port: String = "6379",
 
       /** Twin cache tls enabled */
-      val tls: Boolean = false,
+      val tls: CsmTwinCacheTLS = CsmTwinCacheTLS(),
 
       /** Twin cache user */
       val username: String = "default",
@@ -431,6 +431,10 @@ data class CsmPlatformProperties(
       /** Twin cache query page information for solution */
       val solution: PageSizing = PageSizing(),
   ) {
+    data class CsmTwinCacheTLS(
+        val enabled: Boolean = false,
+        val bundle: String? = null,
+    )
 
     data class PageSizing(
         /** Max result for a single page */
