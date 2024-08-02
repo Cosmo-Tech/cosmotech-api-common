@@ -13,6 +13,8 @@ import java.util.stream.Collectors
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties
+import org.springframework.boot.ssl.SslBundles
+import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.convert.converter.Converter
@@ -34,6 +36,8 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.util.CollectionUtils
 import org.springframework.util.StringUtils
+import org.springframework.web.client.RestTemplate
+import java.util.PrimitiveIterator
 
 @Configuration
 @EnableWebSecurity
@@ -42,7 +46,9 @@ import org.springframework.util.StringUtils
 @EnableMethodSecurity(securedEnabled = true, prePostEnabled = true, proxyTargetClass = true)
 internal open class KeycloakSecurityConfiguration(
     private val oAuth2ResourceServerProperties: OAuth2ResourceServerProperties,
-    private val csmPlatformProperties: CsmPlatformProperties
+    private val csmPlatformProperties: CsmPlatformProperties,
+    private val sslBundles: SslBundles,
+    private val restTemplateBuilder: RestTemplateBuilder
 ) : AbstractSecurityConfiguration() {
 
   private val logger = LoggerFactory.getLogger(KeycloakSecurityConfiguration::class.java)
@@ -83,6 +89,7 @@ internal open class KeycloakSecurityConfiguration(
     val jwtProperties = oAuth2ResourceServerProperties.jwt
     val nimbusJwtDecoder =
         NimbusJwtDecoder.withJwkSetUri(jwtProperties.jwkSetUri)
+            .restOperations(restTemplateBuilder.setSslBundle(sslBundles.getBundle("secure-keycloak")).build())
             .jwsAlgorithms { signatureAlgorithms: MutableSet<SignatureAlgorithm> ->
               for (algorithm in jwtProperties.jwsAlgorithms) {
                 signatureAlgorithms.add(SignatureAlgorithm.from(algorithm))
