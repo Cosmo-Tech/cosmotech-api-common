@@ -22,6 +22,32 @@ open class CsmRbac(
 
   private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
+  fun initSecurity(security: RbacSecurity): RbacSecurity {
+    var objectSecurity = security.copy()
+
+    // Check for duplicate identities
+    val accessControls = mutableListOf<String>()
+    objectSecurity.accessControlList.forEach {
+      if (accessControls.contains(it.id)) {
+        throw IllegalArgumentException("User ${it.id} is referenced multiple times in the security")
+      }
+      accessControls.add(it.id)
+    }
+
+    // Make sure we have at least one admin
+    if (!objectSecurity.accessControlList.any { it.role == ROLE_ADMIN }) {
+      val currentUserId = getCurrentAccountIdentifier(csmPlatformProperties)
+      val currentUserACL = objectSecurity.accessControlList.find { it.id == currentUserId }
+      if (currentUserACL != null) {
+        currentUserACL.role = ROLE_ADMIN
+      } else {
+        objectSecurity.accessControlList.add(RbacAccessControl(currentUserId, ROLE_ADMIN))
+      }
+    }
+
+    return objectSecurity
+  }
+
   fun verify(
       rbacSecurity: RbacSecurity,
       permission: String,
