@@ -869,4 +869,54 @@ class CsmRbacTests {
     assertTrue(
         rbac.verifyRbac(rbacSecurity, PERMISSION_READ, getCommonRolesDefinition(), APP_REG_ID))
   }
+
+  @Test
+  fun `initSecurity empty ACL`() {
+    val inputSecurity = RbacSecurity(COMPONENT_ID, ROLE_NONE, mutableListOf())
+    val security = rbac.initSecurity(inputSecurity)
+    assertEquals(
+        inputSecurity.copy(
+            accessControlList = mutableListOf(RbacAccessControl(USER_NOTIN, ROLE_ADMIN))),
+        security)
+  }
+
+  @Test
+  fun `initSecurity duplicate ACL`() {
+    assertThrows<IllegalArgumentException> {
+      rbac.initSecurity(
+          RbacSecurity(
+              COMPONENT_ID,
+              ROLE_NONE,
+              mutableListOf(
+                  RbacAccessControl(USER_READER, ROLE_USER),
+                  RbacAccessControl(USER_READER, ROLE_ADMIN))))
+    }
+  }
+
+  @Test
+  fun `initSecurity no admin in ACL without current user`() {
+    val inputSecurity =
+        RbacSecurity(
+            COMPONENT_ID, ROLE_NONE, mutableListOf(RbacAccessControl(USER_NOTIN, ROLE_USER)))
+    val security = rbac.initSecurity(inputSecurity)
+    assertEquals(
+        inputSecurity.copy(
+            accessControlList = mutableListOf(RbacAccessControl(USER_NOTIN, ROLE_ADMIN))),
+        security)
+  }
+
+  @Test
+  fun `initSecurity no admin in ACL with current user`() {
+    val inputSecurity =
+        RbacSecurity(
+            COMPONENT_ID, ROLE_NONE, mutableListOf(RbacAccessControl(USER_READER, ROLE_USER)))
+    val security = rbac.initSecurity(inputSecurity)
+    assertEquals(
+        inputSecurity.copy(
+            accessControlList =
+                mutableListOf(
+                    RbacAccessControl(USER_READER, ROLE_USER),
+                    RbacAccessControl(USER_NOTIN, ROLE_ADMIN))),
+        security)
+  }
 }
