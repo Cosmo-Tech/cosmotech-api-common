@@ -61,7 +61,9 @@ jobs:
           fetch-depth: 0
       - name: Get previous tag
         id: previoustag
-        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+        run: |
+          previousTag=$(git describe --tags --abbrev=0)
+          echo "tag=${previousTag}" >> "$GITHUB_OUTPUT"
 
       - name: Clean Snapshot
         uses: dev-drprasad/delete-tag-and-release@v1.0
