@@ -267,6 +267,9 @@ data class CsmPlatformProperties(
          * Example: storage: 1Gi
          */
         val requests: Map<String, String> = emptyMap(),
+
+        /** Don't try to use node selector to schedule argo workflows */
+        val ignoreNodeSelector: Boolean = false,
     )
   }
 
