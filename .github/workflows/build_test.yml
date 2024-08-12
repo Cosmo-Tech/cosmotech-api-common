@@ -55,7 +55,9 @@ jobs:
           fetch-depth: 0
       - name: Get previous tag
         id: previoustag
-        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+        run: |
+          previousTag=$(git describe --tags --abbrev=0)
+          echo "tag=${previousTag}" >> "$GITHUB_OUTPUT"
 
       - name: Clean Snapshot
         uses: dev-drprasad/delete-tag-and-release@v1.1
@@ -89,6 +91,7 @@ jobs:
           java-version: '21'
 
       - name: Setup Gradle
+        if: ${{ endsWith(steps.previoustag.outputs.tag, '-SNAPSHOT') }}
         uses: gradle/actions/setup-gradle@v4
 
       - name: Publish with Gradle
