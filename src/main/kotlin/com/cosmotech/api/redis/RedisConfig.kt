@@ -24,17 +24,16 @@ open class RedisConfig {
 
   // This property path is not compatible with spring.data.redis used by redis-om auto configuration
   // It is duplicated since spring.data.redis.ssl.bundle cannot be empty
-  @Value("\${csm.platform.twincache.tls.bundle}") private var twinCacheTLSBundle: String = ""
+  @Value("\${csm.platform.tls.bundle}") private var customTLSBundle: String = ""
 
   @Value("\${spring.data.redis.password}") private lateinit var twincachePassword: String
 
   @Bean
   open fun csmJedisClientConfig(sslBundles: SslBundles): JedisClientConfig {
-    return if (twincacheTLS && twinCacheTLSBundle.isNotBlank()) {
+    return if (twincacheTLS && customTLSBundle.isNotBlank()) {
       DefaultJedisClientConfig.builder()
           .ssl(twincacheTLS)
-          .sslSocketFactory(
-              sslBundles.getBundle(twinCacheTLSBundle).createSslContext().socketFactory)
+          .sslSocketFactory(sslBundles.getBundle(customTLSBundle).createSslContext().socketFactory)
           .password(twincachePassword)
           .timeoutMillis(Protocol.DEFAULT_TIMEOUT)
           .build()

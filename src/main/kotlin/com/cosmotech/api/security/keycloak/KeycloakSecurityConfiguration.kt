@@ -11,6 +11,7 @@ import java.util.Collections
 import java.util.Objects
 import java.util.stream.Collectors
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties
 import org.springframework.boot.ssl.SslBundles
@@ -36,8 +37,6 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.util.CollectionUtils
 import org.springframework.util.StringUtils
-import org.springframework.web.client.RestTemplate
-import java.util.PrimitiveIterator
 
 @Configuration
 @EnableWebSecurity
@@ -58,6 +57,9 @@ internal open class KeycloakSecurityConfiguration(
       csmPlatformProperties.identityProvider.userGroup ?: ROLE_ORGANIZATION_USER
   private val organizationViewerGroup =
       csmPlatformProperties.identityProvider.viewerGroup ?: ROLE_ORGANIZATION_VIEWER
+
+  @Value("\${csm.platform.identityProvider.tls.enabled}") private var tlsEnabled: Boolean = false
+  @Value("\${csm.platform.tls.bundle}") private var customTLSBundle: String = ""
 
   @Bean
   open fun filterChain(http: HttpSecurity): SecurityFilterChain? {
@@ -87,15 +89,18 @@ internal open class KeycloakSecurityConfiguration(
       csmPlatformProperties: CsmPlatformProperties
   ): JwtDecoder {
     val jwtProperties = oAuth2ResourceServerProperties.jwt
-    val nimbusJwtDecoder =
-        NimbusJwtDecoder.withJwkSetUri(jwtProperties.jwkSetUri)
-            .restOperations(restTemplateBuilder.setSslBundle(sslBundles.getBundle("secure-keycloak")).build())
-            .jwsAlgorithms { signatureAlgorithms: MutableSet<SignatureAlgorithm> ->
-              for (algorithm in jwtProperties.jwsAlgorithms) {
-                signatureAlgorithms.add(SignatureAlgorithm.from(algorithm))
-              }
-            }
-            .build()
+    val nimbusJwtDecoderBuilder =
+        NimbusJwtDecoder.withJwkSetUri(jwtProperties.jwkSetUri).jwsAlgorithms {
+            signatureAlgorithms: MutableSet<SignatureAlgorithm> ->
+          for (algorithm in jwtProperties.jwsAlgorithms) {
+            signatureAlgorithms.add(SignatureAlgorithm.from(algorithm))
+          }
+        }
+    if (tlsEnabled) {
+      nimbusJwtDecoderBuilder.restOperations(
+          restTemplateBuilder.setSslBundle(sslBundles.getBundle(customTLSBundle)).build())
+    }
+    val nimbusJwtDecoder = nimbusJwtDecoderBuilder.build()
 
     // Timestamp and Issuer
     val issuerUri = jwtProperties.issuerUri
