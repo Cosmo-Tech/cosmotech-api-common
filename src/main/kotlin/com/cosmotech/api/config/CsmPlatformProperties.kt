@@ -46,6 +46,8 @@ data class CsmPlatformProperties(
     /** Argo Service */
     val argo: Argo,
 
+    val tls: TlsConfig = TlsConfig(),
+
     /** Cosmo Tech core images */
     val images: CsmImages,
 
@@ -395,9 +397,6 @@ data class CsmPlatformProperties(
       /** Twin cache port */
       val port: String = "6379",
 
-      /** Twin cache tls enabled */
-      val tls: CsmTwinCacheTLS = CsmTwinCacheTLS(),
-
       /** Twin cache user */
       val username: String = "default",
 
@@ -434,10 +433,6 @@ data class CsmPlatformProperties(
       /** Twin cache query page information for solution */
       val solution: PageSizing = PageSizing(),
   ) {
-    data class CsmTwinCacheTLS(
-        val enabled: Boolean = false,
-        val bundle: String? = null,
-    )
 
     data class PageSizing(
         /** Max result for a single page */
@@ -459,4 +454,6 @@ data class CsmPlatformProperties(
         val workspaces: List<String> = emptyList(),
     )
   }
+
+  data class TlsConfig(val enabled: Boolean = false, val bundle: String = "")
 }
