@@ -46,6 +46,7 @@ data class CsmPlatformProperties(
     /** Argo Service */
     val argo: Argo,
 
+    /** TLS Platform bundle config */
     val tls: TlsConfig = TlsConfig(),
 
     /** Cosmo Tech core images */
@@ -117,6 +118,9 @@ data class CsmPlatformProperties(
       data class CsmStorageUser(val username: String, val password: String)
     }
     data class CsmEventBus(
+        /** Define if current API use event bus within internal result data service or not */
+        val enabled: Boolean = true,
+
         /** EventBus host */
         val host: String,
 
