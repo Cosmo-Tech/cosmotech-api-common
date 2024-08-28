@@ -59,7 +59,7 @@ internal open class KeycloakSecurityConfiguration(
       csmPlatformProperties.identityProvider.viewerGroup ?: ROLE_ORGANIZATION_VIEWER
 
   @Value("\${csm.platform.identityProvider.tls.enabled}") private var tlsEnabled: Boolean = false
-  @Value("\${csm.platform.tls.bundle}") private var customTLSBundle: String = ""
+  @Value("\${csm.platform.identityProvider.tls.bundle}") private var tlsBundle: String = ""
 
   @Bean
   open fun filterChain(http: HttpSecurity): SecurityFilterChain? {
@@ -98,7 +98,7 @@ internal open class KeycloakSecurityConfiguration(
         }
     if (tlsEnabled) {
       nimbusJwtDecoderBuilder.restOperations(
-          restTemplateBuilder.setSslBundle(sslBundles.getBundle(customTLSBundle)).build())
+          restTemplateBuilder.setSslBundle(sslBundles.getBundle(tlsBundle)).build())
     }
     val nimbusJwtDecoder = nimbusJwtDecoderBuilder.build()
 

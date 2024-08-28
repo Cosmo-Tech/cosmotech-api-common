@@ -46,9 +46,6 @@ data class CsmPlatformProperties(
     /** Argo Service */
     val argo: Argo,
 
-    /** TLS Platform bundle config */
-    val tls: TlsConfig = TlsConfig(),
-
     /** Cosmo Tech core images */
     val images: CsmImages,
 
@@ -120,6 +117,9 @@ data class CsmPlatformProperties(
     data class CsmEventBus(
         /** Define if current API use event bus within internal result data service or not */
         val enabled: Boolean = true,
+
+        /** TLS Platform bundle config */
+        val tls: TLSConfig = TLSConfig(),
 
         /** EventBus host */
         val host: String,
@@ -379,7 +379,10 @@ data class CsmPlatformProperties(
       val serverBaseUrl: String = "",
 
       /** Audience */
-      val audience: String = ""
+      val audience: String = "",
+
+      /** TLS Platform bundle config */
+      val tls: TLSConfig = TLSConfig(),
   ) {
     data class CsmIdentity(
 
@@ -436,6 +439,9 @@ data class CsmPlatformProperties(
 
       /** Twin cache query page information for solution */
       val solution: PageSizing = PageSizing(),
+
+      /** TLS Platform bundle config */
+      val tls: TLSConfig = TLSConfig(),
   ) {
 
     data class PageSizing(
@@ -459,5 +465,5 @@ data class CsmPlatformProperties(
     )
   }
 
-  data class TlsConfig(val enabled: Boolean = false, val bundle: String = "")
+  data class TLSConfig(val enabled: Boolean = false, val bundle: String = "")
 }
