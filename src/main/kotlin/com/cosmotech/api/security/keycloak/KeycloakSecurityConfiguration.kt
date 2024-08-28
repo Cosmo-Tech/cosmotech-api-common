@@ -11,8 +11,11 @@ import java.util.Collections
 import java.util.Objects
 import java.util.stream.Collectors
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties
+import org.springframework.boot.ssl.SslBundles
+import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.convert.converter.Converter
@@ -42,7 +45,9 @@ import org.springframework.util.StringUtils
 @EnableMethodSecurity(securedEnabled = true, prePostEnabled = true, proxyTargetClass = true)
 internal open class KeycloakSecurityConfiguration(
     private val oAuth2ResourceServerProperties: OAuth2ResourceServerProperties,
-    private val csmPlatformProperties: CsmPlatformProperties
+    private val csmPlatformProperties: CsmPlatformProperties,
+    private val sslBundles: SslBundles,
+    private val restTemplateBuilder: RestTemplateBuilder
 ) : AbstractSecurityConfiguration() {
 
   private val logger = LoggerFactory.getLogger(KeycloakSecurityConfiguration::class.java)
@@ -52,6 +57,9 @@ internal open class KeycloakSecurityConfiguration(
       csmPlatformProperties.identityProvider.userGroup ?: ROLE_ORGANIZATION_USER
   private val organizationViewerGroup =
       csmPlatformProperties.identityProvider.viewerGroup ?: ROLE_ORGANIZATION_VIEWER
+
+  @Value("\${csm.platform.identityProvider.tls.enabled}") private var tlsEnabled: Boolean = false
+  @Value("\${csm.platform.identityProvider.tls.bundle}") private var tlsBundle: String = ""
 
   @Bean
   open fun filterChain(http: HttpSecurity): SecurityFilterChain? {
@@ -81,14 +89,18 @@ internal open class KeycloakSecurityConfiguration(
       csmPlatformProperties: CsmPlatformProperties
   ): JwtDecoder {
     val jwtProperties = oAuth2ResourceServerProperties.jwt
-    val nimbusJwtDecoder =
-        NimbusJwtDecoder.withJwkSetUri(jwtProperties.jwkSetUri)
-            .jwsAlgorithms { signatureAlgorithms: MutableSet<SignatureAlgorithm> ->
-              for (algorithm in jwtProperties.jwsAlgorithms) {
-                signatureAlgorithms.add(SignatureAlgorithm.from(algorithm))
-              }
-            }
-            .build()
+    val nimbusJwtDecoderBuilder =
+        NimbusJwtDecoder.withJwkSetUri(jwtProperties.jwkSetUri).jwsAlgorithms {
+            signatureAlgorithms: MutableSet<SignatureAlgorithm> ->
+          for (algorithm in jwtProperties.jwsAlgorithms) {
+            signatureAlgorithms.add(SignatureAlgorithm.from(algorithm))
+          }
+        }
+    if (tlsEnabled) {
+      nimbusJwtDecoderBuilder.restOperations(
+          restTemplateBuilder.setSslBundle(sslBundles.getBundle(tlsBundle)).build())
+    }
+    val nimbusJwtDecoder = nimbusJwtDecoderBuilder.build()
 
     // Timestamp and Issuer
     val issuerUri = jwtProperties.issuerUri

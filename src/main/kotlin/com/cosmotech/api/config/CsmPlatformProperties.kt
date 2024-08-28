@@ -115,6 +115,12 @@ data class CsmPlatformProperties(
       data class CsmStorageUser(val username: String, val password: String)
     }
     data class CsmEventBus(
+        /** Define if current API use event bus within internal result data service or not */
+        val enabled: Boolean = true,
+
+        /** TLS Platform bundle config */
+        val tls: TLSConfig = TLSConfig(),
+
         /** EventBus host */
         val host: String,
 
@@ -373,7 +379,10 @@ data class CsmPlatformProperties(
       val serverBaseUrl: String = "",
 
       /** Audience */
-      val audience: String = ""
+      val audience: String = "",
+
+      /** TLS Platform bundle config */
+      val tls: TLSConfig = TLSConfig(),
   ) {
     data class CsmIdentity(
 
@@ -394,9 +403,6 @@ data class CsmPlatformProperties(
 
       /** Twin cache port */
       val port: String = "6379",
-
-      /** Twin cache tls enabled */
-      val tls: CsmTwinCacheTLS = CsmTwinCacheTLS(),
 
       /** Twin cache user */
       val username: String = "default",
@@ -433,11 +439,10 @@ data class CsmPlatformProperties(
 
       /** Twin cache query page information for solution */
       val solution: PageSizing = PageSizing(),
+
+      /** TLS Platform bundle config */
+      val tls: TLSConfig = TLSConfig(),
   ) {
-    data class CsmTwinCacheTLS(
-        val enabled: Boolean = false,
-        val bundle: String? = null,
-    )
 
     data class PageSizing(
         /** Max result for a single page */
@@ -459,4 +464,6 @@ data class CsmPlatformProperties(
         val workspaces: List<String> = emptyList(),
     )
   }
+
+  data class TLSConfig(val enabled: Boolean = false, val bundle: String = "")
 }
