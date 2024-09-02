@@ -76,6 +76,25 @@ open class CsmExceptionHandling : ResponseEntityExceptionHandler() {
     problemDetail.detail = exception.message
     return problemDetail
   }
+
+  @ExceptionHandler
+  fun handleCsmResourceNotFoundException(exception: CsmResourceNotFoundException): ProblemDetail {
+    val notFoundStatus = HttpStatus.NOT_FOUND
+    val problemDetail = ProblemDetail.forStatus(notFoundStatus)
+    problemDetail.type = URI.create(httpStatusCodeTypePrefix + notFoundStatus.value())
+    problemDetail.detail = exception.message
+    return problemDetail
+  }
+
+  @ExceptionHandler
+  fun handleCsmAccessForbiddenException(exception: CsmAccessForbiddenException): ProblemDetail {
+    val forbiddenStatus = HttpStatus.FORBIDDEN
+    val problemDetail = ProblemDetail.forStatus(forbiddenStatus)
+    problemDetail.type = URI.create(httpStatusCodeTypePrefix + forbiddenStatus.value())
+    problemDetail.detail = exception.message
+    return problemDetail
+  }
+
   @ExceptionHandler
   fun handleBadCredentialsException(exception: BadCredentialsException): ProblemDetail {
     val badRequestStatus = HttpStatus.BAD_REQUEST
