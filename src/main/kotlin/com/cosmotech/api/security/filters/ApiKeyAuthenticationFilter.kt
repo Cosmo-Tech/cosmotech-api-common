@@ -22,26 +22,35 @@ class ApiKeyAuthenticationFilter(val csmPlatformProperties: CsmPlatformPropertie
       response: HttpServletResponse,
       chain: FilterChain
   ) {
-    logger.trace("API-Key filter starts")
+    logger.debug("API-Key filter starts")
     val allowedApiKeyConsumers = csmPlatformProperties.authorization.allowedApiKeyConsumers
 
-    val matchingApiKeyConsumer =
-        allowedApiKeyConsumers.firstOrNull { apiKeyConsumer ->
+    val matchingApiKeyHeaderRequests =
+        allowedApiKeyConsumers.filter { apiKeyConsumer ->
           request.getHeader(apiKeyConsumer.apiKeyHeaderName) != null
         }
 
-    if (matchingApiKeyConsumer != null) {
-      val apiKeyHeaderName = matchingApiKeyConsumer.apiKeyHeaderName
-      val apiKeyValueConfigured = matchingApiKeyConsumer.apiKey
-      val securedUris = matchingApiKeyConsumer.securedUris
-      val associatedRole = matchingApiKeyConsumer.associatedRole
-      val apiKeyValue = request.getHeader(apiKeyHeaderName)
-      logger.debug("Request matches with API-Key ${matchingApiKeyConsumer.apiKeyHeaderName}")
+    if (matchingApiKeyHeaderRequests.isNotEmpty()) {
 
-      if (securedUris.isNotEmpty()) {
-        logger.debug("Secured Uris are defined")
-        logger.debug("Request URI : ${request.requestURI}")
-        if (apiKeyValue == apiKeyValueConfigured) {
+      val matchingApiKeyConsumer =
+          matchingApiKeyHeaderRequests.firstOrNull { apiKeyConsumer ->
+            request.getHeader(apiKeyConsumer.apiKeyHeaderName) == apiKeyConsumer.apiKey
+          }
+
+      if (matchingApiKeyConsumer == null) {
+        response.status = HttpStatus.FORBIDDEN.value()
+        response.writer.write("Wrong value for api API-Key")
+        return
+      } else {
+        val apiKeyHeaderName = matchingApiKeyConsumer.apiKeyHeaderName
+        val apiKeyValueConfigured = matchingApiKeyConsumer.apiKey
+        val securedUris = matchingApiKeyConsumer.securedUris
+        val associatedRole = matchingApiKeyConsumer.associatedRole
+        logger.debug("Request matches with API-Key ${matchingApiKeyConsumer.apiKeyHeaderName}")
+
+        if (securedUris.isNotEmpty()) {
+          logger.debug("Secured Uris are defined")
+          logger.debug("Request URI : ${request.requestURI}")
           val requestUri = request.requestURI
           val isUriMatching =
               securedUris
@@ -67,7 +76,7 @@ class ApiKeyAuthenticationFilter(val csmPlatformProperties: CsmPlatformPropertie
           }
         } else {
           response.status = HttpStatus.FORBIDDEN.value()
-          response.writer.write("Wrong value for api API-Key $apiKeyHeaderName")
+          response.writer.write("Access not allowed by API-Key")
           return
         }
       }
