@@ -39,7 +39,7 @@ import org.springframework.util.CollectionUtils
 import org.springframework.util.StringUtils
 
 @Configuration
-@EnableWebSecurity
+@EnableWebSecurity(debug = true)
 @ConditionalOnProperty(
     name = ["csm.platform.identityProvider.code"], havingValue = "keycloak", matchIfMissing = true)
 @EnableMethodSecurity(securedEnabled = true, prePostEnabled = true, proxyTargetClass = true)
@@ -61,8 +61,8 @@ internal open class KeycloakSecurityConfiguration(
   @Value("\${csm.platform.identityProvider.tls.enabled}") private var tlsEnabled: Boolean = false
   @Value("\${csm.platform.identityProvider.tls.bundle}") private var tlsBundle: String = ""
 
-  @Bean
-  open fun filterChain(http: HttpSecurity): SecurityFilterChain? {
+  @Bean(name = ["KeycloakFilterChain"])
+  open fun filterChain(http: HttpSecurity): SecurityFilterChain {
     logger.info("Okta http security configuration")
     super.getOAuth2ResourceServer(
             http,

@@ -36,7 +36,7 @@ import org.springframework.util.CollectionUtils
 import org.springframework.util.StringUtils
 
 @Configuration
-@EnableWebSecurity
+@EnableWebSecurity(debug = true)
 @ConditionalOnProperty(
     name = ["csm.platform.identityProvider.code"], havingValue = "okta", matchIfMissing = false)
 @EnableMethodSecurity(securedEnabled = true, prePostEnabled = true, proxyTargetClass = true)
@@ -53,7 +53,7 @@ internal open class OktaSecurityConfiguration(
   private val organizationViewerGroup =
       csmPlatformProperties.identityProvider.viewerGroup ?: ROLE_ORGANIZATION_VIEWER
 
-  @Bean
+  @Bean(name = ["OktaFilterChain"])
   open fun filterChain(http: HttpSecurity): SecurityFilterChain {
     logger.info("Okta http security configuration")
     super.getOAuth2ResourceServer(
