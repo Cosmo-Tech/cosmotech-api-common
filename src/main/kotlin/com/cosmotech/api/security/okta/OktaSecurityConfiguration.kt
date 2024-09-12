@@ -53,7 +53,7 @@ internal open class OktaSecurityConfiguration(
   private val organizationViewerGroup =
       csmPlatformProperties.identityProvider?.viewerGroup ?: ROLE_ORGANIZATION_VIEWER
 
-  @Bean
+  @Bean(name = ["OktaFilterChain"])
   open fun filterChain(http: HttpSecurity): SecurityFilterChain {
     logger.info("Okta http security configuration")
     super.getOAuth2ResourceServer(

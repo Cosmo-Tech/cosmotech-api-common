@@ -53,8 +53,8 @@ internal open class KeycloakSecurityConfiguration(
   private val organizationViewerGroup =
       csmPlatformProperties.identityProvider?.viewerGroup ?: ROLE_ORGANIZATION_VIEWER
 
-  @Bean
-  open fun filterChain(http: HttpSecurity): SecurityFilterChain? {
+  @Bean(name = ["KeycloakFilterChain"])
+  open fun filterChain(http: HttpSecurity): SecurityFilterChain {
     logger.info("Okta http security configuration")
     super.getOAuth2ResourceServer(
             http,

@@ -520,11 +520,11 @@ internal class CsmSecurityEndpointsRolesWriter(
     val authoritiesList = addAdminRolesIfNotAlreadyDefined(this.roles)
     this.paths.forEach { path ->
       requests
-          .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.POST, "$path/*"))
+          .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.POST, "$path/**"))
           .hasAnyAuthority(*authoritiesList.toTypedArray())
-          .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.PATCH, "$path/*"))
+          .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.PATCH, "$path/**"))
           .hasAnyAuthority(*authoritiesList.toTypedArray())
-          .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.DELETE, "$path/*"))
+          .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.DELETE, "$path/**"))
           .hasAnyAuthority(*authoritiesList.toTypedArray())
     }
   }
@@ -555,7 +555,7 @@ internal class CsmSecurityEndpointsRolesReader(
     val authoritiesList = addAdminRolesIfNotAlreadyDefined(this.roles)
     this.paths.forEach { path ->
       requests
-          .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.GET, "$path/*"))
+          .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.GET, "$path/**"))
           .hasAnyAuthority(*authoritiesList.toTypedArray())
     }
   }
