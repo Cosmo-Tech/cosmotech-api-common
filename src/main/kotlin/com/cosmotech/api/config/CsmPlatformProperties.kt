@@ -277,14 +277,11 @@ data class CsmPlatformProperties(
         /** Don't try to use node selector to schedule argo workflows */
         val ignoreNodeSelector: Boolean = false,
 
-        /** enable secret mount on workflow */
-        val mountSecret: Boolean = false,
-
         /** Info on k8s secret to mount on workflow */
-        val secrets: List<ArgoSecrets> = emptyList()
+        val secrets: List<ExtraSecrets> = emptyList()
     ) {
-      data class ArgoSecrets(val name: String, val keyPath: List<ArgoKeyPath>) {
-        data class ArgoKeyPath(val key: String, val path: String)
+      data class ExtraSecrets(val name: String, val keyPath: List<KeyPath>) {
+        data class KeyPath(val key: String, val path: String)
       }
     }
   }
