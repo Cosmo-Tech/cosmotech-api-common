@@ -449,6 +449,9 @@ data class CsmPlatformProperties(
 
       /** TLS Platform bundle config */
       val tls: TLSConfig = TLSConfig(),
+
+      /** Use Graph module */
+      val useGraphModule: Boolean = true
   ) {
 
     data class PageSizing(
