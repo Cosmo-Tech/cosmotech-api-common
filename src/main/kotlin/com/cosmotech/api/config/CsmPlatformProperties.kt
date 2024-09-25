@@ -516,6 +516,9 @@ data class CsmPlatformProperties(
 
       /** Twin cache query page information for solution */
       val solution: PageSizing = PageSizing(),
+
+      /** Use Graph module */
+      val useGraphModule: Boolean = true
   ) {
 
     data class PageSizing(
