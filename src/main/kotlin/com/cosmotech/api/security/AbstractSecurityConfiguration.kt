@@ -35,6 +35,8 @@ const val ROLE_SOLUTION_READER = "Solution.Reader"
 const val ROLE_SOLUTION_WRITER = "Solution.Writer"
 const val ROLE_WORKSPACE_READER = "Workspace.Reader"
 const val ROLE_WORKSPACE_WRITER = "Workspace.Writer"
+const val ROLE_RUN_READER = "Run.Reader"
+const val ROLE_RUN_WRITER = "Run.Writer"
 
 // Allowed read scopes
 const val SCOPE_CONNECTOR_READ = "SCOPE_csm.connector.read"
@@ -42,6 +44,7 @@ const val SCOPE_ORGANIZATION_READ = "SCOPE_csm.organization.read"
 const val SCOPE_DATASET_READ = "SCOPE_csm.dataset.read"
 const val SCOPE_SOLUTION_READ = "SCOPE_csm.solution.read"
 const val SCOPE_WORKSPACE_READ = "SCOPE_csm.workspace.read"
+const val SCOPE_RUN_READ = "SCOPE_csm.run.read"
 
 // Allowed write scopes
 const val SCOPE_CONNECTOR_WRITE = "SCOPE_csm.connector.write"
@@ -49,6 +52,7 @@ const val SCOPE_ORGANIZATION_WRITE = "SCOPE_csm.organization.write"
 const val SCOPE_DATASET_WRITE = "SCOPE_csm.dataset.write"
 const val SCOPE_SOLUTION_WRITE = "SCOPE_csm.solution.write"
 const val SCOPE_WORKSPACE_WRITE = "SCOPE_csm.workspace.write"
+const val SCOPE_RUN_WRITE = "SCOPE_csm.run.write"
 
 // Endpoints paths
 const val PATH_CONNECTORS = "/connectors"
@@ -77,6 +81,13 @@ const val PATH_WORKSPACES_USERS = "/organizations/*/workspaces/*/users"
 val PATHS_WORKSPACES = listOf(PATH_WORKSPACES, PATH_WORKSPACES_USERS)
 const val PATH_WORKSPACES_FILES = "/organizations/*/workspaces/*/files"
 
+const val PATH_RUNS = "/organizations/*/workspaces/*/runners/*/runs"
+const val PATH_RUNS_DATA_QUERY = "/organizations/*/workspaces/*/runners/*/runs/*/data/query"
+const val PATH_RUNS_SEND_QUERY = "/organizations/*/workspaces/*/runners/*/runs/*/data/send"
+const val PATH_RUNS_LOGS = "/organizations/*/workspaces/*/runners/*/runs/*/logs"
+const val PATH_RUNS_STATUS = "/organizations/*/workspaces/*/runners/*/runs/*/status"
+val PATHS_RUNS =
+    listOf(PATH_RUNS, PATH_RUNS_DATA_QUERY, PATH_RUNS_SEND_QUERY, PATH_RUNS_LOGS, PATH_RUNS_STATUS)
 // Endpoints roles
 val endpointSecurityPublic =
     listOf(
@@ -183,6 +194,25 @@ internal fun endpointSecurityReaders(
                     SCOPE_WORKSPACE_WRITE,
                     customOrganizationUser,
                     customOrganizationViewer),
+            customAdmin = customOrganizationAdmin),
+        CsmSecurityEndpointsRolesReader(
+            paths = PATHS_RUNS,
+            roles =
+                arrayOf(
+                    ROLE_RUN_READER,
+                    ROLE_RUN_WRITER,
+                    ROLE_WORKSPACE_READER,
+                    ROLE_WORKSPACE_WRITER,
+                    ROLE_CONNECTOR_DEVELOPER,
+                    ROLE_ORGANIZATION_ADMIN,
+                    ROLE_ORGANIZATION_COLLABORATOR,
+                    ROLE_ORGANIZATION_MODELER,
+                    ROLE_ORGANIZATION_USER,
+                    ROLE_ORGANIZATION_VIEWER,
+                    SCOPE_RUN_READ,
+                    SCOPE_RUN_WRITE,
+                    customOrganizationUser,
+                    customOrganizationViewer),
             customAdmin = customOrganizationAdmin))
 
 @Suppress("LongMethod")
@@ -232,6 +262,16 @@ internal fun endpointSecurityWriters(
                     ROLE_ORGANIZATION_ADMIN,
                     ROLE_ORGANIZATION_COLLABORATOR,
                     SCOPE_WORKSPACE_WRITE),
+            customAdmin = customOrganizationAdmin),
+        CsmSecurityEndpointsRolesWriter(
+            paths = PATHS_RUNS,
+            roles =
+                arrayOf(
+                    ROLE_RUN_WRITER,
+                    ROLE_WORKSPACE_WRITER,
+                    ROLE_ORGANIZATION_ADMIN,
+                    ROLE_ORGANIZATION_COLLABORATOR,
+                    SCOPE_RUN_WRITE),
             customAdmin = customOrganizationAdmin),
         CsmSecurityEndpointsRolesWriter(
             paths = listOf(PATH_WORKSPACES_FILES),
