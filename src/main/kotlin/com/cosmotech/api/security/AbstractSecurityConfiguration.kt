@@ -37,6 +37,8 @@ const val ROLE_WORKSPACE_READER = "Workspace.Reader"
 const val ROLE_WORKSPACE_WRITER = "Workspace.Writer"
 const val ROLE_RUN_READER = "Run.Reader"
 const val ROLE_RUN_WRITER = "Run.Writer"
+const val ROLE_RUNNER_READER = "Runner.Reader"
+const val ROLE_RUNNER_WRITER = "Runner.Writer"
 
 // Allowed read scopes
 const val SCOPE_CONNECTOR_READ = "SCOPE_csm.connector.read"
@@ -45,6 +47,7 @@ const val SCOPE_DATASET_READ = "SCOPE_csm.dataset.read"
 const val SCOPE_SOLUTION_READ = "SCOPE_csm.solution.read"
 const val SCOPE_WORKSPACE_READ = "SCOPE_csm.workspace.read"
 const val SCOPE_RUN_READ = "SCOPE_csm.run.read"
+const val SCOPE_RUNNER_READ = "SCOPE_csm.runner.read"
 
 // Allowed write scopes
 const val SCOPE_CONNECTOR_WRITE = "SCOPE_csm.connector.write"
@@ -53,6 +56,7 @@ const val SCOPE_DATASET_WRITE = "SCOPE_csm.dataset.write"
 const val SCOPE_SOLUTION_WRITE = "SCOPE_csm.solution.write"
 const val SCOPE_WORKSPACE_WRITE = "SCOPE_csm.workspace.write"
 const val SCOPE_RUN_WRITE = "SCOPE_csm.run.write"
+const val SCOPE_RUNNER_WRITE = "SCOPE_csm.runner.write"
 
 // Endpoints paths
 const val PATH_CONNECTORS = "/connectors"
@@ -88,6 +92,27 @@ const val PATH_RUNS_LOGS = "/organizations/*/workspaces/*/runners/*/runs/*/logs"
 const val PATH_RUNS_STATUS = "/organizations/*/workspaces/*/runners/*/runs/*/status"
 val PATHS_RUNS =
     listOf(PATH_RUNS, PATH_RUNS_DATA_QUERY, PATH_RUNS_SEND_QUERY, PATH_RUNS_LOGS, PATH_RUNS_STATUS)
+
+const val PATH_RUNNERS = "/organizations/*/workspaces/*/runners"
+const val PATH_RUNNERS_PERMISSIONS = "/organizations/*/workspaces/*/runners/*/permissions"
+const val PATH_RUNNERS_SECURITY = "/organizations/*/workspaces/*/runners/*/security"
+const val PATH_RUNNERS_SECURITY_DEFAULT = "/organizations/*/workspaces/*/runners/*/security/default"
+const val PATH_RUNNERS_SECURITY_USERS = "/organizations/*/workspaces/*/runners/*/security/users"
+const val PATH_RUNNERS_SECURITY_ACCESS = "/organizations/*/workspaces/*/runners/*/security/access"
+const val PATH_RUNNERS_START = "/organizations/*/workspaces/*/runners/*/start"
+const val PATH_RUNNERS_STOP = "/organizations/*/workspaces/*/runners/*/stop"
+
+val PATHS_RUNNERS =
+    listOf(
+        PATH_RUNNERS,
+        PATH_RUNNERS_PERMISSIONS,
+        PATH_RUNNERS_SECURITY,
+        PATH_RUNNERS_SECURITY_DEFAULT,
+        PATH_RUNNERS_SECURITY_USERS,
+        PATH_RUNNERS_SECURITY_ACCESS,
+        PATH_RUNNERS_START,
+        PATH_RUNNERS_STOP)
+
 // Endpoints roles
 val endpointSecurityPublic =
     listOf(
@@ -213,6 +238,27 @@ internal fun endpointSecurityReaders(
                     SCOPE_RUN_WRITE,
                     customOrganizationUser,
                     customOrganizationViewer),
+            customAdmin = customOrganizationAdmin),
+        CsmSecurityEndpointsRolesReader(
+            paths = PATHS_RUNNERS,
+            roles =
+                arrayOf(
+                    ROLE_RUNNER_READER,
+                    ROLE_RUNNER_WRITER,
+                    ROLE_RUN_READER,
+                    ROLE_RUN_WRITER,
+                    ROLE_WORKSPACE_READER,
+                    ROLE_WORKSPACE_WRITER,
+                    ROLE_CONNECTOR_DEVELOPER,
+                    ROLE_ORGANIZATION_ADMIN,
+                    ROLE_ORGANIZATION_COLLABORATOR,
+                    ROLE_ORGANIZATION_MODELER,
+                    ROLE_ORGANIZATION_USER,
+                    ROLE_ORGANIZATION_VIEWER,
+                    SCOPE_RUNNER_READ,
+                    SCOPE_RUNNER_WRITE,
+                    customOrganizationUser,
+                    customOrganizationViewer),
             customAdmin = customOrganizationAdmin))
 
 @Suppress("LongMethod")
@@ -270,8 +316,20 @@ internal fun endpointSecurityWriters(
                     ROLE_RUN_WRITER,
                     ROLE_WORKSPACE_WRITER,
                     ROLE_ORGANIZATION_ADMIN,
+                    ROLE_ORGANIZATION_USER,
                     ROLE_ORGANIZATION_COLLABORATOR,
                     SCOPE_RUN_WRITE),
+            customAdmin = customOrganizationAdmin),
+        CsmSecurityEndpointsRolesWriter(
+            paths = PATHS_RUNNERS,
+            roles =
+                arrayOf(
+                    ROLE_RUNNER_WRITER,
+                    ROLE_WORKSPACE_WRITER,
+                    ROLE_ORGANIZATION_ADMIN,
+                    ROLE_ORGANIZATION_USER,
+                    ROLE_ORGANIZATION_COLLABORATOR,
+                    SCOPE_RUNNER_WRITE),
             customAdmin = customOrganizationAdmin),
         CsmSecurityEndpointsRolesWriter(
             paths = listOf(PATH_WORKSPACES_FILES),
