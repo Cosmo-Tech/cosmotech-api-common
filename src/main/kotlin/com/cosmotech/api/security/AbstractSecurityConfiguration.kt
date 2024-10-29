@@ -35,10 +35,6 @@ const val ROLE_SOLUTION_READER = "Solution.Reader"
 const val ROLE_SOLUTION_WRITER = "Solution.Writer"
 const val ROLE_WORKSPACE_READER = "Workspace.Reader"
 const val ROLE_WORKSPACE_WRITER = "Workspace.Writer"
-const val ROLE_RUN_READER = "Run.Reader"
-const val ROLE_RUN_WRITER = "Run.Writer"
-const val ROLE_RUNNER_READER = "Runner.Reader"
-const val ROLE_RUNNER_WRITER = "Runner.Writer"
 
 // Allowed read scopes
 const val SCOPE_CONNECTOR_READ = "SCOPE_csm.connector.read"
@@ -224,8 +220,6 @@ internal fun endpointSecurityReaders(
             paths = PATHS_RUNS,
             roles =
                 arrayOf(
-                    ROLE_RUN_READER,
-                    ROLE_RUN_WRITER,
                     ROLE_WORKSPACE_READER,
                     ROLE_WORKSPACE_WRITER,
                     ROLE_CONNECTOR_DEVELOPER,
@@ -243,10 +237,6 @@ internal fun endpointSecurityReaders(
             paths = PATHS_RUNNERS,
             roles =
                 arrayOf(
-                    ROLE_RUNNER_READER,
-                    ROLE_RUNNER_WRITER,
-                    ROLE_RUN_READER,
-                    ROLE_RUN_WRITER,
                     ROLE_WORKSPACE_READER,
                     ROLE_WORKSPACE_WRITER,
                     ROLE_CONNECTOR_DEVELOPER,
@@ -313,7 +303,6 @@ internal fun endpointSecurityWriters(
             paths = PATHS_RUNS,
             roles =
                 arrayOf(
-                    ROLE_RUN_WRITER,
                     ROLE_WORKSPACE_WRITER,
                     ROLE_ORGANIZATION_ADMIN,
                     ROLE_ORGANIZATION_USER,
@@ -324,7 +313,6 @@ internal fun endpointSecurityWriters(
             paths = PATHS_RUNNERS,
             roles =
                 arrayOf(
-                    ROLE_RUNNER_WRITER,
                     ROLE_WORKSPACE_WRITER,
                     ROLE_ORGANIZATION_ADMIN,
                     ROLE_ORGANIZATION_USER,
