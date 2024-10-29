@@ -376,8 +376,6 @@ internal fun endpointSecurityReaders(
             paths = PATHS_RUNS,
             roles =
                 arrayOf(
-                    ROLE_RUN_READER,
-                    ROLE_RUN_WRITER,
                     ROLE_WORKSPACE_READER,
                     ROLE_WORKSPACE_WRITER,
                     ROLE_CONNECTOR_DEVELOPER,
@@ -395,10 +393,6 @@ internal fun endpointSecurityReaders(
             paths = PATHS_RUNNERS,
             roles =
                 arrayOf(
-                    ROLE_RUNNER_READER,
-                    ROLE_RUNNER_WRITER,
-                    ROLE_RUN_READER,
-                    ROLE_RUN_WRITER,
                     ROLE_WORKSPACE_READER,
                     ROLE_WORKSPACE_WRITER,
                     ROLE_CONNECTOR_DEVELOPER,
@@ -501,7 +495,6 @@ internal fun endpointSecurityWriters(
             paths = PATHS_RUNS,
             roles =
                 arrayOf(
-                    ROLE_RUN_WRITER,
                     ROLE_WORKSPACE_WRITER,
                     ROLE_ORGANIZATION_ADMIN,
                     ROLE_ORGANIZATION_USER,
@@ -512,7 +505,6 @@ internal fun endpointSecurityWriters(
             paths = PATHS_RUNNERS,
             roles =
                 arrayOf(
-                    ROLE_RUNNER_WRITER,
                     ROLE_WORKSPACE_WRITER,
                     ROLE_ORGANIZATION_ADMIN,
                     ROLE_ORGANIZATION_USER,
