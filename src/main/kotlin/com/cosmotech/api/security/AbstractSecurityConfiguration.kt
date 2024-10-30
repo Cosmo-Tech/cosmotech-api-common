@@ -39,12 +39,8 @@ const val ROLE_SOLUTION_READER = "Solution.Reader"
 const val ROLE_SOLUTION_WRITER = "Solution.Writer"
 const val ROLE_WORKSPACE_READER = "Workspace.Reader"
 const val ROLE_WORKSPACE_WRITER = "Workspace.Writer"
-const val ROLE_RUN_READER = "Run.Reader"
-const val ROLE_RUN_WRITER = "Run.Writer"
 const val ROLE_TWIN_GRAPH_READER = "Twingraph.Reader"
 const val ROLE_TWIN_GRAPH_WRITER = "Twingraph.Writer"
-const val ROLE_RUNNER_READER = "Runner.Reader"
-const val ROLE_RUNNER_WRITER = "Runner.Writer"
 
 // Allowed read scopes
 const val SCOPE_CONNECTOR_READ = "SCOPE_csm.connector.read"
@@ -70,124 +66,169 @@ const val SCOPE_TWIN_GRAPH_WRITE = "SCOPE_csm.twingraph.write"
 const val SCOPE_RUN_WRITE = "SCOPE_csm.run.write"
 const val SCOPE_RUNNER_WRITE = "SCOPE_csm.runner.write"
 
-// Endpoints paths
-const val PATH_CONNECTORS = "/connectors"
-const val PATH_DATASETS = "/organizations/*/datasets"
-const val PATH_ORGANIZATIONS = "/organizations"
-const val PATH_ORGANIZATIONS_USERS = "/organizations/*/users"
-const val PATH_ORGANIZATIONS_SERVICES = "/organizations/*/services"
+// Path Connectors
+val PATHS_CONNECTORS =
+    listOf(
+        "/connectors",
+        "/connectors/*",
+        "/connectors/name/*",
+    )
+
+// Path Datasets
+val PATHS_DATASETS =
+    listOf(
+        "/organizations/*/datasets",
+        "/organizations/*/datasets/copy",
+        "/organizations/*/datasets/search",
+        "/organizations/*/datasets/twingraph/download/*",
+        "/organizations/*/datasets/*",
+        "/organizations/*/datasets/*/batch",
+        "/organizations/*/datasets/*/batch-query",
+        "/organizations/*/datasets/*/compatibility",
+        "/organizations/*/datasets/*/link",
+        "/organizations/*/datasets/*/refresh",
+        "/organizations/*/datasets/*/refresh/rollback",
+        "/organizations/*/datasets/*/security",
+        "/organizations/*/datasets/*/security/access",
+        "/organizations/*/datasets/*/security/access/*",
+        "/organizations/*/datasets/*/security/default",
+        "/organizations/*/datasets/*/security/users",
+        "/organizations/*/datasets/*/status",
+        "/organizations/*/datasets/*/subdataset",
+        "/organizations/*/datasets/*/twingraph",
+        "/organizations/*/datasets/*/twingraph/*",
+        "/organizations/*/datasets/*/unlink")
+
+// Path Organizations
 val PATHS_ORGANIZATIONS =
-    listOf(PATH_ORGANIZATIONS, PATH_ORGANIZATIONS_USERS, PATH_ORGANIZATIONS_SERVICES)
-
-// Path Scenarios
-const val PATH_SCENARIOS = "/organizations/*/workspaces/*/scenarios"
-const val PATH_SCENARIOS_COMPARE = "/organizations/*/workspaces/*/scenarios/*/compare"
-const val PATH_SCENARIOS_USERS = "/organizations/*/workspaces/*/scenarios/*/users"
-const val PATH_SCENARIOS_PARAMETERVALUES =
-    "/organizations/*/workspaces/*/scenarios/*/parameterValues"
-val PATHS_SCENARIOS =
     listOf(
-        PATH_SCENARIOS,
-        PATH_SCENARIOS_COMPARE,
-        PATH_SCENARIOS_USERS,
-        PATH_SCENARIOS_PARAMETERVALUES)
+        "/organizations",
+        "/organizations/permissions",
+        "/organizations/*",
+        "/organizations/*/permissions/*",
+        "/organizations/*/security",
+        "/organizations/*/security/access",
+        "/organizations/*/security/access/*",
+        "/organizations/*/security/default",
+        "/organizations/*/security/users",
+        "/organizations/*/services/solutionsContainerRegistry",
+        "/organizations/*/services/storage",
+        "/organizations/*/services/tenantCredentials",
+    )
 
-// Path ScenarioRuns
-const val PATH_SCENARIORUNS = "/organizations/*/scenarioruns"
-const val PATH_SCENARIORUNS_STATUS = "/organizations/*/scenarioruns/*/status"
-const val PATH_SCENARIORUNS_LOGS = "/organizations/*/scenarioruns/*/logs"
-const val PATH_SCENARIORUNS_CUMULATEDLOGS = "/organizations/*/scenarioruns/*/cumulatedlogs"
-const val PATH_SCENARIORUNS_WORKSPACES = "/organizations/*/workspaces/scenarioruns"
-const val PATH_SCENARIORUNS_SCENARIOS = "/organizations/*/workspaces/*/scenarios/*/scenarioruns"
-const val PATH_SCENARIORUNS_SCENARIOS_RUN = "/organizations/*/workspaces/*/scenarios/*/run"
-val PATHS_SCENARIORUNS =
-    listOf(
-        PATH_SCENARIORUNS,
-        PATH_SCENARIORUNS_STATUS,
-        PATH_SCENARIORUNS_LOGS,
-        PATH_SCENARIORUNS_CUMULATEDLOGS,
-        PATH_SCENARIORUNS_WORKSPACES,
-        PATH_SCENARIORUNS_SCENARIOS)
-
-// Path ScenarioRunResults
-const val PATH_SCENARIORUNRESULTS =
-    "/organizations/*/workspaces/*/scenarios/*/scenarioruns/*/probes"
-val PATHS_SCENARIORUNRESULTS = listOf(PATH_SCENARIORUNRESULTS)
-
-// Path Solutions
-const val PATH_SOLUTIONS = "/organizations/*/solutions"
-const val PATH_SOLUTIONS_PARAMETERS = "/organizations/*/solutions/*/parameters"
-const val PATH_SOLUTIONS_PARAMETERGROUPS = "/organizations/*/solutions/*/parameterGroups"
-const val PATH_SOLUTIONS_RUNTEMPLATES = "/organizations/*/solutions/*/runTemplates"
-const val PATH_SOLUTIONS_RUNTEMPLATES_HANDLERS_UPLOAD =
-    "/organizations/*/solutions/*/runTemplates/*/handlers/*/upload"
-val PATHS_SOLUTIONS =
-    listOf(
-        PATH_SOLUTIONS,
-        PATH_SOLUTIONS_PARAMETERS,
-        PATH_SOLUTIONS_PARAMETERGROUPS,
-        PATH_SOLUTIONS_RUNTEMPLATES,
-        PATH_SOLUTIONS_RUNTEMPLATES_HANDLERS_UPLOAD)
-
-// Path Workspaces
-const val PATH_WORKSPACES = "/organizations/*/workspaces"
-const val PATH_WORKSPACES_USERS = "/organizations/*/workspaces/*/users"
-val PATHS_WORKSPACES = listOf(PATH_WORKSPACES, PATH_WORKSPACES_USERS)
-const val PATH_WORKSPACES_FILES = "/organizations/*/workspaces/*/files"
-
-// Path Job
-const val PATH_JOB_STATUS = "/organizations/*/job/*/status"
-val PATHS_JOB = listOf(PATH_JOB_STATUS)
-
-// Path Twingraph
-const val PATH_TWIN_GRAPH_IMPORT = "/organizations/*/twingraph/import"
-const val PATH_TWIN_GRAPH = "/organizations/*/twingraph"
-const val PATH_TWIN_GRAPHS = "/organizations/*/twingraphs"
-const val PATH_TWIN_GRAPH_QUERY = "/organizations/*/twingraph/*/query"
-const val PATH_TWIN_GRAPH_BATCH_QUERY = "/organizations/*/twingraph/*/batch-query"
-const val PATH_TWIN_GRAPH_BULK_DOWNLOAD = "/organizations/*/twingraph/download"
-const val PATH_TWIN_GRAPH_ENTITY = "/organizations/*/twingraph/*/entity"
-const val PATH_TWIN_GRAPH_METADATA = "/organizations/*/twingraph/*/metadata"
-const val PATH_TWIN_GRAPH_BATCH_ACTIONS = "/organizations/*/twingraph/*/batch"
-val PATHS_TWIN_GRAPH =
-    listOf(
-        PATH_TWIN_GRAPH_IMPORT,
-        PATH_TWIN_GRAPH,
-        PATH_TWIN_GRAPHS,
-        PATH_TWIN_GRAPH_QUERY,
-        PATH_TWIN_GRAPH_BATCH_QUERY,
-        PATH_TWIN_GRAPH_BULK_DOWNLOAD,
-        PATH_TWIN_GRAPH_ENTITY,
-        PATH_TWIN_GRAPH_METADATA,
-        PATH_TWIN_GRAPH_BATCH_ACTIONS)
-
-const val PATH_RUNS = "/organizations/*/workspaces/*/runners/*/runs"
-const val PATH_RUNS_DATA_QUERY = "/organizations/*/workspaces/*/runners/*/runs/*/data/query"
-const val PATH_RUNS_SEND_QUERY = "/organizations/*/workspaces/*/runners/*/runs/*/data/send"
-const val PATH_RUNS_LOGS = "/organizations/*/workspaces/*/runners/*/runs/*/logs"
-const val PATH_RUNS_STATUS = "/organizations/*/workspaces/*/runners/*/runs/*/status"
+// Path Runs
 val PATHS_RUNS =
-    listOf(PATH_RUNS, PATH_RUNS_DATA_QUERY, PATH_RUNS_SEND_QUERY, PATH_RUNS_LOGS, PATH_RUNS_STATUS)
+    listOf(
+        "/organizations/*/workspaces/*/runners/*/runs",
+        "/organizations/*/workspaces/*/runners/*/runs/*",
+        "/organizations/*/workspaces/*/runners/*/runs/*/data/query",
+        "/organizations/*/workspaces/*/runners/*/runs/*/data/send",
+        "/organizations/*/workspaces/*/runners/*/runs/*/logs",
+        "/organizations/*/workspaces/*/runners/*/runs/*/status")
 
-const val PATH_RUNNERS = "/organizations/*/workspaces/*/runners"
-const val PATH_RUNNERS_PERMISSIONS = "/organizations/*/workspaces/*/runners/*/permissions"
-const val PATH_RUNNERS_SECURITY = "/organizations/*/workspaces/*/runners/*/security"
-const val PATH_RUNNERS_SECURITY_DEFAULT = "/organizations/*/workspaces/*/runners/*/security/default"
-const val PATH_RUNNERS_SECURITY_USERS = "/organizations/*/workspaces/*/runners/*/security/users"
-const val PATH_RUNNERS_SECURITY_ACCESS = "/organizations/*/workspaces/*/runners/*/security/access"
-const val PATH_RUNNERS_START = "/organizations/*/workspaces/*/runners/*/start"
-const val PATH_RUNNERS_STOP = "/organizations/*/workspaces/*/runners/*/stop"
-
+// Path Runners
 val PATHS_RUNNERS =
     listOf(
-        PATH_RUNNERS,
-        PATH_RUNNERS_PERMISSIONS,
-        PATH_RUNNERS_SECURITY,
-        PATH_RUNNERS_SECURITY_DEFAULT,
-        PATH_RUNNERS_SECURITY_USERS,
-        PATH_RUNNERS_SECURITY_ACCESS,
-        PATH_RUNNERS_START,
-        PATH_RUNNERS_STOP)
+        "/organizations/*/workspaces/*/runners",
+        "/organizations/*/workspaces/*/runners/*",
+        "/organizations/*/workspaces/*/runners/*/permissions/*",
+        "/organizations/*/workspaces/*/runners/*/security",
+        "/organizations/*/workspaces/*/runners/*/security/access",
+        "/organizations/*/workspaces/*/runners/*/security/access/*",
+        "/organizations/*/workspaces/*/runners/*/security/default",
+        "/organizations/*/workspaces/*/runners/*/security/users",
+        "/organizations/*/workspaces/*/runners/*/start",
+        "/organizations/*/workspaces/*/runners/*/stop")
+
+// Path Scenarios
+val PATHS_SCENARIOS =
+    listOf(
+        "/organizations/*/workspaces/*/scenarios",
+        "/organizations/*/workspaces/*/scenarios/tree",
+        "/organizations/*/workspaces/*/scenarios/*",
+        "/organizations/*/workspaces/*/scenarios/*/ValidationStatus",
+        "/organizations/*/workspaces/*/scenarios/*/compare/*",
+        "/organizations/*/workspaces/*/scenarios/*/downloads",
+        "/organizations/*/workspaces/*/scenarios/*/downloads/*",
+        "/organizations/*/workspaces/*/scenarios/*/parameterValues",
+        "/organizations/*/workspaces/*/scenarios/*/permissions/*",
+        "/organizations/*/workspaces/*/scenarios/*/security",
+        "/organizations/*/workspaces/*/scenarios/*/security/access",
+        "/organizations/*/workspaces/*/scenarios/*/security/access/*",
+        "/organizations/*/workspaces/*/scenarios/*/security/default",
+        "/organizations/*/workspaces/*/scenarios/*/security/users",
+        "/organizations/*/workspaces/*/*",
+    )
+
+// Path ScenarioRuns
+val PATHS_SCENARIORUNS =
+    listOf(
+        "/organizations/*/scenarioruns/historicaldata",
+        "/organizations/*/scenarioruns/search",
+        "/organizations/*/scenarioruns/startcontainers",
+        "/organizations/*/scenarioruns/*",
+        "/organizations/*/scenarioruns/*/cumulatedlogs",
+        "/organizations/*/scenarioruns/*/logs",
+        "/organizations/*/scenarioruns/*/status",
+        "/organizations/*/scenarioruns/*/stop",
+        "/organizations/*/workspaces/*/scenarioruns",
+        "/organizations/*/workspaces/*/scenarioruns/historicaldata",
+        "/organizations/*/workspaces/*/scenarios/*/run",
+        "/organizations/*/workspaces/*/scenarios/*/scenarioruns",
+        "/organizations/*/workspaces/*/scenarios/*/scenarioruns/historicaldata")
+
+// Path Solutions
+val PATHS_SOLUTIONS =
+    listOf(
+        "/organizations/*/solutions",
+        "/organizations/*/solutions/*",
+        "/organizations/*/solutions/*/parameterGroups",
+        "/organizations/*/solutions/*/parameters",
+        "/organizations/*/solutions/*/runTemplates",
+        "/organizations/*/solutions/*/runTemplates/*",
+        "/organizations/*/solutions/*/runtemplates/*/handlers/*/download",
+        "/organizations/*/solutions/*/runtemplates/*/handlers/*/upload",
+        "/organizations/*/solutions/*/security",
+        "/organizations/*/solutions/*/security/access",
+        "/organizations/*/solutions/*/security/access/*",
+        "/organizations/*/solutions/*/security/default",
+        "/organizations/*/solutions/*/security/users",
+    )
+
+// Path Twingraph
+val PATHS_TWIN_GRAPH =
+    listOf(
+        "/organizations/*/job/*/status",
+        "/organizations/*/twingraph/download/*",
+        "/organizations/*/twingraph/*",
+        "/organizations/*/twingraph/*/batch",
+        "/organizations/*/twingraph/*/batch-query",
+        "/organizations/*/twingraph/*/entity/*",
+        "/organizations/*/twingraph/*/metadata",
+        "/organizations/*/twingraph/*/query",
+        "/organizations/*/twingraphs")
+
+// Path Workspaces files
+val PATHS_WORKSPACES_FILES =
+    listOf(
+        "/organizations/*/workspaces/*/files",
+        "/organizations/*/workspaces/*/files/delete",
+        "/organizations/*/workspaces/*/files/download")
+
+// Path Workspaces
+val PATHS_WORKSPACES =
+    listOf(
+        "/organizations/*/workspaces",
+        "/organizations/*/workspaces/*",
+        "/organizations/*/workspaces/*/link",
+        "/organizations/*/workspaces/*/permissions/*",
+        "/organizations/*/workspaces/*/security",
+        "/organizations/*/workspaces/*/security/access",
+        "/organizations/*/workspaces/*/security/access/*",
+        "/organizations/*/workspaces/*/security/default",
+        "/organizations/*/workspaces/*/security/users",
+        "/organizations/*/workspaces/*/security/unlink",
+    )
 
 // Endpoints roles
 val endpointSecurityPublic =
@@ -212,7 +253,7 @@ internal fun endpointSecurityReaders(
 ) =
     listOf(
         CsmSecurityEndpointsRolesReader(
-            paths = listOf(PATH_CONNECTORS),
+            paths = PATHS_CONNECTORS,
             roles =
                 arrayOf(
                     ROLE_CONNECTOR_READER,
@@ -229,7 +270,7 @@ internal fun endpointSecurityReaders(
                     customOrganizationViewer),
             customAdmin = customOrganizationAdmin),
         CsmSecurityEndpointsRolesReader(
-            paths = listOf(PATH_DATASETS),
+            paths = PATHS_DATASETS,
             roles =
                 arrayOf(
                     ROLE_DATASET_READER,
@@ -293,20 +334,6 @@ internal fun endpointSecurityReaders(
                     customOrganizationUser),
             customAdmin = customOrganizationAdmin),
         CsmSecurityEndpointsRolesReader(
-            paths = PATHS_SCENARIORUNRESULTS,
-            roles =
-                arrayOf(
-                    ROLE_SCENARIORUN_READER,
-                    ROLE_SCENARIORUN_WRITER,
-                    ROLE_ORGANIZATION_ADMIN,
-                    ROLE_ORGANIZATION_COLLABORATOR,
-                    ROLE_ORGANIZATION_MODELER,
-                    ROLE_ORGANIZATION_USER,
-                    SCOPE_SCENARIORUN_READ,
-                    SCOPE_SCENARIORUN_WRITE,
-                    customOrganizationUser),
-            customAdmin = customOrganizationAdmin),
-        CsmSecurityEndpointsRolesReader(
             paths = PATHS_SOLUTIONS,
             roles =
                 arrayOf(
@@ -342,22 +369,6 @@ internal fun endpointSecurityReaders(
             customAdmin = customOrganizationAdmin),
         CsmSecurityEndpointsRolesReader(
             paths = PATHS_TWIN_GRAPH,
-            roles =
-                arrayOf(
-                    ROLE_TWIN_GRAPH_READER,
-                    ROLE_TWIN_GRAPH_WRITER,
-                    ROLE_ORGANIZATION_ADMIN,
-                    ROLE_ORGANIZATION_COLLABORATOR,
-                    ROLE_ORGANIZATION_MODELER,
-                    ROLE_ORGANIZATION_USER,
-                    ROLE_ORGANIZATION_VIEWER,
-                    SCOPE_TWIN_GRAPH_READ,
-                    SCOPE_TWIN_GRAPH_WRITE,
-                    customOrganizationUser,
-                    customOrganizationViewer),
-            customAdmin = customOrganizationAdmin),
-        CsmSecurityEndpointsRolesReader(
-            paths = PATHS_JOB,
             roles =
                 arrayOf(
                     ROLE_TWIN_GRAPH_READER,
@@ -414,11 +425,11 @@ internal fun endpointSecurityWriters(
 ) =
     listOf(
         CsmSecurityEndpointsRolesWriter(
-            paths = listOf(PATH_CONNECTORS),
+            paths = PATHS_CONNECTORS,
             roles = arrayOf(ROLE_CONNECTOR_WRITER, ROLE_CONNECTOR_DEVELOPER, SCOPE_CONNECTOR_WRITE),
             customAdmin = customOrganizationAdmin),
         CsmSecurityEndpointsRolesWriter(
-            paths = listOf(PATH_DATASETS),
+            paths = PATHS_DATASETS,
             roles =
                 arrayOf(
                     ROLE_DATASET_WRITER,
@@ -450,18 +461,6 @@ internal fun endpointSecurityWriters(
             customAdmin = customOrganizationAdmin),
         CsmSecurityEndpointsRolesWriter(
             paths = PATHS_SCENARIORUNS,
-            roles =
-                arrayOf(
-                    ROLE_SCENARIORUN_WRITER,
-                    ROLE_ORGANIZATION_ADMIN,
-                    ROLE_ORGANIZATION_COLLABORATOR,
-                    ROLE_ORGANIZATION_MODELER,
-                    ROLE_ORGANIZATION_USER,
-                    SCOPE_SCENARIORUN_WRITE,
-                    customOrganizationUser),
-            customAdmin = customOrganizationAdmin),
-        CsmSecurityEndpointsRolesWriter(
-            paths = PATHS_SCENARIORUNRESULTS,
             roles =
                 arrayOf(
                     ROLE_SCENARIORUN_WRITER,
@@ -512,7 +511,7 @@ internal fun endpointSecurityWriters(
                     SCOPE_RUNNER_WRITE),
             customAdmin = customOrganizationAdmin),
         CsmSecurityEndpointsRolesWriter(
-            paths = listOf(PATH_WORKSPACES_FILES),
+            paths = PATHS_WORKSPACES_FILES,
             roles =
                 arrayOf(
                     ROLE_WORKSPACE_WRITER,
@@ -610,11 +609,11 @@ internal class CsmSecurityEndpointsRolesWriter(
     val authoritiesList = addAdminRolesIfNotAlreadyDefined(this.roles)
     this.paths.forEach { path ->
       requests
-          .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.POST, "$path/**"))
+          .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.POST, path))
           .hasAnyAuthority(*authoritiesList.toTypedArray())
-          .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.PATCH, "$path/**"))
+          .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.PATCH, path))
           .hasAnyAuthority(*authoritiesList.toTypedArray())
-          .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.DELETE, "$path/**"))
+          .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.DELETE, path))
           .hasAnyAuthority(*authoritiesList.toTypedArray())
     }
   }
@@ -645,7 +644,7 @@ internal class CsmSecurityEndpointsRolesReader(
     val authoritiesList = addAdminRolesIfNotAlreadyDefined(this.roles)
     this.paths.forEach { path ->
       requests
-          .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.GET, "$path/**"))
+          .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.GET, path))
           .hasAnyAuthority(*authoritiesList.toTypedArray())
     }
   }
