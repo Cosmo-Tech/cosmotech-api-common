@@ -82,6 +82,7 @@ val PATHS_ORGANIZATIONS =
 val PATHS_RUNS =
     listOf(
         "/organizations/*/workspaces/*/runners/*/runs",
+        "/organizations/*/workspaces/*/runners/*/runs/*",
         "/organizations/*/workspaces/*/runners/*/runs/*/data/query",
         "/organizations/*/workspaces/*/runners/*/runs/*/data/send",
         "/organizations/*/workspaces/*/runners/*/runs/*/logs",
@@ -91,11 +92,13 @@ val PATHS_RUNS =
 val PATHS_RUNNERS =
     listOf(
         "/organizations/*/workspaces/*/runners",
-        "/organizations/*/workspaces/*/runners/*/permissions",
+        "/organizations/*/workspaces/*/runners/*",
+        "/organizations/*/workspaces/*/runners/*/permissions/*",
         "/organizations/*/workspaces/*/runners/*/security",
+        "/organizations/*/workspaces/*/runners/*/security/access",
+        "/organizations/*/workspaces/*/runners/*/security/access/*",
         "/organizations/*/workspaces/*/runners/*/security/default",
         "/organizations/*/workspaces/*/runners/*/security/users",
-        "/organizations/*/workspaces/*/runners/*/security/access",
         "/organizations/*/workspaces/*/runners/*/start",
         "/organizations/*/workspaces/*/runners/*/stop")
 
