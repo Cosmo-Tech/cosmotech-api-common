@@ -9,7 +9,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.readValue
 import java.time.Instant
+import kotlin.math.min
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
 import org.json.JSONArray
 import org.json.JSONObject
 import org.springframework.http.HttpHeaders
@@ -60,9 +62,10 @@ class LokiService(private val csmPlatformProperties: CsmPlatformProperties) {
     val lokiConfig = getLokiConfig()
     val maxQueryLengthNano =
         Duration.parse(lokiConfig.limitsConfig.maxQueryLength).inWholeNanoseconds
+    val queryLengthNano = min(maxQueryLengthNano, 1.days.inWholeNanoseconds)
 
     val startTimeNano = startTime.toEpochMilli() * MILLI_TO_NANO
-    val endTimeNano = startTimeNano + maxQueryLengthNano
+    val endTimeNano = startTimeNano + queryLengthNano
 
     val params = LinkedMultiValueMap<String, String>()
     params.add("query", "{namespace=\"$namespace\",pod=\"$podName\",container=\"main\"}")
@@ -98,7 +101,7 @@ class LokiService(private val csmPlatformProperties: CsmPlatformProperties) {
       logEntries.lastOrNull()?.let {
         val newStartTime = it.getLong(0) + 1
         params.set("start", newStartTime.toString())
-        params.set("end", (newStartTime + maxQueryLengthNano).toString())
+        params.set("end", (newStartTime + queryLengthNano).toString())
       }
     } while (logEntries.size >= lokiConfig.limitsConfig.maxEntriesLimitPerQuery)
 
