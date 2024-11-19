@@ -19,6 +19,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import org.junit.jupiter.api.DynamicTest
+import org.junit.jupiter.api.TestFactory
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import org.slf4j.Logger
@@ -683,7 +685,7 @@ class CsmRbacTests {
     assertTrue(rbacTest.check(rbacSecurity, customPermission, definition))
   }
 
-  // Utilitary methods for rbac creation
+  // Utility methods for rbac creation
   @Test
   fun `can add resource id and resource security in a second step`() {
     val definition = getCommonRolesDefinition()
@@ -694,6 +696,105 @@ class CsmRbacTests {
     every { getCurrentAccountIdentifier(csmPlatformProperties) } returns USER_READER
     assertTrue(rbacTest.check(rbacSecurity, PERMISSION_READ, definition))
   }
+
+  @TestFactory
+  fun `add ACL entry when default role is admin with only one admin defined`() =
+      listOf(ROLE_VIEWER, ROLE_USER, ROLE_EDITOR, ROLE_ADMIN).map { role ->
+        DynamicTest.dynamicTest(
+            "add ACL entry $role when default role is admin (with only one admin defined)") {
+              val rbacDefinition =
+                  RbacSecurity(
+                      id = "rbacOnlyOneAdminWithAdminDefaultRole",
+                      default = ROLE_ADMIN,
+                      accessControlList =
+                          mutableListOf(
+                              RbacAccessControl(id = "test.user@test.com", role = ROLE_ADMIN)))
+              val newUserId = "whatever.user@test.com"
+              rbac.setUserRole(rbacDefinition, newUserId, role, getCommonRolesDefinition())
+              assertTrue(rbacDefinition.accessControlList.size == 2)
+              assertTrue(
+                  rbacDefinition.accessControlList.contains(
+                      RbacAccessControl(id = newUserId, role = role)))
+            }
+      }
+
+  @TestFactory
+  fun `update ACL entry with only one admin defined`() =
+      mapOf(ROLE_VIEWER to true, ROLE_USER to true, ROLE_EDITOR to true, ROLE_ADMIN to false).map {
+          (role, shouldThrows) ->
+        DynamicTest.dynamicTest("update ACL entry $role with only one admin defined") {
+          val userId = "test.user@test.com"
+          val rbacDefinition =
+              RbacSecurity(
+                  id = "rbacOnlyOneAdmin",
+                  default = ROLE_NONE,
+                  accessControlList =
+                      mutableListOf(RbacAccessControl(id = userId, role = ROLE_ADMIN)))
+          if (shouldThrows) {
+            val assertThrows =
+                assertThrows<CsmAccessForbiddenException> {
+                  rbac.setUserRole(rbacDefinition, userId, role, getCommonRolesDefinition())
+                }
+            assertEquals(
+                "RBAC ${rbacDefinition.id} - It is forbidden to unset the last administrator",
+                assertThrows.message)
+          } else {
+            assertDoesNotThrow {
+              rbac.setUserRole(rbacDefinition, userId, role, getCommonRolesDefinition())
+              assertTrue(rbacDefinition.accessControlList.size == 1)
+              assertTrue(
+                  rbacDefinition.accessControlList.contains(
+                      RbacAccessControl(id = userId, role = role)))
+            }
+          }
+        }
+      }
+
+  @TestFactory
+  fun `remove ACL entry when default role is admin with only one admin defined`() =
+      listOf(ROLE_VIEWER, ROLE_USER, ROLE_EDITOR, ROLE_ADMIN).map { role ->
+        DynamicTest.dynamicTest(
+            "remove ACL entry $role when default role is admin (with only one admin defined)") {
+              val userId = "test.user@test.com"
+              val rbacDefinition =
+                  RbacSecurity(
+                      id = "rbacOnlyOneAdminWithAdminDefaultRole",
+                      default = ROLE_ADMIN,
+                      accessControlList =
+                          mutableListOf(RbacAccessControl(id = userId, role = ROLE_ADMIN)))
+              val assertThrows =
+                  assertThrows<CsmAccessForbiddenException> {
+                    rbac.removeUser(rbacDefinition, userId, getCommonRolesDefinition())
+                  }
+              assertEquals(
+                  "RBAC ${rbacDefinition.id} - It is forbidden to remove the last administrator",
+                  assertThrows.message)
+            }
+      }
+
+  @TestFactory
+  fun `remove ACL entry when default role is admin with an admin and another user defined`() =
+      listOf(ROLE_VIEWER, ROLE_USER, ROLE_EDITOR, ROLE_ADMIN).map { role ->
+        DynamicTest.dynamicTest(
+            "remove ACL entry $role when default role is admin (with only one admin defined)") {
+              val userId = "test.user@test.com"
+              val rbacDefinition =
+                  RbacSecurity(
+                      id = "rbacOnlyOneAdminWithAdminDefaultRole",
+                      default = ROLE_ADMIN,
+                      accessControlList =
+                          mutableListOf(
+                              RbacAccessControl(id = USER_ADMIN, role = ROLE_ADMIN),
+                              RbacAccessControl(id = userId, role = role)))
+              assertDoesNotThrow {
+                rbac.removeUser(rbacDefinition, userId, getCommonRolesDefinition())
+                assertTrue(rbacDefinition.accessControlList.size == 1)
+                assertTrue(
+                    rbacDefinition.accessControlList.contains(
+                        RbacAccessControl(id = USER_ADMIN, role = ROLE_ADMIN)))
+              }
+            }
+      }
 
   @Test
   fun `can add resource id and resource security in one call`() {

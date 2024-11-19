@@ -114,9 +114,10 @@ open class CsmRbac(
   ): RbacSecurity {
     logger.info("RBAC ${rbacSecurity.id} - Setting user $userId roles")
     this.verifyRoleOrThrow(rbacSecurity, role, rolesDefinition)
-    val currentRole = this.getUserRole(rbacSecurity, userId)
+    val currentACLRole =
+        rbacSecurity.accessControlList.firstOrNull { it.id.lowercase() == userId.lowercase() }?.role
     val adminRole = this.getAdminRole(rolesDefinition)
-    if (currentRole == adminRole &&
+    if (currentACLRole == adminRole &&
         role != adminRole &&
         this.getAdminCount(rbacSecurity, rolesDefinition) == 1) {
       throw CsmAccessForbiddenException(
