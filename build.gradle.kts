@@ -137,6 +137,8 @@ tasks.jar {
   }
 }
 
+tasks.test { useJUnitPlatform() }
+
 // Dependencies version
 // Implementation
 val swaggerParserVersion = "2.1.13"
@@ -224,7 +226,7 @@ dependencies {
   testImplementation("org.jetbrains.kotlin:kotlin-test")
 
   // Use the Kotlin JUnit integration.
-  testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
+  testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 }
