@@ -862,7 +862,7 @@ class CsmRbacTests {
     every { getCurrentAuthenticatedRoles(csmPlatformProperties) } returns
         listOf(ROLE_ORGANIZATION_USER)
     every { getCurrentAccountIdentifier(csmPlatformProperties) } returns USER_MAIL_TOKEN
-    assertTrue(rbacTest.check(rbacSecurity, PERMISSION_READ_SECURITY, definition))
+    assertFalse(rbacTest.check(rbacSecurity, PERMISSION_READ_SECURITY, definition))
   }
 
   @Test
