@@ -151,7 +151,7 @@ tasks.test { useJUnitPlatform() }
 // Required versions
 val jacksonVersion = "2.15.3"
 val springWebVersion = "6.1.4"
-val springBootVersion = "3.2.10"
+val springBootVersion = "3.3.5"
 
 // Implementation
 val swaggerParserVersion = "2.1.22"
