@@ -8,7 +8,7 @@ plugins {
   val kotlinVersion = "1.9.23"
   kotlin("jvm") version kotlinVersion
   id("com.diffplug.spotless") version "6.22.0"
-  id("org.springframework.boot") version "3.2.10" apply false
+  id("org.springframework.boot") version "3.2.12" apply false
   id("io.gitlab.arturbosch.detekt") version "1.23.6"
   id("pl.allegro.tech.build.axion-release") version "1.15.5"
   id("org.jetbrains.kotlinx.kover") version "0.7.6"
@@ -150,8 +150,8 @@ tasks.test { useJUnitPlatform() }
 
 // Required versions
 val jacksonVersion = "2.15.3"
-val springWebVersion = "6.1.4"
-val springBootVersion = "3.2.10"
+val springWebVersion = "6.1.16"
+val springBootVersion = "3.2.12"
 
 // Implementation
 val swaggerParserVersion = "2.1.22"
