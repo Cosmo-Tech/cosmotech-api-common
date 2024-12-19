@@ -112,6 +112,7 @@ class ApiKeyAuthentication(
   init {
     this.isAuthenticated = true
   }
+
   override fun getCredentials(): Any? {
     return null
   }
