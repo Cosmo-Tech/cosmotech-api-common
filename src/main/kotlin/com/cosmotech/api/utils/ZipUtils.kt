@@ -10,6 +10,7 @@ import java.util.zip.ZipOutputStream
 
 /**
  * Unzip a zip file and return a list of files with their content
+ *
  * @param file The zip file to unzip
  * @param prefixNames The prefix names of the files or folders to unzip
  * @param fileExtension The file extension of the files to unzip
@@ -34,6 +35,7 @@ data class UnzippedFile(val filename: String, val prefix: String, val content: B
 
 /**
  * Zip a map of file names and byte arrays into a single byte array
+ *
  * @param fileNameByteArray The map of file names and byte arrays to zip
  */
 fun zipBytesWithFileNames(fileNameByteArray: Map<String, ByteArray>): ByteArray? {

@@ -114,6 +114,7 @@ data class CsmPlatformProperties(
     ) {
       data class CsmStorageUser(val username: String, val password: String)
     }
+
     data class CsmEventBus(
         /** Define if current API use event bus within internal result data service or not */
         val enabled: Boolean = true,
@@ -236,6 +237,7 @@ data class CsmPlatformProperties(
       /** Base Loki url */
       val baseUrl: String = "http://loki.default.svc.cluster.local:3100",
   )
+
   data class Argo(
       /** Argo service base Uri */
       val baseUri: String,

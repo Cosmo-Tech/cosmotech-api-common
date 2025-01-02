@@ -146,6 +146,7 @@ class KeycloakJwtGrantedAuthoritiesConverter(
 ) : Converter<Jwt, Collection<GrantedAuthority>> {
 
   private val logger = LoggerFactory.getLogger(KeycloakJwtGrantedAuthoritiesConverter::class.java)
+
   override fun convert(jwt: Jwt): Collection<GrantedAuthority> {
     val extractAuthorities = mutableListOf<GrantedAuthority>()
     extractAuthorities.addAll(
