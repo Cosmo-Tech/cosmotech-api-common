@@ -84,12 +84,10 @@ configure<SpotlessExtension> {
     licenseHeader(licenseHeaderComment)
   }
   kotlin {
-    ktfmt("0.50")
     target("**/*.kt")
     licenseHeader(licenseHeaderComment)
   }
   kotlinGradle {
-    ktfmt("0.50")
     target("**/*.kts")
     //      licenseHeader(licenseHeaderComment, "import")
   }
