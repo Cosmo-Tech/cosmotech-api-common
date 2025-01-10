@@ -12,6 +12,7 @@ plugins {
   id("io.gitlab.arturbosch.detekt") version "1.23.7"
   id("pl.allegro.tech.build.axion-release") version "1.15.5"
   id("org.jetbrains.kotlinx.kover") version "0.7.6"
+  id("project-report")
   `maven-publish`
   // Apply the java-library plugin for API and implementation separation.
   `java-library`
