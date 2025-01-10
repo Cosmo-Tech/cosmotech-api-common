@@ -174,8 +174,15 @@ val awaitilityKVersion = "4.2.2"
 val testcontainersRedis = "1.6.4"
 
 dependencies {
-  implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
-  implementation("io.lettuce:lettuce-core:6.5.1.RELEASE")
+  implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)) {
+    constraints {
+      implementation("io.lettuce:lettuce-core:6.5.1.RELEASE") {
+        because("spring boot 3.4.1 depends on  lettuce-core 6.4.1.RELEASE which has vulnerability" +
+                " https://github.com/advisories/GHSA-q4h9-7rxj-7gx which was fixed in 6.5.1.RELEASE")
+      }
+    }
+  } 
+
 
   detekt("io.gitlab.arturbosch.detekt:detekt-cli:$detektVersion")
   detekt("io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion")
@@ -197,6 +204,7 @@ dependencies {
           implementation("com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion")
           implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
           implementation("org.springframework:spring-web:$springWebVersion")
+          implementation("org.springframework.boot:spring-boot-autoconfigure:$springBootVersion")
         }
       }
   implementation("org.springframework.boot:spring-boot-starter-security")
