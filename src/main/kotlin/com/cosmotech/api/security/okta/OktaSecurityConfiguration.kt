@@ -141,6 +141,7 @@ class OktaJwtGrantedAuthoritiesConverter(private val csmPlatformProperties: CsmP
     Converter<Jwt, Collection<GrantedAuthority>> {
 
   private val logger = LoggerFactory.getLogger(OktaJwtGrantedAuthoritiesConverter::class.java)
+
   override fun convert(jwt: Jwt): Collection<GrantedAuthority> {
     val extractAuthorities = mutableListOf<GrantedAuthority>()
     extractAuthorities.addAll(

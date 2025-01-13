@@ -7,11 +7,12 @@ import org.gradle.kotlin.dsl.implementation
 plugins {
   val kotlinVersion = "1.9.23"
   kotlin("jvm") version kotlinVersion
-  id("com.diffplug.spotless") version "6.22.0"
-  id("org.springframework.boot") version "3.3.6" apply false
-  id("io.gitlab.arturbosch.detekt") version "1.23.6"
+  id("com.diffplug.spotless") version "6.25.0"
+  id("org.springframework.boot") version "3.4.1" apply false
+  id("io.gitlab.arturbosch.detekt") version "1.23.7"
   id("pl.allegro.tech.build.axion-release") version "1.15.5"
   id("org.jetbrains.kotlinx.kover") version "0.7.6"
+  id("project-report")
   `maven-publish`
   // Apply the java-library plugin for API and implementation separation.
   `java-library`
@@ -84,12 +85,10 @@ configure<SpotlessExtension> {
     licenseHeader(licenseHeaderComment)
   }
   kotlin {
-    ktfmt("0.41")
     target("**/*.kt")
     licenseHeader(licenseHeaderComment)
   }
   kotlinGradle {
-    ktfmt("0.41")
     target("**/*.kts")
     //      licenseHeader(licenseHeaderComment, "import")
   }
@@ -150,33 +149,41 @@ tasks.test { useJUnitPlatform() }
 
 // Required versions
 val jacksonVersion = "2.15.3"
-val springWebVersion = "6.1.16"
-val springBootVersion = "3.3.6"
+val springWebVersion = "6.2.1"
+val springBootVersion = "3.4.1"
 
 // Implementation
-val swaggerParserVersion = "2.1.22"
+val swaggerParserVersion = "2.1.24"
 val hashidsVersion = "1.0.3"
 val springOauthAutoConfigureVersion = "2.6.8"
 val springSecurityJwtVersion = "1.1.1.RELEASE"
 val springDocVersion = "2.5.0"
-val springOauthVersion = "6.2.2"
+val springOauthVersion = "6.4.2"
 val servletApiVersion = "6.0.0"
-val oktaSpringBootVersion = "3.0.5"
+val oktaSpringBootVersion = "3.0.7"
 val tikaVersion = "2.9.1"
 val redisOMVersion = "0.9.1"
 val kotlinCoroutinesCoreVersion = "1.8.1"
 
 // Checks
-val detektVersion = "1.23.6"
+val detektVersion = "1.23.7"
 
 // Tests
 val jUnitBomVersion = "5.10.0"
-val mockkVersion = "1.13.8"
-val awaitilityKVersion = "4.2.0"
+val mockkVersion = "1.13.13"
+val awaitilityKVersion = "4.2.2"
 val testcontainersRedis = "1.6.4"
 
 dependencies {
-  implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
+  implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)) {
+    constraints {
+      implementation("io.lettuce:lettuce-core:6.5.1.RELEASE") {
+        because("spring boot 3.4.1 depends on  lettuce-core 6.4.1.RELEASE which has vulnerability" +
+                " https://github.com/advisories/GHSA-q4h9-7rxj-7gx which was fixed in 6.5.1.RELEASE")
+      }
+    }
+  } 
+
 
   detekt("io.gitlab.arturbosch.detekt:detekt-cli:$detektVersion")
   detekt("io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion")
