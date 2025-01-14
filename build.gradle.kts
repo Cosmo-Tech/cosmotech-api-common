@@ -163,7 +163,7 @@ val servletApiVersion = "6.0.0"
 val oktaSpringBootVersion = "3.0.7"
 val tikaVersion = "2.9.1"
 val redisOMVersion = "0.9.1"
-val kotlinCoroutinesCoreVersion = "1.8.1"
+val kotlinCoroutinesCoreVersion = "1.10.1"
 
 // Checks
 val detektVersion = "1.23.7"
