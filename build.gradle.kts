@@ -10,7 +10,7 @@ plugins {
   id("com.diffplug.spotless") version "6.25.0"
   id("org.springframework.boot") version "3.4.1" apply false
   id("io.gitlab.arturbosch.detekt") version "1.23.7"
-  id("pl.allegro.tech.build.axion-release") version "1.15.5"
+  id("pl.allegro.tech.build.axion-release") version "1.18.16"
   id("org.jetbrains.kotlinx.kover") version "0.7.6"
   id("project-report")
   `maven-publish`
