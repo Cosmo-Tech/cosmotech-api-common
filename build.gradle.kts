@@ -176,12 +176,6 @@ val testcontainersRedis = "1.6.4"
 
 dependencies {
   implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)) {
-    constraints {
-      implementation("io.lettuce:lettuce-core:6.5.1.RELEASE") {
-        because("spring boot 3.4.1 depends on  lettuce-core 6.4.1.RELEASE which has vulnerability" +
-                " https://github.com/advisories/GHSA-q4h9-7rxj-7gx which was fixed in 6.5.1.RELEASE")
-      }
-    }
   } 
 
 
