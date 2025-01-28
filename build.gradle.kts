@@ -5,7 +5,7 @@ import io.gitlab.arturbosch.detekt.Detekt
 import org.gradle.kotlin.dsl.implementation
 
 plugins {
-  val kotlinVersion = "1.9.23"
+  val kotlinVersion = "2.1.10"
   kotlin("jvm") version kotlinVersion
   id("com.diffplug.spotless") version "6.25.0"
   id("org.springframework.boot") version "3.4.1" apply false
