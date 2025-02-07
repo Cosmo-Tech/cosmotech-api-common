@@ -183,7 +183,7 @@ class KeycloakJwtAuthenticationConverter(private val csmPlatformProperties: CsmP
     val principalClaimValue: String =
         jwt.getClaimAsString(csmPlatformProperties.authorization.principalJwtClaim)
             ?: jwt.getClaimAsString(csmPlatformProperties.authorization.applicationIdJwtClaim)
-            ?: throw IllegalStateException("User Authentication not found in Security Context")
+                ?: throw IllegalStateException("User Authentication not found in Security Context")
     return JwtAuthenticationToken(jwt, authorities, principalClaimValue)
   }
 }
