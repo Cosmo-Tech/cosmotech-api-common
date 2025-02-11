@@ -16,6 +16,7 @@ plugins {
   `maven-publish`
   // Apply the java-library plugin for API and implementation separation.
   `java-library`
+  id("org.cyclonedx.bom") version "2.1.0"
 }
 
 scmVersion {
@@ -23,6 +24,7 @@ scmVersion {
   useHighestVersion.set(true)
   tag { prefix.set("") }
 }
+group = "com.github.Cosmo-Tech"
 
 project.version = scmVersion.version
 
