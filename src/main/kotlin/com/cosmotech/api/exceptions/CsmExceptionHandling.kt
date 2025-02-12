@@ -15,10 +15,12 @@ import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.security.authentication.AuthenticationServiceException
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.InsufficientAuthenticationException
+import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
+import org.springframework.web.util.BindErrorUtils
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @RestControllerAdvice
@@ -39,6 +41,26 @@ open class CsmExceptionHandling : ResponseEntityExceptionHandler() {
     if (exception.message != null) {
       problemDetail.detail = exception.message
     }
+    return super.handleExceptionInternal(exception, problemDetail, headers, status, request)
+  }
+
+  override fun handleMethodArgumentNotValid(
+    exception: MethodArgumentNotValidException,
+    headers: HttpHeaders,
+    status: HttpStatusCode,
+    request: WebRequest
+  ): ResponseEntity<Any>? {
+    val badRequestStatus = HttpStatus.BAD_REQUEST
+    val problemDetail = ProblemDetail.forStatus(badRequestStatus)
+    problemDetail.type = URI.create(httpStatusCodeTypePrefix + badRequestStatus.value())
+    val globalErrors = BindErrorUtils.resolveAndJoin(exception.globalErrors)
+    val fieldErrors = BindErrorUtils.resolveAndJoin(exception.fieldErrors)
+    if( globalErrors.isBlank() && fieldErrors.isBlank() ) {
+      problemDetail.detail = exception.message
+    } else {
+      problemDetail.detail = "$globalErrors $fieldErrors".trim()
+    }
+
     return super.handleExceptionInternal(exception, problemDetail, headers, status, request)
   }
 
