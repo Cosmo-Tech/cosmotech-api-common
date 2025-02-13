@@ -176,7 +176,6 @@ val testcontainersRedis = "1.6.4"
 
 dependencies {
   implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
-  implementation("net.minidev:json-smart:2.4.10")
 
   detekt("io.gitlab.arturbosch.detekt:detekt-cli:$detektVersion")
   detekt("io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion")
