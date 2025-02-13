@@ -169,7 +169,7 @@ val kotlinCoroutinesCoreVersion = "1.8.1"
 val detektVersion = "1.23.7"
 
 // Tests
-val jUnitBomVersion = "5.10.0"
+val jUnitBomVersion = "5.11.4"
 val mockkVersion = "1.13.13"
 val awaitilityKVersion = "4.2.2"
 val testcontainersRedis = "1.6.4"
