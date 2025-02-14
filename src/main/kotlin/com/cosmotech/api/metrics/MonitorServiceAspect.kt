@@ -17,12 +17,17 @@ import org.aspectj.lang.annotation.Pointcut
 import org.aspectj.lang.reflect.CodeSignature
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 
 private const val SERVICE_NAME = "API"
 
 @Aspect
 @Component
+@ConditionalOnProperty(
+    name = ["csm.platform.metrics.enabled"],
+    havingValue = "true",
+    matchIfMissing = false)
 class MonitorServiceAspect(
     private var meterRegistry: MeterRegistry,
     private val eventPublisher: CsmEventPublisher,
