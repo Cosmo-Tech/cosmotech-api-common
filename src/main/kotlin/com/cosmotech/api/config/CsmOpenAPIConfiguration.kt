@@ -38,13 +38,6 @@ open class CsmOpenAPIConfiguration(val csmPlatformProperties: CsmPlatformPropert
 
     openAPI.info.version = apiVersion
 
-    if (!csmPlatformProperties.vcsRef.isNullOrBlank()) {
-      openAPI.info.description += " / ${csmPlatformProperties.vcsRef}"
-    }
-    if (!csmPlatformProperties.commitId.isNullOrBlank()) {
-      openAPI.info.description += " / ${csmPlatformProperties.commitId}"
-    }
-
     // Remove any set of servers already defined in the input openapi.yaml,
     // so as to have the base URL auto-generated based on the incoming requests
     openAPI.servers = listOf()
