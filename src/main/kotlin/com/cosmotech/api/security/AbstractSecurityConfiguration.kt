@@ -163,6 +163,15 @@ internal fun endpointSecurityReaders(
 ) =
     listOf(
         CsmSecurityEndpointsRolesReader(
+            paths = listOf("/about"),
+            roles =
+                arrayOf(
+                    ROLE_ORGANIZATION_USER,
+                    ROLE_ORGANIZATION_VIEWER,
+                    customOrganizationUser,
+                    customOrganizationViewer),
+            customAdmin = customOrganizationAdmin),
+        CsmSecurityEndpointsRolesReader(
             paths = PATHS_CONNECTORS,
             roles =
                 arrayOf(
