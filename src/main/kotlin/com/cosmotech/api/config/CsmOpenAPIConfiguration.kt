@@ -11,6 +11,7 @@ import java.io.BufferedReader
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import com.cosmotech.api.utils.getAboutInfo
 
 @Configuration
 open class CsmOpenAPIConfiguration(val csmPlatformProperties: CsmPlatformProperties) {
@@ -38,12 +39,8 @@ open class CsmOpenAPIConfiguration(val csmPlatformProperties: CsmPlatformPropert
 
     openAPI.info.version = apiVersion
 
-    if (!csmPlatformProperties.vcsRef.isNullOrBlank()) {
-      openAPI.info.description += " / ${csmPlatformProperties.vcsRef}"
-    }
-    if (!csmPlatformProperties.commitId.isNullOrBlank()) {
-      openAPI.info.description += " / ${csmPlatformProperties.commitId}"
-    }
+    val fullVersion = getAboutInfo().getJSONObject("version").getString("full")
+    openAPI.info.description += " ($fullVersion)"
 
     // Remove any set of servers already defined in the input openapi.yaml,
     // so as to have the base URL auto-generated based on the incoming requests

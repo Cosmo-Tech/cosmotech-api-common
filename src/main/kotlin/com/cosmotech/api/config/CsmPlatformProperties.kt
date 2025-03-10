@@ -9,22 +9,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 /** Configuration Properties for the Cosmo Tech Platform */
 @ConfigurationProperties(prefix = "csm.platform")
 data class CsmPlatformProperties(
-
-    /** Platform summary */
-    val summary: String?,
-
-    /** Platform description */
-    val description: String?,
-
-    /** Platform version (MAJOR.MINOR.PATCH) */
-    val version: String?,
-
-    /** Platform exact commit ID */
-    val commitId: String? = null,
-
-    /** Platform exact Version-Control System reference */
-    val vcsRef: String? = null,
-
     /** API Configuration */
     val api: Api,
 
