@@ -220,6 +220,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-actuator")
   implementation("io.micrometer:micrometer-registry-prometheus")
   implementation("org.springframework.boot:spring-boot-starter-aop")
+  implementation("org.apache.httpcomponents.client5:httpclient5")
 
   implementation("org.apache.tika:tika-core:${tikaVersion}")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesCoreVersion")
