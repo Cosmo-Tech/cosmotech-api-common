@@ -7,9 +7,9 @@ import org.gradle.kotlin.dsl.implementation
 plugins {
   val kotlinVersion = "1.9.23"
   kotlin("jvm") version kotlinVersion
-  id("com.diffplug.spotless") version "6.25.0"
+  id("com.diffplug.spotless") version "7.0.2"
   id("org.springframework.boot") version "3.4.1" apply false
-  id("io.gitlab.arturbosch.detekt") version "1.23.7"
+  id("io.gitlab.arturbosch.detekt") version "1.23.8"
   id("pl.allegro.tech.build.axion-release") version "1.15.5"
   id("org.jetbrains.kotlinx.kover") version "0.7.6"
   id("project-report")
@@ -85,10 +85,12 @@ configure<SpotlessExtension> {
     licenseHeader(licenseHeaderComment)
   }
   kotlin {
+    ktfmt()
     target("**/*.kt")
     licenseHeader(licenseHeaderComment)
   }
   kotlinGradle {
+    ktfmt()
     target("**/*.kts")
     //      licenseHeader(licenseHeaderComment, "import")
   }

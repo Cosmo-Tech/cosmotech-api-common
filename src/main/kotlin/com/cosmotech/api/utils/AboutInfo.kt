@@ -8,15 +8,15 @@ import org.json.JSONObject
 
 fun getAboutInfo(): JSONObject {
   val aboutJsonInputStream =
-    object{}::class.java.getResourceAsStream("/about.json")
-      ?: throw IllegalStateException("Unable to read about info data from 'classpath:/about.json'")
-  val aboutJsonContent = aboutJsonInputStream.use { it.bufferedReader().use(BufferedReader::readText) }
+      object {}::class.java.getResourceAsStream("/about.json")
+          ?: throw IllegalStateException(
+              "Unable to read about info data from 'classpath:/about.json'")
+  val aboutJsonContent =
+      aboutJsonInputStream.use { it.bufferedReader().use(BufferedReader::readText) }
 
   try {
     return JSONObject(aboutJsonContent)
-  }
-  catch (e: JSONException)
-  {
+  } catch (e: JSONException) {
     throw IllegalStateException("Unable to parse about info from 'classpath:/about.json'", e)
   }
 }
