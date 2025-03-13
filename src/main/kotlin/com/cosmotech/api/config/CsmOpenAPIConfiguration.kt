@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 package com.cosmotech.api.config
 
+import com.cosmotech.api.utils.getAboutInfo
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.security.OAuthFlow
 import io.swagger.v3.oas.models.security.OAuthFlows
@@ -11,7 +12,6 @@ import java.io.BufferedReader
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import com.cosmotech.api.utils.getAboutInfo
 
 @Configuration
 open class CsmOpenAPIConfiguration(val csmPlatformProperties: CsmPlatformProperties) {

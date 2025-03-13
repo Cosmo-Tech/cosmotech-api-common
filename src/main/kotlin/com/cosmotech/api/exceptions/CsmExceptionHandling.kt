@@ -45,17 +45,17 @@ open class CsmExceptionHandling : ResponseEntityExceptionHandler() {
   }
 
   override fun handleMethodArgumentNotValid(
-    exception: MethodArgumentNotValidException,
-    headers: HttpHeaders,
-    status: HttpStatusCode,
-    request: WebRequest
+      exception: MethodArgumentNotValidException,
+      headers: HttpHeaders,
+      status: HttpStatusCode,
+      request: WebRequest
   ): ResponseEntity<Any>? {
     val badRequestStatus = HttpStatus.BAD_REQUEST
     val problemDetail = ProblemDetail.forStatus(badRequestStatus)
     problemDetail.type = URI.create(httpStatusCodeTypePrefix + badRequestStatus.value())
     val globalErrors = BindErrorUtils.resolveAndJoin(exception.globalErrors)
     val fieldErrors = BindErrorUtils.resolveAndJoin(exception.fieldErrors)
-    if( globalErrors.isBlank() && fieldErrors.isBlank() ) {
+    if (globalErrors.isBlank() && fieldErrors.isBlank()) {
       problemDetail.detail = exception.message
     } else {
       problemDetail.detail = "$globalErrors $fieldErrors".trim()
