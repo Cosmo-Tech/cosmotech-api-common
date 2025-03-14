@@ -109,6 +109,7 @@ val PATHS_SOLUTIONS =
         "/organizations/*/solutions/*",
         "/organizations/*/solutions/*/parameterGroups",
         "/organizations/*/solutions/*/parameters",
+        "/organizations/*/solutions/*/parameters/*",
         "/organizations/*/solutions/*/runTemplates",
         "/organizations/*/solutions/*/runTemplates/*",
         "/organizations/*/solutions/*/security",
