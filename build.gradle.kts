@@ -92,7 +92,7 @@ configure<SpotlessExtension> {
   kotlinGradle {
     ktfmt()
     target("**/*.kts")
-    //      licenseHeader(licenseHeaderComment, "import")
+    licenseHeader(licenseHeaderComment, "(import |// no-import)")
   }
 }
 
