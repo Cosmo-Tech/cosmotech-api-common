@@ -172,7 +172,7 @@ val detektVersion = "1.23.7"
 
 // Tests
 val jUnitBomVersion = "5.10.0"
-val mockkVersion = "1.13.13"
+val mockkVersion = "1.13.17"
 val awaitilityKVersion = "4.2.2"
 val testcontainersRedis = "1.6.4"
 
