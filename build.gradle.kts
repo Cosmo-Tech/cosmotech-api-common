@@ -168,7 +168,7 @@ val redisOMVersion = "0.9.1"
 val kotlinCoroutinesCoreVersion = "1.8.1"
 
 // Checks
-val detektVersion = "1.23.7"
+val detektVersion = "1.23.8"
 
 // Tests
 val jUnitBomVersion = "5.10.0"
