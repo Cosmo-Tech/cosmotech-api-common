@@ -213,7 +213,7 @@ dependencies {
   }
 
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${springDocVersion}")
-  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.2")
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.18.3")
 
   implementation("jakarta.servlet:jakarta.servlet-api:${servletApiVersion}")
   implementation("com.okta.spring:okta-spring-boot-starter:${oktaSpringBootVersion}")
