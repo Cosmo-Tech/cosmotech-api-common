@@ -60,9 +60,6 @@ data class CsmPlatformProperties(
     /** Persistent metrics configuration */
     val metrics: Metrics = Metrics(),
 
-    /** Loki Service */
-    val loki: Loki = Loki(),
-
     /** Internal result data service configuration */
     val internalResultServices: CsmServiceResult?,
 ) {
@@ -215,11 +212,6 @@ data class CsmPlatformProperties(
   data class BlobPersistence(
       /** Persistence blob storage path */
       val path: String
-  )
-
-  data class Loki(
-      /** Base Loki url */
-      val baseUrl: String = "http://loki.default.svc.cluster.local:3100",
   )
 
   data class Argo(
