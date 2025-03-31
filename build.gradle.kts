@@ -225,7 +225,7 @@ dependencies {
   implementation("org.apache.tika:tika-core:${tikaVersion}")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesCoreVersion")
   implementation("com.redis.om:redis-om-spring:${redisOMVersion}") {
-    constraints { implementation("ai.djl:api:0.28.0") }
+    constraints { implementation("ai.djl:api:0.32.0") }
   }
 
   implementation("com.redis.testcontainers:testcontainers-redis-junit:$testcontainersRedis")
