@@ -24,8 +24,8 @@ data class CsmPlatformProperties(
     /** Container Registry */
     val containerRegistry: CsmPlatformContainerRegistry = CsmPlatformContainerRegistry(),
 
-    /** Blob Persistence */
-    val blobPersistence: BlobPersistence,
+    /** S3 service */
+    val s3: S3,
 
     /** Argo Service */
     val argo: Argo,
@@ -209,9 +209,15 @@ data class CsmPlatformProperties(
       val imageVersion: String = "latest",
   )
 
-  data class BlobPersistence(
-      /** Persistence blob storage path */
-      val path: String
+  data class S3(
+      /** Endpoint URL */
+      val endpointUrl: String = "http://localhost:9000",
+      /** Bucket name */
+      val bucketName: String = "cosmotech-api",
+      /** Credentials: access key id */
+      val accessKeyId: String = "",
+      /** Credentials: secret access key */
+      val secretAccessKey: String = ""
   )
 
   data class Argo(
