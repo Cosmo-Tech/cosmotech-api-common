@@ -217,7 +217,9 @@ data class CsmPlatformProperties(
       /** Credentials: access key id */
       val accessKeyId: String = "",
       /** Credentials: secret access key */
-      val secretAccessKey: String = ""
+      val secretAccessKey: String = "",
+      /** Storage region */
+      val region: String = ""
   )
 
   data class Argo(
