@@ -260,7 +260,7 @@ internal fun endpointSecurityWriters(
             customAdmin = customOrganizationAdmin),
         CsmSecurityEndpointsRolesWriter(
             paths = PATHS_SOLUTIONS,
-            roles = arrayOf(SCOPE_SOLUTION_WRITE),
+            roles = arrayOf(ROLE_ORGANIZATION_USER, SCOPE_SOLUTION_WRITE, customOrganizationUser),
             customAdmin = customOrganizationAdmin),
         CsmSecurityEndpointsRolesWriter(
             paths = PATHS_WORKSPACES,
