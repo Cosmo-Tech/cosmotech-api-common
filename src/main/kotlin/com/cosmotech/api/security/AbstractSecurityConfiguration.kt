@@ -476,6 +476,7 @@ internal fun endpointSecurityWriters(
             roles =
                 arrayOf(
                     ROLE_SOLUTION_WRITER,
+                    ROLE_ORGANIZATION_USER,
                     ROLE_ORGANIZATION_ADMIN,
                     ROLE_ORGANIZATION_COLLABORATOR,
                     ROLE_ORGANIZATION_MODELER,
