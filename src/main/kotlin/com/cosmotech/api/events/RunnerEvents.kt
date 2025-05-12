@@ -22,3 +22,10 @@ class RunnerDeleted(
     val workspaceId: String,
     val runnerId: String
 ) : CsmEvent(publisher)
+
+class UpdateRunnerStatus(
+    publisher: Any,
+    val organizationId: String,
+    val workspaceId: String,
+    val runnerId: String
+) : CsmEvent(publisher)

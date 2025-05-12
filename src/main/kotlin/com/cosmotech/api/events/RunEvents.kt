@@ -26,5 +26,6 @@ class RunDeleted(
     val organizationId: String,
     val workspaceId: String,
     val runnerId: String,
-    val runId: String
+    val runId: String,
+    val lastRun: String?
 ) : CsmEvent(publisher)
