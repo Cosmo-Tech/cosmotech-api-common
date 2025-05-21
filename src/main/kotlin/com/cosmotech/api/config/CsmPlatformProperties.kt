@@ -30,12 +30,6 @@ data class CsmPlatformProperties(
     /** Argo Service */
     val argo: Argo,
 
-    /** Cosmo Tech core images */
-    val images: CsmImages,
-
-    /** Cosmo Tech available containers */
-    val containers: List<CsmContainers>,
-
     /** Authorization Configuration */
     val authorization: Authorization = Authorization(),
 
@@ -78,6 +72,9 @@ data class CsmPlatformProperties(
       val eventBus: CsmEventBus
   ) {
     data class CsmStorage(
+        /** Define if current API use internal storage for probes or not */
+        val enabled: Boolean = true,
+
         /** Storage host */
         val host: String,
 
