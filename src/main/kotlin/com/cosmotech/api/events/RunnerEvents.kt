@@ -27,5 +27,6 @@ class UpdateRunnerStatus(
     publisher: Any,
     val organizationId: String,
     val workspaceId: String,
-    val runnerId: String
+    val runnerId: String,
+    val lastRunId: String,
 ) : CsmRequestResponseEvent<String>(publisher)
