@@ -98,7 +98,7 @@ internal open class KeycloakSecurityConfiguration(
         }
     if (tlsEnabled) {
       nimbusJwtDecoderBuilder.restOperations(
-          restTemplateBuilder.setSslBundle(sslBundles.getBundle(tlsBundle)).build())
+          restTemplateBuilder.sslBundle(sslBundles.getBundle(tlsBundle)).build())
     }
     val nimbusJwtDecoder = nimbusJwtDecoderBuilder.build()
 
