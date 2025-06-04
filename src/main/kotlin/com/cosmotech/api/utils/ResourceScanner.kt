@@ -12,8 +12,8 @@ import org.apache.tika.metadata.Metadata
 import org.apache.tika.metadata.TikaCoreProperties
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
+import org.springframework.web.multipart.MultipartFile
 
 private const val ZIP_MIME_TYPE = "zip"
 private const val ENTRY_NAME_UNKNOWN = "Unknown"
@@ -22,10 +22,10 @@ private const val ENTRY_NAME_UNKNOWN = "Unknown"
 class ResourceScanner {
   private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
-  fun scanMimeTypes(file: Resource, authorizedMimeTypes: List<String>) {
+  fun scanMimeTypes(file: MultipartFile, authorizedMimeTypes: List<String>) {
     val tika = TikaConfig()
     val inputStream = file.inputStream
-    val name = file.filename ?: ENTRY_NAME_UNKNOWN
+    val name = file.originalFilename ?: ENTRY_NAME_UNKNOWN
     this.scanStream(tika, inputStream, name, authorizedMimeTypes)
   }
 
