@@ -167,7 +167,6 @@ val springSecurityJwtVersion = "1.1.1.RELEASE"
 val springDocVersion = "2.8.6"
 val springOauthVersion = "6.4.4"
 val servletApiVersion = "6.1.0"
-val oktaSpringBootVersion = "3.0.7"
 val tikaVersion = "3.1.0"
 val redisOMVersion = "0.9.10"
 val kotlinCoroutinesCoreVersion = "1.10.2"
@@ -223,7 +222,6 @@ dependencies {
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
 
   implementation("jakarta.servlet:jakarta.servlet-api:${servletApiVersion}")
-  implementation("com.okta.spring:okta-spring-boot-starter:${oktaSpringBootVersion}")
   implementation("org.springframework.boot:spring-boot-starter-actuator")
   implementation("io.micrometer:micrometer-registry-prometheus")
   implementation("org.springframework.boot:spring-boot-starter-aop")
