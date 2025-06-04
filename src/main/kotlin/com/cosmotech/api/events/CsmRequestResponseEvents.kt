@@ -19,31 +19,3 @@ class WorkflowPhaseToStateRequest(
     val jobId: String?,
     val workflowPhase: String?,
 ) : CsmRequestResponseEvent<String>(publisher)
-
-class AddDatasetToWorkspace(
-    publisher: Any,
-    val organizationId: String,
-    val workspaceId: String,
-    val datasetId: String
-) : CsmRequestResponseEvent<MutableList<String>>(publisher)
-
-class RemoveDatasetFromWorkspace(
-    publisher: Any,
-    val organizationId: String,
-    val workspaceId: String,
-    val datasetId: String
-) : CsmRequestResponseEvent<MutableList<String>>(publisher)
-
-class AddWorkspaceToDataset(
-    publisher: Any,
-    val organizationId: String,
-    val datasetId: String,
-    val workspaceId: String
-) : CsmRequestResponseEvent<MutableList<String>>(publisher)
-
-class RemoveWorkspaceFromDataset(
-    publisher: Any,
-    val organizationId: String,
-    val datasetId: String,
-    val workspaceId: String
-) : CsmRequestResponseEvent<MutableList<String>>(publisher)
