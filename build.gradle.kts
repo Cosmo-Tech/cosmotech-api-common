@@ -178,7 +178,9 @@ val detektVersion = "1.23.8"
 val jUnitBomVersion = "5.12.2"
 val mockkVersion = "1.14.0"
 val awaitilityKVersion = "4.3.0"
-val testcontainersRedis = "1.6.4"
+val testContainersRedisVersion = "1.6.4"
+val testContainersPostgreSQLVersion = "1.20.6"
+val testContainersLocalStackVersion = "1.20.6"
 
 dependencies {
   // https://youtrack.jetbrains.com/issue/KT-71057/POM-file-unusable-after-upgrading-to-2.0.20-from-2.0.10
@@ -231,8 +233,11 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesCoreVersion")
   implementation("com.redis.om:redis-om-spring:${redisOMVersion}")
 
-  implementation("com.redis.testcontainers:testcontainers-redis-junit:$testcontainersRedis")
   implementation("org.springframework.boot:spring-boot-starter-test")
+  implementation(
+      "com.redis.testcontainers:testcontainers-redis-junit:${testContainersRedisVersion}")
+  implementation("org.testcontainers:postgresql:${testContainersPostgreSQLVersion}")
+  implementation("org.testcontainers:localstack:${testContainersLocalStackVersion}")
 
   testImplementation(kotlin("test"))
   testImplementation(platform("org.junit:junit-bom:${jUnitBomVersion}"))
