@@ -184,28 +184,6 @@ data class CsmPlatformProperties(
     )
   }
 
-  data class CsmImages(
-      /** Container image to fetch Scenario Parameters */
-      val scenarioFetchParameters: String,
-
-      /** Container image to send data to DataWarehouse */
-      val sendDataWarehouse: String,
-  )
-
-  data class CsmContainers(
-      /** Container name */
-      val name: String,
-
-      /** Image registry (default: "") */
-      val imageRegistry: String = "",
-
-      /** Image name */
-      val imageName: String,
-
-      /** Image version (default: latest) */
-      val imageVersion: String = "latest",
-  )
-
   data class S3(
       /** Endpoint URL */
       val endpointUrl: String = "http://localhost:9000",
@@ -418,9 +396,6 @@ data class CsmPlatformProperties(
       /** Twin cache query page information for runner */
       val runner: PageSizing = PageSizing(),
 
-      /** Twin cache query page information for connector */
-      val connector: PageSizing = PageSizing(),
-
       /** Twin cache query page information for dataset */
       val dataset: PageSizing = PageSizing(),
 
@@ -431,10 +406,7 @@ data class CsmPlatformProperties(
       val solution: PageSizing = PageSizing(),
 
       /** TLS Platform bundle config */
-      val tls: TLSConfig = TLSConfig(),
-
-      /** Use Graph module */
-      val useGraphModule: Boolean = true
+      val tls: TLSConfig = TLSConfig()
   ) {
 
     data class PageSizing(
@@ -455,6 +427,8 @@ data class CsmPlatformProperties(
     data class AuthorizedMimeTypes(
         /** List of authorized mime types for workspace file upload */
         val workspaces: List<String> = emptyList(),
+        /** List of authorized mime types for dataset file upload */
+        val datasets: List<String> = emptyList(),
     )
   }
 
