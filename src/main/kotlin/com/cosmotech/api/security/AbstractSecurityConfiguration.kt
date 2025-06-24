@@ -21,7 +21,6 @@ const val ROLE_ORGANIZATION_USER = "Organization.User"
 const val ROLE_ORGANIZATION_VIEWER = "Organization.Viewer"
 
 // Allowed read scopes
-const val SCOPE_CONNECTOR_READ = "SCOPE_csm.connector.read"
 const val SCOPE_ORGANIZATION_READ = "SCOPE_csm.organization.read"
 const val SCOPE_DATASET_READ = "SCOPE_csm.dataset.read"
 const val SCOPE_SOLUTION_READ = "SCOPE_csm.solution.read"
@@ -30,40 +29,29 @@ const val SCOPE_RUN_READ = "SCOPE_csm.run.read"
 const val SCOPE_RUNNER_READ = "SCOPE_csm.runner.read"
 
 // Allowed write scopes
-const val SCOPE_CONNECTOR_WRITE = "SCOPE_csm.connector.write"
 const val SCOPE_ORGANIZATION_WRITE = "SCOPE_csm.organization.write"
 const val SCOPE_DATASET_WRITE = "SCOPE_csm.dataset.write"
 const val SCOPE_SOLUTION_WRITE = "SCOPE_csm.solution.write"
 const val SCOPE_WORKSPACE_WRITE = "SCOPE_csm.workspace.write"
 const val SCOPE_RUN_WRITE = "SCOPE_csm.run.write"
 const val SCOPE_RUNNER_WRITE = "SCOPE_csm.runner.write"
-
-// Path Connectors
-val PATHS_CONNECTORS = listOf("/connectors", "/connectors/*")
 // Path Datasets
 val PATHS_DATASETS =
     listOf(
-        "/organizations/*/datasets",
-        "/organizations/*/datasets/copy",
-        "/organizations/*/datasets/search",
-        "/organizations/*/datasets/twingraph/download/*",
-        "/organizations/*/datasets/*",
-        "/organizations/*/datasets/*/batch",
-        "/organizations/*/datasets/*/batch-query",
-        "/organizations/*/datasets/*/compatibility",
-        "/organizations/*/datasets/*/link",
-        "/organizations/*/datasets/*/refresh",
-        "/organizations/*/datasets/*/refresh/rollback",
-        "/organizations/*/datasets/*/security",
-        "/organizations/*/datasets/*/security/access",
-        "/organizations/*/datasets/*/security/access/*",
-        "/organizations/*/datasets/*/security/default",
-        "/organizations/*/datasets/*/security/users",
-        "/organizations/*/datasets/*/status",
-        "/organizations/*/datasets/*/subdataset",
-        "/organizations/*/datasets/*/twingraph",
-        "/organizations/*/datasets/*/twingraph/*",
-        "/organizations/*/datasets/*/unlink")
+        "/organizations/*/workspaces/*/datasets",
+        "/organizations/*/workspaces/*/datasets/search",
+        "/organizations/*/workspaces/*/datasets/*",
+        "/organizations/*/workspaces/*/datasets/*/security",
+        "/organizations/*/workspaces/*/datasets/*/security/access",
+        "/organizations/*/workspaces/*/datasets/*/security/access/*",
+        "/organizations/*/workspaces/*/datasets/*/security/default",
+        "/organizations/*/workspaces/*/datasets/*/security/users",
+        "/organizations/*/workspaces/*/datasets/*/parts",
+        "/organizations/*/workspaces/*/datasets/*/parts/search",
+        "/organizations/*/workspaces/*/datasets/*/parts/*",
+        "/organizations/*/workspaces/*/datasets/*/parts/*/download",
+        "/organizations/*/workspaces/*/datasets/*/parts/*/query",
+    )
 
 // Path Organizations
 val PATHS_ORGANIZATIONS =
@@ -132,14 +120,12 @@ val PATHS_WORKSPACES =
     listOf(
         "/organizations/*/workspaces",
         "/organizations/*/workspaces/*",
-        "/organizations/*/workspaces/*/link",
         "/organizations/*/workspaces/*/permissions/*",
         "/organizations/*/workspaces/*/security",
         "/organizations/*/workspaces/*/security/access",
         "/organizations/*/workspaces/*/security/access/*",
         "/organizations/*/workspaces/*/security/default",
         "/organizations/*/workspaces/*/security/users",
-        "/organizations/*/workspaces/*/security/unlink",
     )
 
 // Endpoints roles
@@ -170,17 +156,6 @@ internal fun endpointSecurityReaders(
                 arrayOf(
                     ROLE_ORGANIZATION_USER,
                     ROLE_ORGANIZATION_VIEWER,
-                    customOrganizationUser,
-                    customOrganizationViewer),
-            customAdmin = customOrganizationAdmin),
-        CsmSecurityEndpointsRolesReader(
-            paths = PATHS_CONNECTORS,
-            roles =
-                arrayOf(
-                    ROLE_ORGANIZATION_USER,
-                    ROLE_ORGANIZATION_VIEWER,
-                    SCOPE_CONNECTOR_READ,
-                    SCOPE_CONNECTOR_WRITE,
                     customOrganizationUser,
                     customOrganizationViewer),
             customAdmin = customOrganizationAdmin),
@@ -257,10 +232,6 @@ internal fun endpointSecurityWriters(
     customOrganizationUser: String
 ) =
     listOf(
-        CsmSecurityEndpointsRolesWriter(
-            paths = PATHS_CONNECTORS,
-            roles = arrayOf(SCOPE_CONNECTOR_WRITE),
-            customAdmin = customOrganizationAdmin),
         CsmSecurityEndpointsRolesWriter(
             paths = PATHS_DATASETS,
             roles = arrayOf(ROLE_ORGANIZATION_USER, SCOPE_DATASET_WRITE, customOrganizationUser),
