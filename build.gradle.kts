@@ -183,7 +183,7 @@ val testcontainersRedis = "1.6.4"
 
 dependencies {
   // https://youtrack.jetbrains.com/issue/KT-71057/POM-file-unusable-after-upgrading-to-2.0.20-from-2.0.10
-  implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.0.21"))
+  implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.2.0"))
   implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
 
   detekt("io.gitlab.arturbosch.detekt:detekt-cli:$detektVersion")
