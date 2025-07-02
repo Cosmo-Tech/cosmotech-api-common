@@ -427,6 +427,8 @@ data class CsmPlatformProperties(
     data class AuthorizedMimeTypes(
         /** List of authorized mime types for workspace file upload */
         val workspaces: List<String> = emptyList(),
+        /** List of authorized mime types for solution file upload */
+        val solutions: List<String> = emptyList(),
         /** List of authorized mime types for dataset file upload */
         val datasets: List<String> = emptyList(),
     )
