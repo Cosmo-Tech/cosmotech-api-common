@@ -8,7 +8,7 @@ import org.gradle.kotlin.dsl.implementation
 plugins {
   val kotlinVersion = "2.0.21"
   kotlin("jvm") version kotlinVersion
-  id("com.diffplug.spotless") version "7.0.3"
+  id("com.diffplug.spotless") version "7.2.1"
   id("org.springframework.boot") version "3.4.4" apply false
   id("io.gitlab.arturbosch.detekt") version "1.23.8"
   id("pl.allegro.tech.build.axion-release") version "1.18.18"
