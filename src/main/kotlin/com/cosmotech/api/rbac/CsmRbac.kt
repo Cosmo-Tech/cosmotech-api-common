@@ -244,8 +244,7 @@ open class CsmRbac(
   internal fun getUserRole(rbacSecurity: RbacSecurity, user: String): String {
     return rbacSecurity.accessControlList
         .firstOrNull { it.id.lowercase() == user.lowercase() }
-        ?.role
-        ?: rbacSecurity.default
+        ?.role ?: rbacSecurity.default
   }
 
   internal fun getAdminCount(rbacSecurity: RbacSecurity, rolesDefinition: RolesDefinition): Int {

@@ -41,11 +41,11 @@ fun <T> T.convertToMap(): Map<String, Any> =
  * @param new the new object against which comparison is performed
  * @param mutateIfChanged whether to mutate the current object if for fields that have changed
  * @param excludedFields an array of fields to exlude from comparison. Note that fields named 'id´
- * are automatically excluded, by convention.
+ *   are automatically excluded, by convention.
  * @throws UnsupportedOperationException if the object being compared are not instances of a data
- * class
+ *   class
  * @throws IllegalArgumentException if changes were detected and {@code mutateIfChanged = true}, but
- * the field is not mutable
+ *   the field is not mutable
  */
 @Suppress("NestedBlockDepth")
 inline fun <reified T> T.compareToAndMutateIfNeeded(

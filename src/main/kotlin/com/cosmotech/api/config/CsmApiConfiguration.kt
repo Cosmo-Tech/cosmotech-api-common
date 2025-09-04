@@ -45,6 +45,7 @@ open class CsmApiConfiguration {
 @Order(Ordered.HIGHEST_PRECEDENCE)
 open class CsmPlatformEnvironmentPostProcessor : EnvironmentPostProcessor {
   private val log = DeferredLog()
+
   override fun postProcessEnvironment(
       environment: ConfigurableEnvironment,
       application: SpringApplication
