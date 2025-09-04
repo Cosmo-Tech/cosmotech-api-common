@@ -2,16 +2,18 @@
 // Licensed under the MIT license.
 import com.diffplug.gradle.spotless.SpotlessExtension
 import io.gitlab.arturbosch.detekt.Detekt
+import kotlinx.kover.gradle.plugin.dsl.KoverProjectExtension
 import org.gradle.kotlin.dsl.implementation
 
 plugins {
-  val kotlinVersion = "1.9.23"
+  val kotlinVersion = "2.0.21"
   kotlin("jvm") version kotlinVersion
-  id("com.diffplug.spotless") version "6.22.0"
-  id("org.springframework.boot") version "3.2.10" apply false
-  id("io.gitlab.arturbosch.detekt") version "1.23.6"
-  id("pl.allegro.tech.build.axion-release") version "1.15.5"
-  id("org.jetbrains.kotlinx.kover") version "0.7.6"
+  id("com.diffplug.spotless") version "7.0.3"
+  id("org.springframework.boot") version "3.4.9" apply false
+  id("io.gitlab.arturbosch.detekt") version "1.23.8"
+  id("pl.allegro.tech.build.axion-release") version "1.18.18"
+  id("org.jetbrains.kotlinx.kover") version "0.9.1"
+  id("project-report")
   `maven-publish`
   // Apply the java-library plugin for API and implementation separation.
   `java-library`
@@ -27,7 +29,11 @@ project.version = scmVersion.version
 
 val kotlinJvmTarget = 21
 
-java { toolchain { languageVersion.set(JavaLanguageVersion.of(kotlinJvmTarget)) } }
+java {
+  targetCompatibility = JavaVersion.VERSION_21
+  sourceCompatibility = JavaVersion.VERSION_21
+  toolchain { languageVersion.set(JavaLanguageVersion.of(kotlinJvmTarget)) }
+}
 
 publishing {
   repositories {
@@ -84,14 +90,14 @@ configure<SpotlessExtension> {
     licenseHeader(licenseHeaderComment)
   }
   kotlin {
-    ktfmt("0.41")
+    ktfmt()
     target("**/*.kt")
     licenseHeader(licenseHeaderComment)
   }
   kotlinGradle {
-    ktfmt("0.41")
+    ktfmt()
     target("**/*.kts")
-    //      licenseHeader(licenseHeaderComment, "import")
+    licenseHeader(licenseHeaderComment, "(import |// no-import)")
   }
 }
 
@@ -149,33 +155,37 @@ tasks.test { useJUnitPlatform() }
 // Dependencies version
 
 // Required versions
-val jacksonVersion = "2.15.3"
-val springWebVersion = "6.1.4"
-val springBootVersion = "3.2.10"
+val jacksonVersion = "2.18.3"
+val springWebVersion = "6.2.9"
+val springBootVersion = "3.4.9"
+val bouncyCastleJdk18Version = "1.81"
 
 // Implementation
-val swaggerParserVersion = "2.1.22"
+val swaggerParserVersion = "2.1.31"
 val hashidsVersion = "1.0.3"
 val springOauthAutoConfigureVersion = "2.6.8"
 val springSecurityJwtVersion = "1.1.1.RELEASE"
-val springDocVersion = "2.5.0"
-val springOauthVersion = "6.2.2"
-val servletApiVersion = "6.0.0"
-val oktaSpringBootVersion = "3.0.5"
-val tikaVersion = "2.9.1"
-val redisOMVersion = "0.9.1"
-val kotlinCoroutinesCoreVersion = "1.7.3"
+val springDocVersion = "2.8.12"
+val springOauthVersion = "6.5.3"
+val servletApiVersion = "6.1.0"
+val tikaVersion = "3.2.2"
+val redisOMVersion = "0.9.10"
+val kotlinCoroutinesCoreVersion = "1.10.2"
 
 // Checks
-val detektVersion = "1.23.6"
+val detektVersion = "1.23.8"
 
 // Tests
-val jUnitBomVersion = "5.10.0"
-val mockkVersion = "1.13.8"
-val awaitilityKVersion = "4.2.0"
-val testcontainersRedis = "1.6.4"
+val jUnitBomVersion = "5.12.2"
+val mockkVersion = "1.14.5"
+val awaitilityKVersion = "4.3.0"
+val testContainersRedisVersion = "1.6.4"
+val testContainersPostgreSQLVersion = "1.20.6"
+val testContainersLocalStackVersion = "1.20.6"
 
 dependencies {
+  // https://youtrack.jetbrains.com/issue/KT-71057/POM-file-unusable-after-upgrading-to-2.0.20-from-2.0.10
+  implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.0.21"))
   implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
 
   detekt("io.gitlab.arturbosch.detekt:detekt-cli:$detektVersion")
@@ -199,35 +209,44 @@ dependencies {
           implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
           implementation("org.springframework:spring-web:$springWebVersion")
           implementation("org.springframework.boot:spring-boot-autoconfigure:$springBootVersion")
+          implementation(
+              "org.springframework.security:spring-security-jwt:${springSecurityJwtVersion}") {
+                exclude(group = "org.bouncycastle", module = "bcpkix-jdk15on")
+                constraints {
+                  implementation("org.bouncycastle:bcpkix-jdk18on:${bouncyCastleJdk18Version}")
+                }
+              }
         }
       }
   implementation("org.springframework.boot:spring-boot-starter-security")
-  implementation("org.springframework.security:spring-security-oauth2-jose:${springOauthVersion}")
+  implementation("org.springframework.security:spring-security-oauth2-jose:${springOauthVersion}") {
+    constraints { implementation("com.nimbusds:nimbus-jose-jwt:10.4.2") }
+  }
   implementation(
       "org.springframework.security:spring-security-oauth2-resource-server:${springOauthVersion}")
-  implementation("org.springframework.security:spring-security-jwt:${springSecurityJwtVersion}")
 
   implementation("org.springframework.boot:spring-boot-starter-web") {
     exclude(group = "org.springframework.boot", module = "spring-boot-starter-tomcat")
   }
 
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${springDocVersion}")
-  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.2")
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
 
   implementation("jakarta.servlet:jakarta.servlet-api:${servletApiVersion}")
-  implementation("com.okta.spring:okta-spring-boot-starter:${oktaSpringBootVersion}")
   implementation("org.springframework.boot:spring-boot-starter-actuator")
   implementation("io.micrometer:micrometer-registry-prometheus")
   implementation("org.springframework.boot:spring-boot-starter-aop")
+  implementation("org.apache.httpcomponents.client5:httpclient5")
 
   implementation("org.apache.tika:tika-core:${tikaVersion}")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesCoreVersion")
-  implementation("com.redis.om:redis-om-spring:${redisOMVersion}") {
-    constraints { implementation("ai.djl:api:0.28.0") }
-  }
+  implementation("com.redis.om:redis-om-spring:${redisOMVersion}")
 
-  implementation("com.redis.testcontainers:testcontainers-redis-junit:$testcontainersRedis")
   implementation("org.springframework.boot:spring-boot-starter-test")
+  implementation(
+      "com.redis.testcontainers:testcontainers-redis-junit:${testContainersRedisVersion}")
+  implementation("org.testcontainers:postgresql:${testContainersPostgreSQLVersion}")
+  implementation("org.testcontainers:localstack:${testContainersLocalStackVersion}")
 
   testImplementation(kotlin("test"))
   testImplementation(platform("org.junit:junit-bom:${jUnitBomVersion}"))
@@ -244,16 +263,23 @@ dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 }
 
-extensions.configure<kotlinx.kover.gradle.plugin.dsl.KoverReportExtension> {
-  defaults {
-    // reports configs for XML, HTML, verify reports
+extensions.configure<KoverProjectExtension>("kover") {
+  reports {
+    filters {
+      includes {
+        packages("com.cosmotech.api")
+        classes("com.cosmotech.api.id.*")
+        classes("com.cosmotech.api.rbac.*")
+        classes("com.cosmotech.utils.*")
+      }
+    }
   }
-  filters {
-    includes {
-      packages("com.cosmotech.api")
-      classes("com.cosmotech.api.id.*")
-      classes("com.cosmotech.api.rbac.*")
-      classes("com.cosmotech.utils.*")
+}
+
+kover {
+  reports {
+    total {
+      // reports configs for XML, HTML, verify reports
     }
   }
 }
