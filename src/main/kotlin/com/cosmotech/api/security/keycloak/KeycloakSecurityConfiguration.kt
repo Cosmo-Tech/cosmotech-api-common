@@ -98,7 +98,7 @@ internal open class KeycloakSecurityConfiguration(
         }
     if (tlsEnabled) {
       nimbusJwtDecoderBuilder.restOperations(
-          restTemplateBuilder.setSslBundle(sslBundles.getBundle(tlsBundle)).build())
+          restTemplateBuilder.sslBundle(sslBundles.getBundle(tlsBundle)).build())
     }
     val nimbusJwtDecoder = nimbusJwtDecoderBuilder.build()
 
@@ -146,6 +146,7 @@ class KeycloakJwtGrantedAuthoritiesConverter(
 ) : Converter<Jwt, Collection<GrantedAuthority>> {
 
   private val logger = LoggerFactory.getLogger(KeycloakJwtGrantedAuthoritiesConverter::class.java)
+
   override fun convert(jwt: Jwt): Collection<GrantedAuthority> {
     val extractAuthorities = mutableListOf<GrantedAuthority>()
     extractAuthorities.addAll(
@@ -183,7 +184,7 @@ class KeycloakJwtAuthenticationConverter(private val csmPlatformProperties: CsmP
     val principalClaimValue: String =
         jwt.getClaimAsString(csmPlatformProperties.authorization.principalJwtClaim)
             ?: jwt.getClaimAsString(csmPlatformProperties.authorization.applicationIdJwtClaim)
-                ?: throw IllegalStateException("User Authentication not found in Security Context")
+            ?: throw IllegalStateException("User Authentication not found in Security Context")
     return JwtAuthenticationToken(jwt, authorities, principalClaimValue)
   }
 }
