@@ -8,10 +8,10 @@ import org.gradle.kotlin.dsl.implementation
 plugins {
   val kotlinVersion = "2.0.21"
   kotlin("jvm") version kotlinVersion
-  id("com.diffplug.spotless") version "7.0.3"
-  id("org.springframework.boot") version "3.4.4" apply false
+  id("com.diffplug.spotless") version "7.2.1"
+  id("org.springframework.boot") version "3.5.5" apply false
   id("io.gitlab.arturbosch.detekt") version "1.23.8"
-  id("pl.allegro.tech.build.axion-release") version "1.18.18"
+  id("pl.allegro.tech.build.axion-release") version "1.20.1"
   id("org.jetbrains.kotlinx.kover") version "0.9.1"
   id("project-report")
   `maven-publish`
@@ -155,19 +155,22 @@ tasks.test { useJUnitPlatform() }
 // Dependencies version
 
 // Required versions
-val jacksonVersion = "2.18.3"
-val springWebVersion = "6.2.9"
-val springBootVersion = "3.4.4"
+val jacksonAnnotationsVersion = "2.20"
+val jacksonDatabindVersion = "2.20.0"
+val jacksonKotlinVersion = "2.20.0"
+val springWebVersion = "6.2.10"
+val springBootVersion = "3.5.5"
+val bouncyCastleJdk18Version = "1.81"
 
 // Implementation
-val swaggerParserVersion = "2.1.31"
+val swaggerParserVersion = "2.1.33"
 val hashidsVersion = "1.0.3"
 val springOauthAutoConfigureVersion = "2.6.8"
 val springSecurityJwtVersion = "1.1.1.RELEASE"
-val springDocVersion = "2.8.6"
-val springOauthVersion = "6.5.1"
+val springDocVersion = "2.8.12"
+val springOauthVersion = "6.5.3"
 val servletApiVersion = "6.1.0"
-val tikaVersion = "3.1.0"
+val tikaVersion = "3.2.2"
 val redisOMVersion = "0.9.10"
 val kotlinCoroutinesCoreVersion = "1.10.2"
 
@@ -175,12 +178,12 @@ val kotlinCoroutinesCoreVersion = "1.10.2"
 val detektVersion = "1.23.8"
 
 // Tests
-val jUnitBomVersion = "5.12.2"
+val jUnitBomVersion = "5.13.4"
 val mockkVersion = "1.14.5"
 val awaitilityKVersion = "4.3.0"
 val testContainersRedisVersion = "1.6.4"
-val testContainersPostgreSQLVersion = "1.20.6"
-val testContainersLocalStackVersion = "1.20.6"
+val testContainersPostgreSQLVersion = "1.21.3"
+val testContainersLocalStackVersion = "1.21.3"
 
 dependencies {
   // https://youtrack.jetbrains.com/issue/KT-71057/POM-file-unusable-after-upgrading-to-2.0.20-from-2.0.10
@@ -204,24 +207,33 @@ dependencies {
   implementation(
       "org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:${springOauthAutoConfigureVersion}") {
         constraints {
-          implementation("com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion")
-          implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
+          implementation(
+              "com.fasterxml.jackson.core:jackson-annotations:$jacksonAnnotationsVersion")
+          implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion")
           implementation("org.springframework:spring-web:$springWebVersion")
           implementation("org.springframework.boot:spring-boot-autoconfigure:$springBootVersion")
+          implementation(
+              "org.springframework.security:spring-security-jwt:${springSecurityJwtVersion}") {
+                exclude(group = "org.bouncycastle", module = "bcpkix-jdk15on")
+                constraints {
+                  implementation("org.bouncycastle:bcpkix-jdk18on:${bouncyCastleJdk18Version}")
+                }
+              }
         }
       }
   implementation("org.springframework.boot:spring-boot-starter-security")
-  implementation("org.springframework.security:spring-security-oauth2-jose:${springOauthVersion}")
+  implementation("org.springframework.security:spring-security-oauth2-jose:${springOauthVersion}") {
+    constraints { implementation("com.nimbusds:nimbus-jose-jwt:10.4.2") }
+  }
   implementation(
       "org.springframework.security:spring-security-oauth2-resource-server:${springOauthVersion}")
-  implementation("org.springframework.security:spring-security-jwt:${springSecurityJwtVersion}")
 
   implementation("org.springframework.boot:spring-boot-starter-web") {
     exclude(group = "org.springframework.boot", module = "spring-boot-starter-tomcat")
   }
 
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${springDocVersion}")
-  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonKotlinVersion")
 
   implementation("jakarta.servlet:jakarta.servlet-api:${servletApiVersion}")
   implementation("org.springframework.boot:spring-boot-starter-actuator")
