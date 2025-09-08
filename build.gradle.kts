@@ -6,7 +6,7 @@ import kotlinx.kover.gradle.plugin.dsl.KoverProjectExtension
 import org.gradle.kotlin.dsl.implementation
 
 plugins {
-  val kotlinVersion = "2.0.21"
+  val kotlinVersion = "2.2.10"
   kotlin("jvm") version kotlinVersion
   id("com.diffplug.spotless") version "7.2.1"
   id("org.springframework.boot") version "3.5.3" apply false
