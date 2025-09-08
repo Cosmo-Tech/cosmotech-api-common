@@ -223,7 +223,7 @@ dependencies {
       }
   implementation("org.springframework.boot:spring-boot-starter-security")
   implementation("org.springframework.security:spring-security-oauth2-jose:${springOauthVersion}") {
-    constraints { implementation("com.nimbusds:nimbus-jose-jwt:10.4.2") }
+    constraints { implementation("com.nimbusds:nimbus-jose-jwt:10.5") }
   }
   implementation(
       "org.springframework.security:spring-security-oauth2-resource-server:${springOauthVersion}")
