@@ -9,7 +9,7 @@ plugins {
   val kotlinVersion = "2.0.21"
   kotlin("jvm") version kotlinVersion
   id("com.diffplug.spotless") version "7.2.1"
-  id("org.springframework.boot") version "3.5.5" apply false
+  id("org.springframework.boot") version "3.5.3" apply false
   id("io.gitlab.arturbosch.detekt") version "1.23.8"
   id("pl.allegro.tech.build.axion-release") version "1.20.1"
   id("org.jetbrains.kotlinx.kover") version "0.9.1"
@@ -159,7 +159,7 @@ val jacksonAnnotationsVersion = "2.20"
 val jacksonDatabindVersion = "2.20.0"
 val jacksonKotlinVersion = "2.20.0"
 val springWebVersion = "6.2.10"
-val springBootVersion = "3.5.5"
+val springBootVersion = "3.5.3"
 val bouncyCastleJdk18Version = "1.81"
 
 // Implementation
@@ -171,7 +171,7 @@ val springDocVersion = "2.8.12"
 val springOauthVersion = "6.5.3"
 val servletApiVersion = "6.1.0"
 val tikaVersion = "3.2.2"
-val redisOMVersion = "0.9.10"
+val redisOMVersion = "1.0.0"
 val kotlinCoroutinesCoreVersion = "1.10.2"
 
 // Checks
@@ -247,7 +247,9 @@ dependencies {
 
   implementation("org.springframework.boot:spring-boot-starter-test")
   implementation(
-      "com.redis.testcontainers:testcontainers-redis-junit:${testContainersRedisVersion}")
+      "com.redis.testcontainers:testcontainers-redis-junit:${testContainersRedisVersion}") {
+        constraints { implementation("com.redis:lettucemod:4.4.0") }
+      }
   implementation("org.testcontainers:postgresql:${testContainersPostgreSQLVersion}")
   implementation("org.testcontainers:localstack:${testContainersLocalStackVersion}")
 
