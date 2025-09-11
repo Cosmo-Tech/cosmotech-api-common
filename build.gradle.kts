@@ -171,7 +171,7 @@ val springDocVersion = "2.8.12"
 val springOauthVersion = "6.5.3"
 val servletApiVersion = "6.1.0"
 val tikaVersion = "3.2.2"
-val redisOMVersion = "1.0.0"
+val redisOMVersion = "1.0.2"
 val kotlinCoroutinesCoreVersion = "1.10.2"
 
 // Checks
