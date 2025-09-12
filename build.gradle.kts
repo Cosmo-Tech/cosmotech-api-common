@@ -158,7 +158,7 @@ tasks.test { useJUnitPlatform() }
 val jacksonAnnotationsVersion = "2.20"
 val jacksonDatabindVersion = "2.20.0"
 val jacksonKotlinVersion = "2.20.0"
-val springWebVersion = "6.2.10"
+val springWebVersion = "6.2.11"
 val springBootVersion = "3.5.3"
 val bouncyCastleJdk18Version = "1.81"
 
