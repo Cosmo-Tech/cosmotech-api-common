@@ -25,6 +25,8 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.12'
 
       - name: Build with Gradle
         env:
@@ -93,6 +95,8 @@ jobs:
       - name: Setup Gradle
         if: ${{ endsWith(steps.previoustag.outputs.tag, '-SNAPSHOT') }}
         uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.12'
 
       - name: Publish with Gradle
         if: ${{ endsWith(steps.previoustag.outputs.tag, '-SNAPSHOT') }}
