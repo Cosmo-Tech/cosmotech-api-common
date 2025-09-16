@@ -156,7 +156,7 @@ tasks.test { useJUnitPlatform() }
 
 // Required versions
 val jacksonVersion = "2.18.3"
-val springWebVersion = "6.2.9"
+val springWebVersion = "6.2.11"
 val springBootVersion = "3.4.4"
 
 // Implementation
