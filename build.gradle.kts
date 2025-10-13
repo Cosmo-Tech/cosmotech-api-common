@@ -180,8 +180,8 @@ val jUnitBomVersion = "5.12.2"
 val mockkVersion = "1.14.5"
 val awaitilityKVersion = "4.3.0"
 val testContainersRedisVersion = "1.6.4"
-val testContainersPostgreSQLVersion = "1.20.6"
-val testContainersLocalStackVersion = "1.20.6"
+val testContainersPostgreSQLVersion = "1.21.3"
+val testContainersLocalStackVersion = "1.21.3"
 
 dependencies {
   // https://youtrack.jetbrains.com/issue/KT-71057/POM-file-unusable-after-upgrading-to-2.0.20-from-2.0.10
