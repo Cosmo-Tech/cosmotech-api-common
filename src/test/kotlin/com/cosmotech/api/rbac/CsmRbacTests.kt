@@ -640,6 +640,7 @@ class CsmRbacTests {
   fun `get default role definition permissions`() {
     val expected: MutableMap<String, List<String>> =
         mutableMapOf(
+            ROLE_NONE to NO_PERMISSIONS,
             ROLE_VIEWER to COMMON_ROLE_READER_PERMISSIONS,
             ROLE_USER to COMMON_ROLE_USER_PERMISSIONS,
             ROLE_EDITOR to COMMON_ROLE_EDITOR_PERMISSIONS,
@@ -661,7 +662,8 @@ class CsmRbacTests {
     definition.permissions.put(customRole, customRolePermissions)
     val expected: MutableMap<String, List<String>> =
         mutableMapOf(
-            ROLE_VIEWER to COMMON_ROLE_READER_PERMISSIONS,
+            ROLE_NONE to NO_PERMISSIONS,
+            ROLE_VIEWER to COMMON_ROLE_READER_PERMISSIONS,&
             ROLE_USER to COMMON_ROLE_USER_PERMISSIONS,
             ROLE_EDITOR to COMMON_ROLE_EDITOR_PERMISSIONS,
             ROLE_ADMIN to COMMON_ROLE_ADMIN_PERMISSIONS,
